@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-nolla-bg: #F5F5F5;
+  --color-nolla-primary: #4A7BA7;
+  --color-nolla-secondary: #6BA47A;
+  --color-nolla-accent: #D4A574;
+  --color-nolla-text: #333333;
+  --color-nolla-success: #6BA47A;
+}
+
+body {
+  background-color: var(--color-nolla-bg);
+  color: var(--color-nolla-text);
+  font-family: "Noto Sans JP", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  overflow: hidden;
+  touch-action: manipulation;
+}

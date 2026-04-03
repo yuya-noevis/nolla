@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Crystal Cavern</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a1a;overflow:hidden;touch-action:none;font-family:'Courier New',monospace;user-select:none;-webkit-user-select:none}
+canvas{display:block;position:absolute;top:0;left:0}
+#ui{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.scr{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto}
+.scr.on{display:flex}
+#menu{background:linear-gradient(180deg,#0a0a2e,#1a0a3e 50%,#2a1a4e)}
+#menu h1{font-size:clamp(28px,6vw,56px);color:#a0e0ff;text-shadow:0 0 20px #60c0ff,0 0 40px #4080ff;margin-bottom:8px;letter-spacing:4px}
+.sub{font-size:clamp(12px,2.5vw,18px);color:#7090b0;margin-bottom:40px}
+.btn{width:min(340px,85vw);padding:16px 24px;margin:7px 0;border:2px solid;border-radius:8px;font-family:inherit;font-size:clamp(14px,3vw,18px);font-weight:bold;cursor:pointer;transition:all .2s;text-align:left;background:rgba(255,255,255,.05);pointer-events:auto}
+.btn:hover,.btn:active{transform:scale(1.03);background:rgba(255,255,255,.12)}
+.c1{color:#80e0a0;border-color:#40a060}.c2{color:#e0c060;border-color:#a08030}.c3{color:#e07070;border-color:#a04040}.c4{color:#a0c0e0;border-color:#6080a0}
+.btn small{display:block;font-size:clamp(10px,2vw,13px);opacity:.6;margin-top:3px;font-weight:normal}
+
+#hud{position:absolute;top:0;left:0;width:100%;padding:10px 16px;display:none;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,.7),transparent);color:#c0d0e0;font-size:clamp(11px,2.2vw,15px);z-index:10;pointer-events:auto}
+.hl{color:#a0e0ff;font-weight:bold}.pts{color:#ffe060;margin:0 6px}.gm{color:#e0a0ff}
+.hb{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#c0d0e0;padding:5px 10px;border-radius:4px;font-family:inherit;font-size:clamp(10px,2vw,13px);cursor:pointer;margin-left:4px}
+
+#tut{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);background:rgba(0,0,20,.92);border:2px solid #60a0ff;border-radius:12px;padding:18px 28px;color:#e0f0ff;text-align:center;font-size:clamp(14px,3vw,20px);max-width:92vw;line-height:1.5;z-index:75;display:none;pointer-events:auto;cursor:pointer}
+#tut .ts{font-size:clamp(10px,1.8vw,13px);color:#6080a0;margin-top:6px}
+
+#finger{position:absolute;z-index:76;pointer-events:none;display:none;font-size:40px;filter:drop-shadow(0 0 8px rgba(255,255,255,.5))}
+@keyframes tapB{0%,100%{transform:scale(1)}50%{transform:scale(.85)}}
+
+#banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:18px 36px;background:rgba(0,0,20,.92);border:2px solid #ff6040;border-radius:12px;color:#ffa060;font-size:clamp(18px,4vw,32px);font-weight:bold;text-align:center;z-index:50;display:none;pointer-events:none}
+
+#fb{position:absolute;top:35%;left:50%;font-size:clamp(28px,6vw,48px);font-weight:bold;z-index:40;display:none;pointer-events:none;transform:translateX(-50%)}
+@keyframes fpop{0%{opacity:0;transform:translateX(-50%) scale(.3)}40%{opacity:1;transform:translateX(-50%) scale(1.15)}100%{opacity:0;transform:translateX(-50%) translateY(-40px) scale(1)}}
+
+#end{background:linear-gradient(180deg,#0a0a2e,#1a1a3e);z-index:90}
+#end h2{font-size:clamp(22px,5vw,40px);color:#ffe060;text-shadow:0 0 20px #ffa030;margin-bottom:10px}
+.st{color:#c0d0e0;font-size:clamp(13px,2.5vw,17px);margin:4px 0}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="ui">
+  <div id="menu" class="scr on">
+    <h1>CRYSTAL CAVERN</h1>
+    <div class="sub">- 洞窟を探検しよう -</div>
+    <button class="btn c1" onclick="go('E')">Explorer<small>タップでクリスタルをあつめよう</small></button>
+    <button class="btn c2" onclick="go('M')">Miner<small>スワイプでふりわけ ルールが変わる！</small></button>
+    <button class="btn c3" onclick="go('X')">Master<small>落下パズル 高速ルールチェンジ</small></button>
+  </div>
+  <div id="hud">
+    <div class="hl" id="ha"></div>
+    <div><span class="gm" id="hg">0</span> <span class="pts" id="hp">0pt</span></div>
+    <div><button class="hb" onclick="quit()">やめる</button></div>
+  </div>
+  <div id="tut"></div>
+  <div id="finger"></div>
+  <div id="banner"></div>
+  <div id="fb"></div>
+  <div id="end" class="scr">
+    <h2 id="et"></h2>
+    <div class="st" id="eg"></div>
+    <div class="st" id="ep"></div>
+    <div class="st" id="ea"></div><br>
+    <button class="btn c4" onclick="quit()" style="text-align:center">タイトルへ</button>
+    <button class="btn c2" onclick="re()" style="text-align:center">もう一度</button>
+  </div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'),c=cv.getContext('2d');
+let W,H;function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}addEventListener('resize',resize);resize();
+
+const CC={red:'#ff4060',blue:'#4080ff',green:'#40e070',yellow:'#ffe040',purple:'#c060ff',cyan:'#40e0e0'};
+const CNAMES={red:'あか',blue:'あお',green:'みどり',yellow:'きいろ',purple:'むらさき',cyan:'みずいろ'};
+const SNAMES={diamond:'ひしがた',circle:'まる'};
+let G,mode,fr=0;
+
+// Audio
+let ac=null;
+function tn(f,d,t='sine',v=.1){try{if(!ac)ac=new(AudioContext||webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+function sOk(){tn(523,.08);setTimeout(()=>tn(659,.08),60);setTimeout(()=>tn(784,.1),120)}
+function sNo(){tn(180,.25,'triangle',.07)}
+function sSh(){tn(880,.06,'square',.05);setTimeout(()=>tn(1100,.06,'square',.05),80);setTimeout(()=>tn(1320,.1,'square',.05),160)}
+function sCombo(n){tn(600+n*80,.1,'sine',.08)}
+
+// Drawing helpers
+function drawGem(x,y,sz,col,shp,glow){
+  const cl=CC[col]||col;
+  if(glow){const gr=c.createRadialGradient(x,y,0,x,y,sz*1.5);gr.addColorStop(0,cl+'50');gr.addColorStop(1,'transparent');c.fillStyle=gr;c.fillRect(x-sz*1.5,y-sz*1.5,sz*3,sz*3)}
+  c.fillStyle=cl;
+  if(shp==='circle'){c.beginPath();c.arc(x,y,sz/2,0,Math.PI*2);c.fill();c.fillStyle='rgba(255,255,255,.3)';c.beginPath();c.arc(x-sz*.15,y-sz*.15,sz*.12,0,Math.PI*2);c.fill()}
+  else{const hs=sz/2,px=Math.max(2,sz/6);for(let i=0;i<hs;i+=px){const w=i/hs*hs;c.fillRect(x-w,y-hs+i,w*2,px)}for(let i=0;i<hs;i+=px){const w=(hs-i)/hs*hs;c.fillRect(x-w,y+i,w*2,px)}c.fillStyle='rgba(255,255,255,.3)';c.fillRect(x-hs*.25,y-hs*.4,px*2,px*2)}
+}
+
+function drawBG(theme){
+  const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,theme[0]);gr.addColorStop(1,theme[1]);
+  c.fillStyle=gr;c.fillRect(0,0,W,H);
+  c.fillStyle=theme[2];
+  for(let x=0;x<W;x+=24){c.fillRect(x,0,16,18+Math.sin(x*.06+fr*.002)*12)}
+  for(let x=0;x<W;x+=30){c.fillRect(x,H-(12+Math.cos(x*.05)*8),22,20)}
+}
+
+function showFB(ok,pts){
+  const el=document.getElementById('fb');
+  el.textContent=ok?`+${pts}`:'miss';
+  el.style.color=ok?'#60ff90':'#ff6060';el.style.display='block';
+  el.style.animation='none';el.offsetHeight;el.style.animation='fpop .55s ease-out forwards';
+  setTimeout(()=>{el.style.display='none'},580);
+}
+
+function showBanner(txt,dur=2000){
+  const el=document.getElementById('banner');el.textContent=txt;el.style.display='block';
+  setTimeout(()=>{el.style.display='none'},dur);
+}
+
+function updHUD(area,gems,pts){
+  document.getElementById('ha').textContent=area;
+  document.getElementById('hg').textContent=gems;
+  document.getElementById('hp').textContent=pts+'pt';
+}
+
+function showTut(html){const el=document.getElementById('tut');el.innerHTML=html;el.style.display='block'}
+function hideTut(){document.getElementById('tut').style.display='none'}
+function fingerAt(x,y){const f=document.getElementById('finger');f.textContent='\u{1F449}';f.style.left=(x-18)+'px';f.style.top=(y+8)+'px';f.style.display='block';f.style.animation='tapB .8s ease-in-out infinite'}
+function hideFinger(){document.getElementById('finger').style.display='none'}
+
+// =============================================================
+// MODE: EXPLORER - タップ&マッチ (中度ID)
+// シンプル。大きなクリスタルが出る → 同じ色の場所をタップ
+// =============================================================
+const Explorer={
+  gems:[], targets:[], score:0, total:0, ok:0, round:0, maxRound:6,
+  phase:'tut', tutStep:0,
+
+  init(){
+    this.score=0;this.total=0;this.ok=0;this.round=0;this.phase='tut';this.tutStep=0;
+    this.gems=[];this.targets=[];
+    this.nextRound();
+    showTut('クリスタルをタップ！<br>おなじ いろ の ばしょに いれよう<div class="ts">タップしてスタート</div>');
+  },
+
+  nextRound(){
+    if(this.round>=this.maxRound){this.finish();return}
+    const cols=['red','blue'];
+    const col=cols[Math.floor(Math.random()*cols.length)];
+    const sz=Math.min(W,H)*.18;
+    this.gems=[{x:W/2,y:H*.58,sz,col,shp:'diamond',bob:0,alive:true}];
+    // Two big targets at top
+    const tw=Math.min(W*.35,180),th=Math.min(H*.15,110);
+    this.targets=[
+      {x:W*.2-tw/2, y:H*.2, w:tw, h:th, col:'red'},
+      {x:W*.8-tw/2, y:H*.2, w:tw, h:th, col:'blue'},
+    ];
+    this.round++;
+  },
+
+  tap(p){
+    if(this.phase==='tut'){this.phase='play';hideTut();return}
+    if(this.phase!=='play')return;
+    // Tap gem first
+    const g=this.gems[0];
+    if(!g||!g.alive)return;
+    // Check if tapping a target
+    for(const t of this.targets){
+      if(p.x>=t.x&&p.x<=t.x+t.w&&p.y>=t.y&&p.y<=t.y+t.h){
+        this.total++;
+        if(t.col===g.col){this.ok++;this.score+=10;sOk();showFB(true,10);g.alive=false;
+          setTimeout(()=>this.nextRound(),600);
+        }else{sNo();showFB(false,0)}
+        return;
+      }
+    }
+  },
+
+  draw(){
+    drawBG(['#0a1a3e','#1a2a5e','#2a3a6e']);
+    // Targets
+    for(const t of this.targets){
+      const cl=CC[t.col];
+      c.fillStyle=cl+'25';c.fillRect(t.x,t.y,t.w,t.h);
+      c.strokeStyle=cl+'80';c.lineWidth=3;c.strokeRect(t.x,t.y,t.w,t.h);
+      drawGem(t.x+t.w/2,t.y+t.h/2,t.h*.35,t.col,'diamond',false);
+      c.fillStyle=cl;c.font=`bold ${Math.max(14,t.w*.1)}px monospace`;c.textAlign='center';
+      c.fillText(CNAMES[t.col],t.x+t.w/2,t.y+t.h-10);
+    }
+    // Crystal
+    const g=this.gems[0];
+    if(g&&g.alive){
+      g.bob+=.03;const by=Math.sin(g.bob)*8;
+      drawGem(g.x,g.y+by,g.sz,g.col,'diamond',true);
+      // Arrow hint
+      const arrowY=g.y+by-g.sz*.7-20-Math.sin(fr*.05)*8;
+      c.fillStyle='#ffffff40';c.font='28px monospace';c.textAlign='center';
+      c.fillText('\u25B2',g.x,arrowY);
+    }
+    updHUD('氷の洞窟',this.ok,this.score);
+  },
+
+  finish(){this.phase='done';endScreen(this.ok,this.score,this.total)}
+};
+
+// =============================================================
+// MODE: MINER - スワイプ振り分け (軽度ID)
+// クリスタルが中央に出る→左右タップで振り分け。ルール変化あり
+// =============================================================
+const Miner={
+  gem:null, score:0, ok:0, total:0, round:0, maxRound:15,
+  rule:'color', ruleIdx:0, rules:['color','shape'],
+  phase:'tut', combo:0, shiftAt:7,
+  cols:['red','blue','green'], shps:['diamond','circle'],
+
+  init(){
+    this.score=0;this.ok=0;this.total=0;this.round=0;this.combo=0;
+    this.rule='color';this.ruleIdx=0;this.phase='tut';
+    this.spawn();
+    showTut('左右のエリアをタップして<br>クリスタルをふりわけよう！<br>途中で <b>ルールが変わる</b>ぞ<div class="ts">タップしてスタート</div>');
+  },
+
+  getLeftRight(){
+    if(this.rule==='color') return {left:{col:'red',label:'あか'},right:{col:'blue',label:'あお'}};
+    else return {left:{shp:'diamond',label:'ひしがた'},right:{shp:'circle',label:'まる'}};
+  },
+
+  spawn(){
+    if(this.round>=this.maxRound){this.finish();return}
+    const col=this.cols[Math.floor(Math.random()*this.cols.length)];
+    const shp=this.shps[Math.floor(Math.random()*this.shps.length)];
+    const sz=Math.min(W,H)*.13;
+    this.gem={x:W/2,y:H*.5,sz,col,shp,enterT:0,flyX:0,flyY:0,flying:false};
+    this.round++;
+    // Rule shift
+    if(this.round===this.shiftAt){
+      this.ruleIdx=(this.ruleIdx+1)%this.rules.length;
+      this.rule=this.rules[this.ruleIdx];
+      sSh();
+      showBanner('ルール チェンジ！\n'+({color:'いろ で わけよう',shape:'かたち で わけよう'}[this.rule]),2200);
+    }
+  },
+
+  isCorrect(side){
+    const g=this.gem;if(!g)return false;
+    const lr=this.getLeftRight();
+    if(this.rule==='color'){
+      const targetCol=side==='left'?lr.left.col:lr.right.col;
+      // green goes right (blue side) for simplicity - or: if not red, it's right
+      if(g.col===targetCol)return true;
+      if(side==='right'&&g.col!==lr.left.col)return true;
+      return false;
+    }else{
+      const targetShp=side==='left'?'diamond':'circle';
+      return g.shp===targetShp;
+    }
+  },
+
+  tap(p){
+    if(this.phase==='tut'){this.phase='play';hideTut();return}
+    if(this.phase!=='play'||!this.gem||this.gem.flying)return;
+    const side=p.x<W/2?'left':'right';
+    this.total++;
+    const tx=side==='left'?W*.15:W*.85;
+    this.gem.flying=true;this.gem.flyX=tx;this.gem.flyY=H*.25;
+
+    if(this.isCorrect(side)){
+      this.ok++;this.combo++;
+      const pts=10+this.combo*5;this.score+=pts;
+      sOk();if(this.combo>1)sCombo(this.combo);
+      showFB(true,pts);
+      setTimeout(()=>this.spawn(),400);
+    }else{
+      this.combo=0;sNo();showFB(false,0);
+      setTimeout(()=>this.spawn(),500);
+    }
+  },
+
+  draw(){
+    drawBG(['#2e0a0a','#4e1a0a','#6e2a1a']);
+
+    // Left/Right zones
+    const lr=this.getLeftRight();
+    // Left zone
+    c.fillStyle='rgba(255,255,255,.04)';c.fillRect(0,0,W/2,H);
+    c.strokeStyle='rgba(255,255,255,.1)';c.lineWidth=1;
+    c.beginPath();c.moveTo(W/2,0);c.lineTo(W/2,H);c.stroke();
+
+    // Left label
+    const lSz=Math.min(W*.08,50);
+    if(this.rule==='color'){drawGem(W*.2,H*.22,lSz,lr.left.col,'diamond',true)}
+    else{drawGem(W*.2,H*.22,lSz,'cyan','diamond',true)}
+    c.fillStyle='#e0e0e0';c.font=`bold ${Math.max(13,W*.025)}px monospace`;c.textAlign='center';
+    c.fillText(lr.left.label,W*.2,H*.22+lSz*.8);
+
+    // Right label
+    if(this.rule==='color'){drawGem(W*.8,H*.22,lSz,lr.right.col,'diamond',true)}
+    else{drawGem(W*.8,H*.22,lSz,'cyan','circle',true)}
+    c.fillText(lr.right.label,W*.8,H*.22+lSz*.8);
+
+    // Rule display
+    c.fillStyle='rgba(255,255,255,.25)';c.font=`bold ${Math.max(12,W*.02)}px monospace`;
+    c.fillText({color:'いろ で わけよう',shape:'かたち で わけよう'}[this.rule],W/2,H*.12);
+
+    // Combo
+    if(this.combo>1){
+      c.fillStyle='#ffe060';c.font=`bold ${Math.max(14,W*.03)}px monospace`;
+      c.fillText(this.combo+' COMBO!',W/2,H*.9);
+    }
+
+    // Gem
+    const g=this.gem;
+    if(g){
+      let gx=g.x,gy=g.y;
+      if(g.flying){
+        g.enterT+=.12;
+        gx=g.x+(g.flyX-g.x)*Math.min(g.enterT,1);
+        gy=g.y+(g.flyY-g.y)*Math.min(g.enterT,1);
+        c.globalAlpha=Math.max(0,1-g.enterT);
+      }else{
+        g.enterT+=.02;
+        const bob=Math.sin(g.enterT*3)*6;
+        gy+=bob;
+      }
+      drawGem(gx,gy,g.sz,g.col,g.shp,!g.flying);
+      c.globalAlpha=1;
+    }
+
+    // Progress bar
+    const prog=this.round/this.maxRound;
+    c.fillStyle='rgba(255,255,255,.1)';c.fillRect(W*.15,H*.95,W*.7,6);
+    c.fillStyle='#e0c060';c.fillRect(W*.15,H*.95,W*.7*prog,6);
+
+    updHUD('溶岩の深層',this.ok,this.score);
+  },
+
+  finish(){this.phase='done';endScreen(this.ok,this.score,this.total)}
+};
+
+// =============================================================
+// MODE: MASTER - 落下パズル (IDなし)
+// クリスタルが上から落下。4レーン。正しいレーンをタップ。
+// ルールが頻繁に変わる。スピードアップ。コンボ。
+// =============================================================
+const Master={
+  lanes:4, falling:[], score:0, ok:0, miss:0, total:0, combo:0, maxCombo:0,
+  rule:'color', ruleIdx:0, rules:['color','shape','color','shape'],
+  speed:1.5, spawnT:0, spawnInterval:80, phase:'tut',
+  elapsed:0, shiftInterval:400, nextShift:400,
+  laneColors:[], laneLabels:[],
+  parts:[],
+
+  init(){
+    this.falling=[];this.score=0;this.ok=0;this.miss=0;this.total=0;
+    this.combo=0;this.maxCombo=0;this.speed=1.5;this.spawnT=0;
+    this.elapsed=0;this.ruleIdx=0;this.rule='color';this.phase='tut';
+    this.nextShift=this.shiftInterval;this.parts=[];
+    this.setupLanes();
+    showTut('クリスタルが落ちてくる！<br>正しいレーンを <b>タップ</b> してキャッチ<br>ルールが変わるから気をつけて！<div class="ts">タップしてスタート</div>');
+  },
+
+  setupLanes(){
+    if(this.rule==='color'){
+      this.laneColors=['red','blue','green','yellow'];
+      this.laneLabels=['あか','あお','みどり','きいろ'];
+    }else{
+      this.laneColors=['red','blue','red','blue'];
+      this.laneLabels=['ひし','まる','ひし','まる'];
+    }
+  },
+
+  correctLane(gem){
+    if(this.rule==='color'){
+      return this.laneColors.indexOf(gem.col);
+    }else{
+      // diamond=0,2  circle=1,3
+      if(gem.shp==='diamond') return gem.col==='red'||gem.col==='green'?0:2;
+      else return gem.col==='blue'||gem.col==='yellow'?1:3;
+    }
+  },
+
+  spawnGem(){
+    const cols=['red','blue','green','yellow'];
+    const shps=['diamond','circle'];
+    const col=cols[Math.floor(Math.random()*cols.length)];
+    const shp=shps[Math.floor(Math.random()*shps.length)];
+    const lane=this.correctLane({col,shp});
+    const lw=W/this.lanes;
+    const sz=Math.min(lw*.4,35);
+    this.falling.push({x:lw*lane+lw/2,y:-sz,sz,col,shp,lane,speed:this.speed+Math.random()*.5,caught:false});
+  },
+
+  tap(p){
+    if(this.phase==='tut'){this.phase='play';hideTut();return}
+    if(this.phase!=='play')return;
+    const lw=W/this.lanes;
+    const tappedLane=Math.floor(p.x/lw);
+    if(tappedLane<0||tappedLane>=this.lanes)return;
+
+    // Find lowest gem in catchable zone in this lane
+    const catchY=H*.78;const catchRange=H*.15;
+    let best=null,bestY=-1;
+    for(const g of this.falling){
+      if(g.caught)continue;
+      if(g.y>=catchY-catchRange&&g.y<=catchY+catchRange*.5){
+        // Check if this is correct lane for this gem
+        if(this.correctLane(g)===tappedLane&&g.y>bestY){best=g;bestY=g.y}
+      }
+    }
+
+    if(best){
+      this.total++;this.ok++;this.combo++;
+      if(this.combo>this.maxCombo)this.maxCombo=this.combo;
+      const pts=10+Math.min(this.combo,20)*3;this.score+=pts;
+      sOk();if(this.combo>2)sCombo(Math.min(this.combo,10));
+      showFB(true,pts);best.caught=true;
+      // Particles
+      for(let i=0;i<8;i++)this.parts.push({x:best.x,y:best.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5-2,life:1,color:CC[best.col],sz:3+Math.random()*3});
+    }else{
+      // Tapped wrong or nothing there
+      this.combo=0;
+    }
+  },
+
+  update(){
+    if(this.phase!=='play')return;
+    this.elapsed++;
+
+    // Speed up over time
+    this.speed=1.5+this.elapsed*.003;
+
+    // Rule shift
+    if(this.elapsed>=this.nextShift){
+      this.ruleIdx=(this.ruleIdx+1)%this.rules.length;
+      this.rule=this.rules[this.ruleIdx];
+      this.setupLanes();sSh();
+      showBanner('ルール チェンジ！ '+({color:'いろ',shape:'かたち'}[this.rule])+' で わけよう！',1800);
+      this.nextShift=this.elapsed+this.shiftInterval;
+      // Shorter intervals each time
+      this.shiftInterval=Math.max(200,this.shiftInterval-30);
+    }
+
+    // Spawn
+    this.spawnT++;
+    const interval=Math.max(30,this.spawnInterval-this.elapsed*.02);
+    if(this.spawnT>=interval){this.spawnGem();this.spawnT=0}
+
+    // Move gems
+    for(let i=this.falling.length-1;i>=0;i--){
+      const g=this.falling[i];
+      if(g.caught){g.y-=3;g.sz*=.95;if(g.sz<2){this.falling.splice(i,1)};continue}
+      g.y+=g.speed;
+      if(g.y>H+g.sz){this.falling.splice(i,1);this.miss++;this.total++;this.combo=0}
+    }
+
+    // Particles
+    for(let i=this.parts.length-1;i>=0;i--){
+      const p=this.parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.08;p.life-=.03;
+      if(p.life<=0)this.parts.splice(i,1);
+    }
+
+    // End after time
+    if(this.elapsed>3600){this.finish()} // ~60s
+  },
+
+  draw(){
+    drawBG(['#1a0a2e','#2a1a4e','#4a2a6e']);
+    const lw=W/this.lanes;
+
+    // Lane dividers
+    c.strokeStyle='rgba(255,255,255,.08)';c.lineWidth=1;
+    for(let i=1;i<this.lanes;i++){c.beginPath();c.moveTo(lw*i,0);c.lineTo(lw*i,H);c.stroke()}
+
+    // Catch zone
+    const catchY=H*.78;
+    c.fillStyle='rgba(255,255,255,.04)';c.fillRect(0,catchY-H*.08,W,H*.16);
+    c.strokeStyle='rgba(255,255,255,.12)';c.lineWidth=1;
+    c.beginPath();c.moveTo(0,catchY);c.lineTo(W,catchY);c.stroke();
+
+    // Lane labels at bottom
+    for(let i=0;i<this.lanes;i++){
+      const lx=lw*i+lw/2;
+      const lbl=this.laneLabels[i];
+      const col=this.laneColors[i];
+      // Small gem icon
+      const iconSz=Math.min(lw*.18,18);
+      if(this.rule==='color'){drawGem(lx,H*.9,iconSz,col,'diamond',false)}
+      else{drawGem(lx,H*.9,iconSz,'cyan',i%2===0?'diamond':'circle',false)}
+      c.fillStyle='rgba(255,255,255,.4)';c.font=`${Math.max(10,lw*.1)}px monospace`;
+      c.textAlign='center';c.fillText(lbl,lx,H*.9+iconSz+10);
+    }
+
+    // Rule
+    c.fillStyle='rgba(255,255,255,.3)';c.font=`bold ${Math.max(12,W*.022)}px monospace`;c.textAlign='center';
+    c.fillText(({color:'いろ で わけよう',shape:'かたち で わけよう'}[this.rule]),W/2,H*.06);
+
+    // Falling gems
+    for(const g of this.falling){
+      if(g.caught){c.globalAlpha=.5}
+      drawGem(g.x,g.y,g.sz,g.col,g.shp,!g.caught);
+      c.globalAlpha=1;
+    }
+
+    // Particles
+    for(const p of this.parts){c.globalAlpha=p.life;c.fillStyle=p.color;c.fillRect(p.x-p.sz/2,p.y-p.sz/2,p.sz,p.sz)}
+    c.globalAlpha=1;
+
+    // Combo
+    if(this.combo>2){
+      c.fillStyle='#ffe060';c.font=`bold ${Math.max(16,W*.035)}px monospace`;c.textAlign='center';
+      c.fillText(this.combo+' COMBO!',W/2,H*.15);
+    }
+
+    // Timer bar
+    const prog=Math.min(this.elapsed/3600,1);
+    c.fillStyle='rgba(255,255,255,.08)';c.fillRect(W*.1,H*.02,W*.8,5);
+    c.fillStyle='#60c0ff';c.fillRect(W*.1,H*.02,W*.8*prog,5);
+
+    updHUD('闇の領域',this.ok,this.score);
+  },
+
+  finish(){this.phase='done';endScreen(this.ok,this.score,this.total,this.maxCombo)}
+};
+
+// =============================================================
+// Flow
+// =============================================================
+function go(m){
+  mode=m;
+  document.getElementById('menu').classList.remove('on');
+  document.getElementById('end').classList.remove('on');
+  document.getElementById('hud').style.display='flex';
+  if(m==='E')Explorer.init();
+  else if(m==='M')Miner.init();
+  else Master.init();
+}
+
+function quit(){
+  mode=null;hideTut();hideFinger();
+  document.getElementById('menu').classList.add('on');
+  document.getElementById('end').classList.remove('on');
+  document.getElementById('hud').style.display='none';
+}
+
+function re(){document.getElementById('end').classList.remove('on');go(mode)}
+
+function endScreen(ok,score,total,maxCombo){
+  document.getElementById('hud').style.display='none';
+  const el=document.getElementById('end');el.classList.add('on');
+  document.getElementById('et').textContent=ok>=total*.7?'すごい！':'クリア！';
+  document.getElementById('eg').textContent='クリスタル: '+ok+' / '+total;
+  document.getElementById('ep').textContent='スコア: '+score;
+  document.getElementById('ea').textContent=maxCombo?'最大コンボ: '+maxCombo:'正答率: '+(total?Math.round(ok/total*100):0)+'%';
+}
+
+// Input
+function pos(e){const t=e.touches?e.touches[0]:e;return{x:t.clientX,y:t.clientY}}
+function handleTap(p){
+  if(mode==='E')Explorer.tap(p);
+  else if(mode==='M')Miner.tap(p);
+  else if(mode==='X')Master.tap(p);
+}
+cv.addEventListener('click',e=>handleTap(pos(e)));
+cv.addEventListener('touchstart',e=>{e.preventDefault();handleTap(pos(e))},{passive:false});
+document.getElementById('tut').addEventListener('click',e=>{e.stopPropagation();handleTap({x:W/2,y:H/2})});
+document.getElementById('tut').addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();handleTap({x:W/2,y:H/2})},{passive:false});
+
+// Main loop
+function loop(){
+  if(mode==='E'&&Explorer.phase!=='done')Explorer.draw();
+  else if(mode==='M'&&Miner.phase!=='done')Miner.draw();
+  else if(mode==='X'){Master.update();if(Master.phase!=='done')Master.draw();}
+  else if(!mode){
+    // Menu BG
+    const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0a0a2e');gr.addColorStop(.5,'#1a0a3e');gr.addColorStop(1,'#2a1a4e');
+    c.fillStyle=gr;c.fillRect(0,0,W,H);
+    const t=fr*.01;const cls=['red','blue','green','yellow','purple','cyan'];
+    for(let i=0;i<6;i++){drawGem(W*(.12+i*.15),H*.5+Math.sin(t+i*1.1)*35,18+Math.sin(t*.5+i)*4,cls[i],'diamond',true)}
+  }
+  fr++;requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+# 環境変数（シークレット）
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Claude Code（機密情報を含む可能性）
+.claude/memory/
+.claude/plans/
+
+# Node.js
+node_modules/
+
+# Next.js
+app/.next/
+app/out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+
+# Playwright MCP
+.playwright-mcp/
+*.png
+.claude/settings.local.json
