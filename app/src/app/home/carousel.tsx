@@ -34,7 +34,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   return (
     <main
-      className="h-full w-full flex flex-col relative overflow-hidden transition-colors duration-500"
+      className="h-dvh w-full flex flex-col relative transition-colors duration-500"
       style={{
         background: `linear-gradient(180deg, ${current.skyGradient[0]} 0%, ${current.skyGradient[1]} 60%, ${current.groundColor} 100%)`,
       }}
@@ -112,7 +112,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         <button
           type="button"
           onClick={() => router.push("/room")}
-          className="btn-mc px-5 py-3 text-sm"
+          className="btn-mc px-3 py-2 text-xs sm:px-5 sm:py-3 sm:text-sm"
         >
           マイルーム
         </button>
@@ -132,8 +132,8 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         </div>
 
         {/* Navi character */}
-        <div className="navi-bubble px-4 py-2 max-w-48">
-          <p className="text-sm text-nolla-text">
+        <div className="navi-bubble px-3 py-1 max-w-36 sm:max-w-48">
+          <p className="text-xs sm:text-sm text-nolla-text">
             {childName}、あそぼう！
           </p>
         </div>
@@ -145,9 +145,9 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 function BuildingVisual({ building }: { building: Building }) {
   // CSS-only building placeholder (images will be swapped in later)
   return (
-    <div className="w-32 h-40 sm:w-48 sm:h-56 relative flex items-end justify-center">
+    <div className="w-28 h-32 sm:w-48 sm:h-56 relative flex items-end justify-center">
       {/* Building body */}
-      <div className="w-28 h-32 sm:w-40 sm:h-44 rounded-t-2xl relative overflow-hidden"
+      <div className="w-24 h-28 sm:w-40 sm:h-44 rounded-t-2xl relative overflow-hidden"
         style={{
           background: `linear-gradient(135deg, var(--color-mc-oak-light) 0%, var(--color-mc-oak) 100%)`,
           border: "3px solid var(--color-mc-dark-oak)",
