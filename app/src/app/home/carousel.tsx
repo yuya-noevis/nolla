@@ -41,6 +41,11 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   // Check if baseline needed on mount
   useEffect(() => {
+    // Allow manual reset via ?reset=1
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("reset")) {
+      localStorage.removeItem("nolla_motor_baseline");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
     setWarmupPhase(needsMotorBaseline() ? "ready" : "done");
   }, []);
 
