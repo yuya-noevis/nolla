@@ -106,10 +106,10 @@ export function GameSession({
     setShowFeedback(null);
   }, []);
 
-  // Auto-advance from round transition
+  // Auto-advance from round intro (show "ラウンド N" then start playing)
   useEffect(() => {
-    if (session.phase === "round-transition") {
-      const timer = setTimeout(() => session.endRound(), 500);
+    if (session.phase === "round-intro") {
+      const timer = setTimeout(() => session.endRound(), 1200);
       return () => clearTimeout(timer);
     }
   }, [session.phase]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -184,8 +184,8 @@ export function GameSession({
           </>
         )}
 
-        {/* Round transition */}
-        {session.phase === "round-transition" && (
+        {/* Round intro (shown before each round starts) */}
+        {session.phase === "round-intro" && (
           <div className="glass-overlay px-8 py-6">
             <p className="text-lg font-bold text-nolla-text">
               ラウンド {session.roundNumber}

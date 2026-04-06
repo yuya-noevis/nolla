@@ -11,6 +11,14 @@ type Props = {
   onRoundComplete: () => void;
 };
 
+const COLOR_CSS: Record<string, string> = {
+  red: "#E74C3C",
+  blue: "#3498DB",
+  yellow: "#F1C40F",
+  green: "#2ECC71",
+  purple: "#9B59B6",
+};
+
 const DEFAULT_PARAMS: SortingParams = {
   categories: 2,
   items: 4,
@@ -89,15 +97,14 @@ export function SortingGame({ hintStage, onTrialResult, onRoundComplete }: Props
                 isHintTarget ? "animate-pulse-gentle" : ""
               } ${isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""}`}
               style={{
-                background: "linear-gradient(135deg, var(--color-mc-oak-light), var(--color-mc-oak))",
+                background: COLOR_CSS[cat.matchValue]
+                  ? COLOR_CSS[cat.matchValue]
+                  : "linear-gradient(135deg, var(--color-mc-oak-light), var(--color-mc-oak))",
                 border: "3px solid var(--color-mc-dark-oak)",
                 boxShadow: "0 4px 0 var(--color-mc-dark-oak-light)",
               }}
-            >
-              <span className="text-sm font-bold text-white drop-shadow-sm select-none">
-                {cat.label}
-              </span>
-            </button>
+              aria-label={cat.label}
+            />
           );
         })}
       </div>

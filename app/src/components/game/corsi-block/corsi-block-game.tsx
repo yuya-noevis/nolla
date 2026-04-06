@@ -96,7 +96,7 @@ export function CorsiBlockGame({ hintStage, onTrialResult, onRoundComplete }: Pr
     phase === "input" ? layout.sequence[inputSequence.length] : null;
 
   return (
-    <div className="relative" style={{ width: 800, height: 500 }}>
+    <div className="relative w-full h-full max-w-[800px] max-h-[500px]">
       {/* Phase indicator */}
       <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-1.5">
         {layout.sequence.map((_, i) => (
@@ -131,10 +131,10 @@ export function CorsiBlockGame({ hintStage, onTrialResult, onRoundComplete }: Pr
               isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""
             }`}
             style={{
-              left: block.x,
-              top: block.y,
-              width: layout.blockSize,
-              height: layout.blockSize,
+              left: `${(block.x / 800) * 100}%`,
+              top: `${(block.y / 500) * 100}%`,
+              width: Math.min(layout.blockSize, 80),
+              height: Math.min(layout.blockSize, 80),
               background: isActive
                 ? "var(--color-mc-glowstone)"
                 : "linear-gradient(135deg, var(--color-mc-stone-light), var(--color-mc-stone))",

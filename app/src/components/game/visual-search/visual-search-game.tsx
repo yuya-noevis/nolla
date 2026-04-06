@@ -48,9 +48,9 @@ export function VisualSearchGame({ hintStage, onTrialResult, onRoundComplete }: 
   }, [allFound, onRoundComplete]);
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-2 w-full h-full px-4">
       {/* Two scenes side by side */}
-      <div className="flex gap-4">
+      <div className="flex gap-2 w-full flex-1 min-h-0">
         {/* Original scene */}
         <SceneView
           items={scene.items}
@@ -104,21 +104,14 @@ type SceneViewProps = {
   label: string;
 };
 
-const VIEW_WIDTH = 350;
-const VIEW_HEIGHT = 280;
 const SCENE_WIDTH = 800;
 const SCENE_HEIGHT = 500;
 
 function SceneView({ items, differences, foundDiffs, hintStage, onItemTap, label }: SceneViewProps) {
-  const scaleX = VIEW_WIDTH / SCENE_WIDTH;
-  const scaleY = VIEW_HEIGHT / SCENE_HEIGHT;
-
   return (
     <div
-      className="relative rounded-xl overflow-hidden"
+      className="relative rounded-xl overflow-hidden flex-1 h-full"
       style={{
-        width: VIEW_WIDTH,
-        height: VIEW_HEIGHT,
         background: "rgba(255,255,255,0.1)",
         border: "2px solid rgba(255,255,255,0.2)",
       }}
@@ -138,8 +131,8 @@ function SceneView({ items, differences, foundDiffs, hintStage, onItemTap, label
               isFound ? "ring-2 ring-[var(--color-feedback-correct)]" : ""
             } ${isHintTarget ? "animate-pulse-gentle" : ""}`}
             style={{
-              left: Math.round(item.x * scaleX),
-              top: Math.round(item.y * scaleY),
+              left: `${(item.x / SCENE_WIDTH) * 100}%`,
+              top: `${(item.y / SCENE_HEIGHT) * 100}%`,
               width: 40,
               height: 40,
               background: color,

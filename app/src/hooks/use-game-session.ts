@@ -18,6 +18,7 @@ import type { MotorBaseline } from "@/types/scoring";
 
 type SessionPhaseUI =
   | "motor-baseline"
+  | "round-intro"
   | "playing"
   | "round-transition"
   | "completed";
@@ -63,7 +64,7 @@ export function useGameSession(
         weightedBaseline: previousMotorBaseline,
       };
       setMotorBaseline(reused);
-      setPhase("playing");
+      setPhase("round-intro");
     } else {
       setPhase("motor-baseline");
     }
@@ -74,7 +75,7 @@ export function useGameSession(
       const baseline = calculateMotorBaseline(reactionTimes, previousMotorBaseline);
       setMotorBaseline(baseline);
       setState((prev) => (prev ? { ...prev, phase: "playing" } : null));
-      setPhase("playing");
+      setPhase("round-intro");
       roundTrialCountRef.current = 0;
     },
     [previousMotorBaseline]
@@ -87,24 +88,23 @@ export function useGameSession(
         return recordTrialResult(prev, result);
       });
 
-      if (result.correct) {
-        setSessionStars((s) => s + 1);
-      }
-
       roundTrialCountRef.current += 1;
     },
     []
   );
 
+  const STARS_PER_ROUND = 3;
+
   const completeRoundFromGame = useCallback(() => {
     roundTrialCountRef.current = 0;
+    setSessionStars((s) => s + STARS_PER_ROUND);
 
     // Check if we've done enough rounds to complete the session
     const currentRound = state?.roundNumber ?? 1;
     if (currentRound >= MAX_ROUNDS) {
       setPhase("completed");
     } else {
-      setPhase("round-transition");
+      setPhase("round-intro");
     }
   }, [state?.roundNumber]);
 
