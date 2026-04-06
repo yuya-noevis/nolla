@@ -17,6 +17,8 @@ const SPEECH_OPTIONS: ReadonlyArray<{ value: SpeechLevel; label: string }> = [
 ];
 
 export function StepSpeechLevel({ data, onChange, onNext }: Props) {
+  const canProceed = data.speechLevel !== null;
+
   return (
     <div className="flex flex-col gap-6">
       <h2 className="text-xl font-bold text-nolla-text text-center">
@@ -30,11 +32,8 @@ export function StepSpeechLevel({ data, onChange, onNext }: Props) {
             <button
               key={value}
               type="button"
-              onClick={() => {
-                onChange({ speechLevel: value });
-                onNext();
-              }}
-              className={`touch-target w-full px-5 py-4 rounded-xl font-bold text-left transition-colors ${
+              onClick={() => onChange({ speechLevel: value })}
+              className={`touch-target w-full px-5 py-3 rounded-xl font-bold text-left transition-colors text-sm ${
                 selected
                   ? "bg-nolla-primary text-white"
                   : "bg-white border border-[var(--color-parent-input-border)] text-nolla-text"
@@ -45,6 +44,15 @@ export function StepSpeechLevel({ data, onChange, onNext }: Props) {
           );
         })}
       </div>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!canProceed}
+        className="btn-mc w-full disabled:opacity-40"
+      >
+        Next
+      </button>
     </div>
   );
 }

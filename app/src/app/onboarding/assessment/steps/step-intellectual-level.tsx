@@ -15,6 +15,8 @@ const LEVELS: ReadonlyArray<{ value: IntellectualLevel; label: string }> = [
 ];
 
 export function StepIntellectualLevel({ data, onChange, onNext }: Props) {
+  const canProceed = data.intellectualLevel !== null;
+
   return (
     <div className="flex flex-col gap-6">
       <h2 className="text-xl font-bold text-nolla-text text-center">
@@ -28,10 +30,7 @@ export function StepIntellectualLevel({ data, onChange, onNext }: Props) {
             <button
               key={value}
               type="button"
-              onClick={() => {
-                onChange({ intellectualLevel: value });
-                onNext();
-              }}
+              onClick={() => onChange({ intellectualLevel: value })}
               className={`touch-target w-full px-5 py-4 rounded-xl font-bold text-left transition-colors ${
                 selected
                   ? "bg-nolla-primary text-white"
@@ -43,6 +42,15 @@ export function StepIntellectualLevel({ data, onChange, onNext }: Props) {
           );
         })}
       </div>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!canProceed}
+        className="btn-mc w-full disabled:opacity-40"
+      >
+        Next
+      </button>
     </div>
   );
 }

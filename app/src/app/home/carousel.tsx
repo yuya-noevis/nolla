@@ -40,7 +40,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       }}
     >
       {/* Header: Stars + Parent lock */}
-      <div className="flex items-center justify-between px-6 pt-4">
+      <div className="flex items-center justify-between px-4 pt-2 shrink-0">
         <div className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#DAA520">
             <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" />
@@ -70,7 +70,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           <button
             type="button"
             onClick={goLeft}
-            className="touch-target-child absolute left-4 z-10 flex items-center justify-center w-16 h-16 rounded-full btn-mc"
+            className="touch-target absolute left-2 z-10 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full btn-mc"
             aria-label="Previous"
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
@@ -96,7 +96,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           <button
             type="button"
             onClick={goRight}
-            className="touch-target-child absolute right-4 z-10 flex items-center justify-center w-16 h-16 rounded-full btn-mc"
+            className="touch-target absolute right-2 z-10 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full btn-mc"
             aria-label="Next"
           >
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
@@ -107,7 +107,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       </div>
 
       {/* Footer: Dots + Nav character + My Room */}
-      <div className="flex items-end justify-between px-6 pb-6">
+      <div className="flex items-end justify-between px-4 pb-2 shrink-0">
         {/* My Room button */}
         <button
           type="button"
@@ -145,9 +145,9 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 function BuildingVisual({ building }: { building: Building }) {
   // CSS-only building placeholder (images will be swapped in later)
   return (
-    <div className="w-48 h-56 relative flex items-end justify-center">
+    <div className="w-32 h-40 sm:w-48 sm:h-56 relative flex items-end justify-center">
       {/* Building body */}
-      <div className="w-40 h-44 rounded-t-2xl relative overflow-hidden"
+      <div className="w-28 h-32 sm:w-40 sm:h-44 rounded-t-2xl relative overflow-hidden"
         style={{
           background: `linear-gradient(135deg, var(--color-mc-oak-light) 0%, var(--color-mc-oak) 100%)`,
           border: "3px solid var(--color-mc-dark-oak)",
