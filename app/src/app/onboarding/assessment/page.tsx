@@ -53,7 +53,7 @@ export default function AssessmentPage() {
   const canGoBack = getPreviousStep(step, data) !== null;
 
   return (
-    <main className="h-full w-full flex flex-col bg-nolla-bg">
+    <main className="h-full w-full flex flex-col bg-nolla-bg overflow-y-auto">
       {/* Progress bar */}
       <div className="px-6 pt-4 pb-2 flex items-center gap-4">
         {canGoBack && (

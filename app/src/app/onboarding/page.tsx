@@ -33,7 +33,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="h-full w-full flex items-center justify-center bg-nolla-bg">
+    <main className="h-full w-full flex items-center justify-center bg-nolla-bg overflow-y-auto">
       <div className="glass-overlay w-full max-w-md px-8 py-10">
         <h1 className="text-2xl font-bold text-center text-nolla-text mb-8">
           Nolla
