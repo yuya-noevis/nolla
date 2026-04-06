@@ -38,6 +38,13 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const buildings = getEnabledBuildings(gamesEnabled);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [warmupPhase, setWarmupPhase] = useState<WarmupPhase>("checking");
+  const [localStars, setLocalStars] = useState(starBalance);
+
+  // Check if baseline needed on mount + load stars from localStorage
+  useEffect(() => {
+    const saved = parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10);
+    if (saved > 0) setLocalStars(saved);
+  }, []);
 
   // Check if baseline needed on mount
   useEffect(() => {
@@ -132,7 +139,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
             <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" />
           </svg>
           <span className="text-lg font-bold text-white drop-shadow-sm">
-            {starBalance}
+            {localStars}
           </span>
         </div>
 

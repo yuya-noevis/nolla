@@ -12,6 +12,14 @@ function RewardContent() {
   const [phase, setPhase] = useState<1 | 2 | 3>(1);
   const [displayStars, setDisplayStars] = useState(0);
 
+  // Save earned stars to localStorage
+  useEffect(() => {
+    if (stars > 0) {
+      const current = parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10);
+      localStorage.setItem("nolla_total_stars", String(current + stars));
+    }
+  }, [stars]);
+
   // Phase 1: star count-up animation
   useEffect(() => {
     if (phase !== 1) return;

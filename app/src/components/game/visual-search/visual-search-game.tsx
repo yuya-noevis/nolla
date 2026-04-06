@@ -51,13 +51,13 @@ export function VisualSearchGame({ hintStage, onTrialResult, onRoundComplete }: 
     <div className="flex flex-col items-center gap-2 w-full h-full px-4">
       {/* Two scenes side by side */}
       <div className="flex gap-2 w-full flex-1 min-h-0">
-        {/* Original scene */}
+        {/* Original scene — tapping a diff item here also counts */}
         <SceneView
           items={scene.items}
           differences={[]}
-          foundDiffs={[]}
+          foundDiffs={foundDiffs}
           hintStage={0}
-          onItemTap={() => {}}
+          onItemTap={handleItemTap}
           label="original"
         />
 

@@ -50,10 +50,8 @@ export function GameFrame({
         {children}
       </div>
 
-      {/* Footer area */}
-      <div className="h-[60px] shrink-0 relative">
-        <NaviCharacter hintActive={hintActive} />
-      </div>
+      {/* Footer spacer (NaviCharacter hidden in MVP — no function yet) */}
+      <div className="h-[40px] shrink-0" />
 
       {showExitDialog && (
         <ExitDialog onContinue={handleContinue} onExit={handleExit} />
