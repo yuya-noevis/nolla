@@ -198,7 +198,7 @@ export function GameSession({
         {session.phase === "round-intro" && (
           <div className="glass-overlay px-8 py-6">
             <p className="text-lg font-bold text-nolla-text">
-              ラウンド {session.roundNumber}
+              ラウンド {hasPlayedRef.current ? session.roundNumber + 1 : session.roundNumber}
             </p>
           </div>
         )}

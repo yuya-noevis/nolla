@@ -100,15 +100,31 @@ export function useGameSession(
   );
 
   const completeRoundFromGame = useCallback(() => {
-    // Stars based on round performance
     const totalTrials = roundTrialCountRef.current;
     const correctCount = roundCorrectCountRef.current;
+    const wrongCount = totalTrials - correctCount;
+
     let roundStars = 1; // participation
-    if (totalTrials > 0 && correctCount === totalTrials) {
-      roundStars = 3; // all correct
-    } else if (totalTrials > 0 && correctCount >= totalTrials * 0.5) {
-      roundStars = 2; // >50% correct
+
+    if (gameType === "memory-match") {
+      // Memory match: wrongs are expected (exploration cost)
+      // 3 stars: wrongs <= pairs found (correctCount)
+      // 2 stars: wrongs <= pairs * 2
+      // 1 star: more wrongs
+      if (wrongCount <= correctCount) {
+        roundStars = 3;
+      } else if (wrongCount <= correctCount * 2) {
+        roundStars = 2;
+      }
+    } else {
+      // Other games: direct accuracy
+      if (totalTrials > 0 && correctCount === totalTrials) {
+        roundStars = 3;
+      } else if (totalTrials > 0 && correctCount >= totalTrials * 0.5) {
+        roundStars = 2;
+      }
     }
+
     setSessionStars((s) => s + roundStars);
     roundTrialCountRef.current = 0;
     roundCorrectCountRef.current = 0;
