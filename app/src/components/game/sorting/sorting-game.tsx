@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import type { SortingParams } from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
 import { generateSortingRound } from "@/lib/games/sorting/generate";
@@ -8,6 +8,7 @@ import { generateSortingRound } from "@/lib/games/sorting/generate";
 type Props = {
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onRoundComplete: () => void;
 };
 
 const DEFAULT_PARAMS: SortingParams = {
@@ -17,7 +18,7 @@ const DEFAULT_PARAMS: SortingParams = {
   switching: "none",
 };
 
-export function SortingGame({ hintStage, onTrialResult }: Props) {
+export function SortingGame({ hintStage, onTrialResult, onRoundComplete }: Props) {
   const round = useMemo(() => generateSortingRound(DEFAULT_PARAMS), []);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [trialStart] = useState(Date.now());
@@ -35,12 +36,19 @@ export function SortingGame({ hintStage, onTrialResult }: Props) {
 
       onTrialResult(correct, rt);
 
-      if (correct && currentItemIndex < round.items.length - 1) {
+      if (correct) {
         setCurrentItemIndex((i) => i + 1);
       }
     },
     [currentItem, round, currentItemIndex, trialStart, onTrialResult]
   );
+
+  useEffect(() => {
+    if (!currentItem) {
+      const timer = setTimeout(() => onRoundComplete(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [currentItem, onRoundComplete]);
 
   if (!currentItem) {
     return (

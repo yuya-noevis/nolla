@@ -12,6 +12,7 @@ type Props = {
   flipDelay: number;
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onRoundComplete: () => void;
 };
 
 export function CardGrid({
@@ -20,6 +21,7 @@ export function CardGrid({
   flipDelay,
   hintStage,
   onTrialResult,
+  onRoundComplete,
 }: Props) {
   const [cardStates, setCardStates] = useState<ReadonlyArray<CardState>>(
     board.cards.map(() => "face-down")
@@ -64,15 +66,20 @@ export function CardGrid({
         if (isMatch) {
           // Match found
           setTimeout(() => {
-            setCardStates((prev) =>
-              prev.map((s, i) =>
-                i === first || i === second ? "matched" : s
-              )
+            const updatedStates = cardStates.map((s, i) =>
+              i === first || i === second ? "matched" : s
             );
+            setCardStates(updatedStates);
             setFlippedIndices([]);
             setLocked(false);
             onTrialResult(true, rt);
             trialStartRef.current = Date.now();
+
+            // Check if all pairs matched
+            const allMatched = updatedStates.every((s) => s === "matched");
+            if (allMatched) {
+              setTimeout(() => onRoundComplete(), 600);
+            }
           }, 500);
         } else {
           // No match — flip back after delay
@@ -90,7 +97,7 @@ export function CardGrid({
         }
       }
     },
-    [locked, cardStates, flippedIndices, board.cards, flipDelay, onTrialResult]
+    [locked, cardStates, flippedIndices, board.cards, flipDelay, onTrialResult, onRoundComplete]
   );
 
   return (

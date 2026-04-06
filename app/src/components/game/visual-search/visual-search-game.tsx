@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import type { VisualSearchParams } from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
 import { generateVisualSearchScene } from "@/lib/games/visual-search/generate";
@@ -8,6 +8,7 @@ import { generateVisualSearchScene } from "@/lib/games/visual-search/generate";
 type Props = {
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onRoundComplete: () => void;
 };
 
 const DEFAULT_PARAMS: VisualSearchParams = {
@@ -16,7 +17,7 @@ const DEFAULT_PARAMS: VisualSearchParams = {
   diffSubtlety: 20,
 };
 
-export function VisualSearchGame({ hintStage, onTrialResult }: Props) {
+export function VisualSearchGame({ hintStage, onTrialResult, onRoundComplete }: Props) {
   const scene = useMemo(() => generateVisualSearchScene(DEFAULT_PARAMS), []);
   const [foundDiffs, setFoundDiffs] = useState<ReadonlyArray<string>>([]);
   const [trialStart] = useState(Date.now());
@@ -38,6 +39,13 @@ export function VisualSearchGame({ hintStage, onTrialResult }: Props) {
   );
 
   const allFound = foundDiffs.length >= scene.differences.length;
+
+  useEffect(() => {
+    if (allFound) {
+      const timer = setTimeout(() => onRoundComplete(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [allFound, onRoundComplete]);
 
   return (
     <div className="flex flex-col items-center gap-4">
