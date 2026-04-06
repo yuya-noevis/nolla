@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getEnabledBuildings, type Building } from "@/lib/buildings";
+import { MotorBaselineMeasurement } from "@/components/game/motor-baseline";
+import { calculateMotorBaseline } from "@/lib/session/motor-baseline";
 
 type Props = {
   childName: string;
@@ -10,10 +12,47 @@ type Props = {
   starBalance: number;
 };
 
+function needsMotorBaseline(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem("nolla_motor_baseline");
+    if (!raw) return true;
+    const { date } = JSON.parse(raw);
+    const today = new Date().toISOString().slice(0, 10);
+    return date !== today;
+  } catch {
+    return true;
+  }
+}
+
+function saveMotorBaselineFromHome(medianRt: number): void {
+  if (typeof window === "undefined") return;
+  const today = new Date().toISOString().slice(0, 10);
+  localStorage.setItem("nolla_motor_baseline", JSON.stringify({ value: medianRt, date: today }));
+}
+
+type WarmupPhase = "checking" | "ready" | "measuring" | "done";
+
 export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const router = useRouter();
   const buildings = getEnabledBuildings(gamesEnabled);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [warmupPhase, setWarmupPhase] = useState<WarmupPhase>("checking");
+
+  // Check if baseline needed on mount
+  useEffect(() => {
+    setWarmupPhase(needsMotorBaseline() ? "ready" : "done");
+  }, []);
+
+  const handleWarmupStart = useCallback(() => {
+    setWarmupPhase("measuring");
+  }, []);
+
+  const handleBaselineComplete = useCallback((reactionTimes: readonly number[]) => {
+    const baseline = calculateMotorBaseline(reactionTimes, null);
+    saveMotorBaselineFromHome(baseline.medianRt);
+    setWarmupPhase("done");
+  }, []);
 
   const goLeft = useCallback(() => {
     setCurrentIndex((i) => (i > 0 ? i - 1 : buildings.length - 1));
@@ -31,6 +70,48 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   );
 
   const current = buildings[currentIndex];
+
+  // Show warmup overlay
+  if (warmupPhase === "checking") {
+    return <main className="h-dvh w-full bg-nolla-bg" />;
+  }
+
+  if (warmupPhase === "ready" || warmupPhase === "measuring") {
+    return (
+      <main
+        className="h-dvh w-full flex flex-col items-center justify-center"
+        style={{
+          background: `linear-gradient(180deg, ${current.skyGradient[0]} 0%, ${current.skyGradient[1]} 60%, ${current.groundColor} 100%)`,
+        }}
+      >
+        {warmupPhase === "ready" && (
+          <button
+            type="button"
+            onClick={handleWarmupStart}
+            className="flex flex-col items-center gap-6"
+          >
+            {/* Big play button */}
+            <div
+              className="w-32 h-32 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+              style={{
+                background: "linear-gradient(135deg, var(--color-mc-glowstone), #C8962D)",
+                boxShadow: "0 8px 0 var(--color-mc-dark-oak-light), 0 0 40px rgba(218,165,32,0.3)",
+                border: "4px solid var(--color-mc-dark-oak)",
+              }}
+            >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+                <polygon points="6,4 20,12 6,20" />
+              </svg>
+            </div>
+          </button>
+        )}
+
+        {warmupPhase === "measuring" && (
+          <MotorBaselineMeasurement onComplete={handleBaselineComplete} />
+        )}
+      </main>
+    );
+  }
 
   return (
     <main
