@@ -1,20 +1,276 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Nolla Design System
+   Based on: outputs/nolla_color_regulation.md
+   ========================================================================== */
+
 @theme {
+  /* --- Base UI Colors --- */
   --color-nolla-bg: #F5F5F5;
   --color-nolla-primary: #4A7BA7;
   --color-nolla-secondary: #6BA47A;
   --color-nolla-accent: #D4A574;
   --color-nolla-text: #333333;
-  --color-nolla-success: #6BA47A;
+  --color-nolla-reward: #DAA520;
+
+  /* --- Minecraft Material Colors --- */
+  --color-mc-grass: #7CBA5D;
+  --color-mc-grass-light: #8FBC8F;
+  --color-mc-dirt: #8B6B4A;
+  --color-mc-dirt-light: #9B7B5A;
+  --color-mc-oak: #B8945A;
+  --color-mc-oak-light: #C4A46C;
+  --color-mc-dark-oak: #6B4A2A;
+  --color-mc-dark-oak-light: #8B6B4A;
+  --color-mc-stone: #8A8A8A;
+  --color-mc-stone-light: #9A9A9A;
+  --color-mc-glass: #B5D4E8;
+  --color-mc-glowstone: #DAA520;
+  --color-mc-leaf: #5A8A4A;
+  --color-mc-leaf-light: #6B9B5A;
+
+  /* --- Building Theme Sky Colors --- */
+  --color-sky-memory: #2A2A5A;
+  --color-sky-memory-light: #4A4A8A;
+  --color-sky-sorting: #E8C8A0;
+  --color-sky-sorting-light: #D4A878;
+  --color-sky-search: #87CEEB;
+  --color-sky-search-muted: #6BAEDB;
+  --color-sky-corsi: #1A1A3A;
+  --color-sky-corsi-light: #2A2A5A;
+
+  /* --- Child UI Elements --- */
+  --color-btn-bg: #C4A46C;
+  --color-btn-bg-hover: #A88A50;
+  --color-btn-border: #8B7340;
+  --color-btn-shadow: #6B5530;
+
+  /* --- Parent UI Elements --- */
+  --color-parent-card-border: rgba(210, 185, 150, 0.3);
+  --color-parent-input-bg: rgba(245, 240, 232, 0.5);
+  --color-parent-input-border: rgba(210, 185, 150, 0.5);
+  --color-parent-tab-inactive: #888888;
+  --color-parent-growth-badge: rgba(107, 164, 122, 0.15);
+  --color-parent-analysis-badge: rgba(74, 123, 167, 0.12);
+  --color-parent-caution-badge: rgba(212, 165, 116, 0.2);
+
+  /* --- Feedback Colors --- */
+  --color-feedback-correct: #6BA47A;
+  --color-feedback-hint-glow: rgba(107, 164, 122, 0.3);
+  --color-feedback-rest: #2A2A5A;
+
+  /* --- Graph Colors (Parent Dashboard) --- */
+  --color-graph-flexibility: #D4A574;
+  --color-graph-memory: #4A7BA7;
+  --color-graph-attention: #6BA47A;
+
+  /* --- Spacing (touch-friendly) --- */
+  --spacing-touch-min: 48px;
+  --spacing-touch-child: 64px;
+  --spacing-icon-gap: 16px;
+
+  /* --- Border Radius --- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* --- Shadows --- */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-btn: 0 4px 0 var(--color-btn-shadow);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* --- Animation Durations --- */
+  --duration-feedback: 200ms;
+  --duration-transition: 300ms;
+  --duration-pulse: 1500ms;
 }
+
+/* ==========================================================================
+   Global Styles
+   ========================================================================== */
 
 body {
   background-color: var(--color-nolla-bg);
   color: var(--color-nolla-text);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: "Noto Sans JP", system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   overflow: hidden;
   touch-action: manipulation;
+}
+
+/* Landscape lock hint (shown when portrait on mobile) */
+@media (orientation: portrait) and (max-width: 1024px) {
+  .landscape-only {
+    display: flex !important;
+  }
+  .landscape-content {
+    display: none !important;
+  }
+}
+
+@media (orientation: landscape), (min-width: 1025px) {
+  .landscape-only {
+    display: none !important;
+  }
+  .landscape-content {
+    display: flex !important;
+  }
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+/* Minecraft-style button (oak wood) */
+.btn-mc {
+  background: linear-gradient(180deg, var(--color-btn-bg) 0%, var(--color-btn-bg-hover) 100%);
+  border: 2px solid var(--color-btn-border);
+  box-shadow: var(--shadow-btn);
+  border-radius: var(--radius-md);
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  min-height: var(--spacing-touch-child);
+  min-width: var(--spacing-touch-child);
+  padding: 12px 24px;
+  font-weight: 700;
+  transition: transform var(--duration-feedback) ease,
+              box-shadow var(--duration-feedback) ease;
+}
+.btn-mc:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--color-btn-shadow);
+}
+
+/* Touch target enforcement */
+.touch-target {
+  min-height: var(--spacing-touch-min);
+  min-width: var(--spacing-touch-min);
+}
+.touch-target-child {
+  min-height: var(--spacing-touch-child);
+  min-width: var(--spacing-touch-child);
+}
+
+/* Glass overlay for UI elements over game backgrounds */
+.glass-overlay {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--color-parent-card-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(8px);
+}
+
+/* Navi character speech bubble */
+.navi-bubble {
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #B49664;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+/* Feedback animation: correct answer */
+@keyframes correct-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.animate-correct {
+  animation: correct-pop var(--duration-transition) ease;
+}
+
+/* Feedback animation: gentle pulse for selection */
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; filter: brightness(1.1); }
+}
+.animate-pulse-gentle {
+  animation: gentle-pulse var(--duration-pulse) ease-in-out infinite;
+}
+
+/* Star reward burst */
+@keyframes star-burst {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+  100% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+.animate-star {
+  animation: star-burst 600ms ease-out;
+}
+
+/* Splash screen entrance */
+@keyframes splash-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-splash-in {
+  animation: splash-in 800ms ease-out;
+}
+
+/* ==========================================================================
+   Responsive: iPhone Landscape (small height)
+   ========================================================================== */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Compact headers/footers */
+  header, nav {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  /* Smaller touch targets (still >= 48px) */
+  .touch-target-child {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Tighter spacing */
+  .glass-overlay {
+    padding: 8px 12px;
+  }
+
+  /* Smaller reward stars */
+  .animate-star {
+    font-size: 1.5rem;
+  }
+}
+
+/* ==========================================================================
+   Responsive: Large screens (desktop / large iPad)
+   ========================================================================== */
+
+@media (min-width: 1400px) {
+  /* Center content with max-width */
+  main {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Cap game area to maintain aspect ratio */
+  .game-area {
+    max-width: 1194px;
+    max-height: 834px;
+    margin: auto;
+  }
+}
+
+/* ==========================================================================
+   Offline banner
+   ========================================================================== */
+
+.offline-banner {
+  background: var(--color-parent-caution-badge);
+  color: #B8906A;
+  text-align: center;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
 }

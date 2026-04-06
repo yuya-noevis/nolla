@@ -23,7 +23,8 @@ Thumbs.db
 *.swp
 *.swo
 
-# Playwright MCP
+# MCP設定（APIキーを含む）
+.mcp.json
 .playwright-mcp/
 *.png
 .claude/settings.local.json
