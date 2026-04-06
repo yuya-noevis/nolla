@@ -7,7 +7,7 @@
 
 ---
 
-## 現在地: Phase 1 コア実装 DONE → デプロイ準備完了 → Phase 2へ
+## 現在地: Phase 1 コア実装 DONE → 全ゲームデバッグ完了 → Phase 2へ
 
 ```
 Phase 0: 設計 ............................ DONE（0-A〜0-D 全完了）
@@ -276,3 +276,5 @@ M1のデザインが固まった後、世界観を統一して全画面のモッ
 | 2026-04-06 | ゲームセッション統合完了 | UI→セッション管理→Staircase難度調整→Supabase永続化を接続。運動ベースライン計測UI。useGameSession hook。persist.ts（6関数: session/round/trial/sessionEnd/motorBaseline/stars）。ビルド成功、205テストpass |
 | 2026-04-06 | デプロイ準備完了 | PWA設定(manifest.json landscape固定+sw.js network-first+icon placeholder)。next.config.ts(outputFileTracingRoot+セキュリティヘッダー4種)。README.md(セットアップ+Supabaseマイグレーション手順+Vercelデプロイ手順)。.env.example+.gitignore。205テストpass |
 | 2026-04-06 | オフライン+NCI日次+ブランク復帰完了 | オフライン: sync.ts（キュー→Supabase書き込み）+ persist-client.ts（クライアント側キューイング）。NCI: persist-snapshot.ts（日次UPSERT+最新θ取得）。ブランク復帰: 14日検知+Staircaseリセット（6テスト追加、211テストpass） |
+| 2026-04-06 | 全ゲームデバッグ+修正完了 | レイアウト崩れ(h-screen→h-full、landscape-content)、文字化け3箇所、オンボーディング全テキスト日本語化、ゲームフロー修正(onRoundCompleteで各ゲームからラウンド完了通知)、ソーティング4問目バグ、視覚探索座標スケーリング。211テストpass |
+| 2026-04-06 | UX改善 | motor baseline→ホーム画面ウォームアップに移動(1日1回/スタートボタン)、ソーティング文字なし化(色箱)、スター報酬統一(正解率ベース3/2/1)、神経衰弱スター公平化(探索コスト考慮)、ラウンド表示→ドットインジケーター(文字なし)、ナビキャラMVP非表示、スター累計localStorage保存、間違い探し左右両パネルタップ対応 |
