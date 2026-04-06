@@ -154,7 +154,7 @@ export function GameSession({
         {session.phase === "round-transition" && (
           <div className="glass-overlay px-8 py-6">
             <p className="text-lg font-bold text-nolla-text">
-              Round {session.roundNumber}
+              ラウンド {session.roundNumber}
             </p>
           </div>
         )}

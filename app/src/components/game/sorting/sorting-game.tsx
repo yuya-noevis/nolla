@@ -45,7 +45,7 @@ export function SortingGame({ hintStage, onTrialResult }: Props) {
   if (!currentItem) {
     return (
       <div className="glass-overlay px-8 py-6 text-center">
-        <p className="text-lg font-bold text-nolla-text">Round Complete</p>
+        <p className="text-lg font-bold text-nolla-text">ラウンドクリア</p>
       </div>
     );
   }

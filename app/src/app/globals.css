@@ -117,7 +117,7 @@ body {
     display: none !important;
   }
   .landscape-content {
-    display: flex !important;
+    display: block !important;
   }
 }
 

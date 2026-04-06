@@ -19,7 +19,7 @@ export default function RoomPage() {
   const [activeTab, setActiveTab] = useState<Tab>("room");
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-full flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-2">
         <button
@@ -53,7 +53,7 @@ export default function RoomPage() {
       </header>
 
       {/* Content */}
-      <main className="flex-1 overflow-hidden px-4 pb-4">
+      <main className="flex-1 min-h-0 overflow-hidden px-4 pb-4">
         {activeTab === "room" && <RoomTab />}
         {activeTab === "shop" && <ShopTab />}
         {activeTab === "collection" && <CollectionTab />}

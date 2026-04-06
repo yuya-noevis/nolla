@@ -78,7 +78,7 @@ export default function PinPage() {
         : "もう一度入力してください";
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-nolla-bg">
+    <div className="flex h-full flex-col items-center justify-center bg-nolla-bg">
       <h1 className="mb-2 text-xl font-bold text-nolla-text">{title}</h1>
 
       {error && (

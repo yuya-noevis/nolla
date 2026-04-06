@@ -10,7 +10,7 @@ function RestContent() {
 
   return (
     <div
-      className="flex h-screen flex-col items-center justify-center"
+      className="flex h-full flex-col items-center justify-center"
       style={{
         background: "linear-gradient(180deg, #1A1A3A 0%, var(--color-feedback-rest) 60%, #3A3A6A 100%)",
       }}

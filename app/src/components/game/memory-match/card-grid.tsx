@@ -155,6 +155,7 @@ function CardCell({ card, state, size, isHintTarget, isHintGlow, onTap }: CardCe
 
       {/* Card face */}
       <div
+        aria-hidden={!isFaceUp}
         className={`absolute inset-0 rounded-lg flex items-center justify-center transition-opacity duration-200 ${
           isFaceUp ? "opacity-100" : "opacity-0"
         }`}

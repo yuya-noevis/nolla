@@ -23,7 +23,7 @@ export default function ParentLayout({
   }
 
   return (
-    <div className="flex h-screen flex-col bg-nolla-bg">
+    <div className="flex h-full flex-col bg-nolla-bg">
       {/* Header */}
       <header
         className="flex items-center justify-between px-6 py-3"

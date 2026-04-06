@@ -46,7 +46,7 @@ function RewardContent() {
   }, [phase, stars]);
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-nolla-bg">
+    <div className="flex h-full flex-col items-center justify-center bg-nolla-bg">
       {/* Phase 1 & 2: Star animation */}
       {phase <= 2 && (
         <div className="flex flex-col items-center gap-4">
