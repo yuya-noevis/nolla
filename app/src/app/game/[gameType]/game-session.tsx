@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { GameType, DifficultyParams, MemoryMatchParams, TrialResult } from "@/types/domain";
 import type { IQBand } from "@/types/user";
@@ -106,10 +106,20 @@ export function GameSession({
     setShowFeedback(null);
   }, []);
 
+  // Track whether first round has started
+  const hasPlayedRef = useRef(false);
+
   // Auto-advance from round intro (show "ラウンド N" then start playing)
   useEffect(() => {
     if (session.phase === "round-intro") {
-      const timer = setTimeout(() => session.endRound(), 1200);
+      const timer = setTimeout(() => {
+        if (!hasPlayedRef.current) {
+          hasPlayedRef.current = true;
+          session.startPlaying();
+        } else {
+          session.advanceRound();
+        }
+      }, 1200);
       return () => clearTimeout(timer);
     }
   }, [session.phase]); // eslint-disable-line react-hooks/exhaustive-deps

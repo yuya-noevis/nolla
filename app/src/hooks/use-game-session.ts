@@ -34,7 +34,8 @@ type GameSessionHook = {
   completeMotorBaseline: (reactionTimes: readonly number[]) => void;
   handleTrialResult: (result: TrialResult) => void;
   completeRoundFromGame: () => void;
-  endRound: () => void;
+  startPlaying: () => void;
+  advanceRound: () => void;
   endSession: () => SessionSummary | null;
 };
 
@@ -52,6 +53,7 @@ export function useGameSession(
   const [sessionStars, setSessionStars] = useState(0);
   const [motorBaseline, setMotorBaseline] = useState<MotorBaseline | null>(null);
   const roundTrialCountRef = useRef(0);
+  const roundCorrectCountRef = useRef(0);
 
   const startSession = useCallback(() => {
     const initial = createSessionState(childId, gameType, initialParams);
@@ -77,6 +79,7 @@ export function useGameSession(
       setState((prev) => (prev ? { ...prev, phase: "playing" } : null));
       setPhase("round-intro");
       roundTrialCountRef.current = 0;
+      roundCorrectCountRef.current = 0;
     },
     [previousMotorBaseline]
   );
@@ -89,15 +92,26 @@ export function useGameSession(
       });
 
       roundTrialCountRef.current += 1;
+      if (result.correct) {
+        roundCorrectCountRef.current += 1;
+      }
     },
     []
   );
 
-  const STARS_PER_ROUND = 3;
-
   const completeRoundFromGame = useCallback(() => {
+    // Stars based on round performance
+    const totalTrials = roundTrialCountRef.current;
+    const correctCount = roundCorrectCountRef.current;
+    let roundStars = 1; // participation
+    if (totalTrials > 0 && correctCount === totalTrials) {
+      roundStars = 3; // all correct
+    } else if (totalTrials > 0 && correctCount >= totalTrials * 0.5) {
+      roundStars = 2; // >50% correct
+    }
+    setSessionStars((s) => s + roundStars);
     roundTrialCountRef.current = 0;
-    setSessionStars((s) => s + STARS_PER_ROUND);
+    roundCorrectCountRef.current = 0;
 
     // Check if we've done enough rounds to complete the session
     const currentRound = state?.roundNumber ?? 1;
@@ -108,13 +122,18 @@ export function useGameSession(
     }
   }, [state?.roundNumber]);
 
-  const endRound = useCallback(() => {
+  const startPlaying = useCallback(() => {
+    setPhase("playing");
+  }, []);
+
+  const advanceRound = useCallback(() => {
     setState((prev) => {
       if (!prev) return null;
       const { state: newState } = completeRound(prev, iqBand);
       return newState;
     });
     roundTrialCountRef.current = 0;
+    roundCorrectCountRef.current = 0;
     setPhase("playing");
   }, [iqBand]);
 
@@ -136,7 +155,8 @@ export function useGameSession(
     completeMotorBaseline: completeMotorBaselineFn,
     handleTrialResult,
     completeRoundFromGame,
-    endRound,
+    startPlaying,
+    advanceRound,
     endSession: endSessionFn,
   };
 }
