@@ -17,7 +17,7 @@ export function StepConsent({ onNext }: Props) {
 
       <div className="bg-white rounded-xl border border-[var(--color-parent-card-border)] p-5 max-h-48 overflow-y-auto text-sm text-nolla-text leading-relaxed">
         <p className="mb-3">
-          Nollaはお子��まの発達を支援するために、以下のデータを収集・利用します。
+          Nollaはお子さまの発達を支援するために、以下のデータを収集・利用します。
         </p>
         <ul className="list-disc pl-5 flex flex-col gap-2">
           <li>ゲームプレイの記録（正誤、反応時間）</li>
@@ -26,7 +26,7 @@ export function StepConsent({ onNext }: Props) {
           <li>お子さまのプロフィール情報</li>
         </ul>
         <p className="mt-3">
-          デー���は暗号化して安全に保管し、お子さまの支援以外の目的には使用しません。
+          データは暗号化して安全に保管し、お子さまの支援以外の目的には使用しません。
         </p>
       </div>
 

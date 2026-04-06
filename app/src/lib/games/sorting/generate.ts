@@ -15,6 +15,17 @@ const SHAPE_VALUES = ["circle", "triangle", "square", "star", "diamond"] as cons
 const SIZE_VALUES = ["small", "medium", "large", "tiny", "huge"] as const;
 const CATEGORY_VALUES = ["fruit", "animal", "vehicle", "clothing", "furniture"] as const;
 
+const LABEL_JA: Record<string, string> = {
+  // Colors
+  red: "あか", blue: "あお", yellow: "きいろ", green: "みどり", purple: "むらさき",
+  // Shapes
+  circle: "まる", triangle: "さんかく", square: "しかく", star: "ほし", diamond: "ひしがた",
+  // Sizes
+  small: "ちいさい", medium: "ふつう", large: "おおきい", tiny: "ちっちゃい", huge: "おっきい",
+  // Categories
+  fruit: "くだもの", animal: "どうぶつ", vehicle: "のりもの", clothing: "ふく", furniture: "かぐ",
+};
+
 const CATEGORY_ITEMS: Record<string, readonly string[]> = {
   fruit: ["apple", "banana", "grape", "orange", "strawberry"],
   animal: ["cat", "dog", "bird", "fish", "rabbit"],
@@ -51,7 +62,7 @@ function buildCategories(
 ): readonly SortingCategory[] {
   return values.map((val, i) => ({
     id: `cat_${i}`,
-    label: val,
+    label: LABEL_JA[val] ?? val,
     matchValue: val,
   }));
 }
@@ -91,6 +102,12 @@ function createItem(
     attrs.category = value;
     const pool = CATEGORY_ITEMS[value] ?? [value];
     attrs.name = pool[Math.floor(Math.random() * pool.length)];
+  } else if (criterion === "color") {
+    attrs.color = value;
+    attrs.shape = SHAPE_VALUES[Math.floor(Math.random() * SHAPE_VALUES.length)];
+  } else if (criterion === "shape") {
+    attrs.shape = value;
+    attrs.color = COLOR_VALUES[Math.floor(Math.random() * COLOR_VALUES.length)];
   } else {
     attrs[criterion] = value;
   }

@@ -25,6 +25,26 @@ type Props = {
   previousMotorBaseline: number | null;
 };
 
+function getSavedMotorBaseline(): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("nolla_motor_baseline");
+    if (!raw) return null;
+    const { value, date } = JSON.parse(raw);
+    // Reuse if saved today
+    const today = new Date().toISOString().slice(0, 10);
+    return date === today ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveMotorBaseline(medianRt: number): void {
+  if (typeof window === "undefined") return;
+  const today = new Date().toISOString().slice(0, 10);
+  localStorage.setItem("nolla_motor_baseline", JSON.stringify({ value: medianRt, date: today }));
+}
+
 export function GameSession({
   gameType,
   skyGradient,
@@ -38,18 +58,28 @@ export function GameSession({
   const [showFeedback, setShowFeedback] = useState<"correct" | "star" | null>(null);
   const { hintStage, recordWrong, resetTrial } = useErrorless();
 
+  // Use saved baseline from today if available
+  const effectiveBaseline = previousMotorBaseline ?? getSavedMotorBaseline();
+
   const session = useGameSession(
     childId,
     gameType,
     initialParams,
     iqBand,
-    previousMotorBaseline
+    effectiveBaseline
   );
 
   // Start session on mount
   useEffect(() => {
     session.startSession();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save motor baseline when measured
+  useEffect(() => {
+    if (session.motorBaseline?.medianRt) {
+      saveMotorBaseline(session.motorBaseline.medianRt);
+    }
+  }, [session.motorBaseline]);
 
   const handleTrialResult = useCallback(
     (correct: boolean, reactionTimeMs: number) => {
@@ -124,6 +154,7 @@ export function GameSession({
                 flipDelay={(session.currentParams as MemoryMatchParams).flipDelay}
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
+                onRoundComplete={session.completeRoundFromGame}
               />
             )}
 
@@ -131,6 +162,7 @@ export function GameSession({
               <SortingGame
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
+                onRoundComplete={session.completeRoundFromGame}
               />
             )}
 
@@ -138,6 +170,7 @@ export function GameSession({
               <VisualSearchGame
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
+                onRoundComplete={session.completeRoundFromGame}
               />
             )}
 
@@ -145,6 +178,7 @@ export function GameSession({
               <CorsiBlockGame
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
+                onRoundComplete={session.completeRoundFromGame}
               />
             )}
           </>
@@ -154,7 +188,7 @@ export function GameSession({
         {session.phase === "round-transition" && (
           <div className="glass-overlay px-8 py-6">
             <p className="text-lg font-bold text-nolla-text">
-              Round {session.roundNumber}
+              ラウンド {session.roundNumber}
             </p>
           </div>
         )}

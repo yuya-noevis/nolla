@@ -18,7 +18,7 @@ export const SHOP_ITEMS: readonly ShopItem[] = [
   { id: "fig_cat", name: "ねこ", type: "figure", price: 20, imageKey: "figure_cat" },
   { id: "fig_dog", name: "いぬ", type: "figure", price: 20, imageKey: "figure_dog" },
   { id: "fig_bird", name: "とり", type: "figure", price: 25, imageKey: "figure_bird" },
-  { id: "fig_fish", name: "さか���", type: "figure", price: 25, imageKey: "figure_fish" },
+  { id: "fig_fish", name: "さかな", type: "figure", price: 25, imageKey: "figure_fish" },
   { id: "fig_bear", name: "くま", type: "figure", price: 30, imageKey: "figure_bear" },
 
   // Furniture (room decoration)

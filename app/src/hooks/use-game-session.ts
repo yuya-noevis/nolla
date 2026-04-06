@@ -32,11 +32,12 @@ type GameSessionHook = {
   startSession: () => void;
   completeMotorBaseline: (reactionTimes: readonly number[]) => void;
   handleTrialResult: (result: TrialResult) => void;
+  completeRoundFromGame: () => void;
   endRound: () => void;
   endSession: () => SessionSummary | null;
 };
 
-const TRIALS_PER_ROUND = 5;
+const MAX_ROUNDS = 3;
 
 export function useGameSession(
   childId: string,
@@ -54,8 +55,19 @@ export function useGameSession(
   const startSession = useCallback(() => {
     const initial = createSessionState(childId, gameType, initialParams);
     setState(initial);
-    setPhase("motor-baseline");
-  }, [childId, gameType, initialParams]);
+    // Skip motor baseline if we already have one (from earlier today)
+    if (previousMotorBaseline != null) {
+      const reused: MotorBaseline = {
+        reactionTimes: [],
+        medianRt: previousMotorBaseline,
+        weightedBaseline: previousMotorBaseline,
+      };
+      setMotorBaseline(reused);
+      setPhase("playing");
+    } else {
+      setPhase("motor-baseline");
+    }
+  }, [childId, gameType, initialParams, previousMotorBaseline]);
 
   const completeMotorBaselineFn = useCallback(
     (reactionTimes: readonly number[]) => {
@@ -80,14 +92,21 @@ export function useGameSession(
       }
 
       roundTrialCountRef.current += 1;
-
-      // Auto-complete round after N trials
-      if (roundTrialCountRef.current >= TRIALS_PER_ROUND) {
-        setPhase("round-transition");
-      }
     },
     []
   );
+
+  const completeRoundFromGame = useCallback(() => {
+    roundTrialCountRef.current = 0;
+
+    // Check if we've done enough rounds to complete the session
+    const currentRound = state?.roundNumber ?? 1;
+    if (currentRound >= MAX_ROUNDS) {
+      setPhase("completed");
+    } else {
+      setPhase("round-transition");
+    }
+  }, [state?.roundNumber]);
 
   const endRound = useCallback(() => {
     setState((prev) => {
@@ -116,6 +135,7 @@ export function useGameSession(
     startSession,
     completeMotorBaseline: completeMotorBaselineFn,
     handleTrialResult,
+    completeRoundFromGame,
     endRound,
     endSession: endSessionFn,
   };

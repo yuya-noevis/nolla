@@ -23,7 +23,7 @@ export default function OnboardingPage() {
     if (result && !result.success) {
       setError(result.error);
     } else if (result && result.success && mode === "signup") {
-      setSuccess("Confirmation email sent. Check your inbox.");
+      setSuccess("確認メールを送信しました。メールをご確認ください。");
     }
     setLoading(false);
   }
@@ -51,20 +51,20 @@ export default function OnboardingPage() {
             disabled
             className="touch-target w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-[var(--color-parent-input-border)] bg-white/50 text-parent-tab-inactive font-bold text-sm"
           >
-            Google (coming soon)
+            Google（準備中）
           </button>
           <button
             type="button"
             disabled
             className="touch-target w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-black/30 text-white/50 font-bold text-sm"
           >
-            Apple (coming soon)
+            Apple（準備中）
           </button>
         </div>
 
         <div className="flex items-center gap-3 mb-5">
           <div className="flex-1 h-px bg-[var(--color-parent-card-border)]" />
-          <span className="text-xs text-parent-tab-inactive">or</span>
+          <span className="text-xs text-parent-tab-inactive">または</span>
           <div className="flex-1 h-px bg-[var(--color-parent-card-border)]" />
         </div>
 
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
             name="email"
             type="email"
             required
-            placeholder="Email"
+            placeholder="メールアドレス"
             className="touch-target w-full px-4 py-3 rounded-xl border border-[var(--color-parent-input-border)] bg-[var(--color-parent-input-bg)] text-nolla-text text-sm"
           />
           <input
@@ -82,7 +82,7 @@ export default function OnboardingPage() {
             type="password"
             required
             minLength={8}
-            placeholder="Password (8+)"
+            placeholder="パスワード（8文字以上）"
             className="touch-target w-full px-4 py-3 rounded-xl border border-[var(--color-parent-input-border)] bg-[var(--color-parent-input-bg)] text-nolla-text text-sm"
           />
 
@@ -98,7 +98,7 @@ export default function OnboardingPage() {
             disabled={loading}
             className="btn-mc w-full disabled:opacity-50 text-sm"
           >
-            {loading ? "..." : mode === "signup" ? "Create Account" : "Sign In"}
+            {loading ? "..." : mode === "signup" ? "アカウント作成" : "ログイン"}
           </button>
         </form>
 
@@ -112,8 +112,8 @@ export default function OnboardingPage() {
           className="mt-3 w-full text-center text-xs text-nolla-primary"
         >
           {mode === "signup"
-            ? "Already have an account? Sign in"
-            : "Need an account? Sign up"}
+            ? "アカウントをお持ちの方はこちら"
+            : "アカウントをお持ちでない方はこちら"}
         </button>
       </div>
     </main>

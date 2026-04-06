@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import type { VisualSearchParams } from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
 import { generateVisualSearchScene } from "@/lib/games/visual-search/generate";
@@ -8,6 +8,7 @@ import { generateVisualSearchScene } from "@/lib/games/visual-search/generate";
 type Props = {
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onRoundComplete: () => void;
 };
 
 const DEFAULT_PARAMS: VisualSearchParams = {
@@ -16,7 +17,7 @@ const DEFAULT_PARAMS: VisualSearchParams = {
   diffSubtlety: 20,
 };
 
-export function VisualSearchGame({ hintStage, onTrialResult }: Props) {
+export function VisualSearchGame({ hintStage, onTrialResult, onRoundComplete }: Props) {
   const scene = useMemo(() => generateVisualSearchScene(DEFAULT_PARAMS), []);
   const [foundDiffs, setFoundDiffs] = useState<ReadonlyArray<string>>([]);
   const [trialStart] = useState(Date.now());
@@ -38,6 +39,13 @@ export function VisualSearchGame({ hintStage, onTrialResult }: Props) {
   );
 
   const allFound = foundDiffs.length >= scene.differences.length;
+
+  useEffect(() => {
+    if (allFound) {
+      const timer = setTimeout(() => onRoundComplete(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [allFound, onRoundComplete]);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -80,7 +88,7 @@ export function VisualSearchGame({ hintStage, onTrialResult }: Props) {
 
       {allFound && (
         <div className="glass-overlay px-6 py-3">
-          <p className="text-lg font-bold text-nolla-text">All found</p>
+          <p className="text-lg font-bold text-nolla-text">ぜんぶみつけた</p>
         </div>
       )}
     </div>
@@ -96,13 +104,21 @@ type SceneViewProps = {
   label: string;
 };
 
+const VIEW_WIDTH = 350;
+const VIEW_HEIGHT = 280;
+const SCENE_WIDTH = 800;
+const SCENE_HEIGHT = 500;
+
 function SceneView({ items, differences, foundDiffs, hintStage, onItemTap, label }: SceneViewProps) {
+  const scaleX = VIEW_WIDTH / SCENE_WIDTH;
+  const scaleY = VIEW_HEIGHT / SCENE_HEIGHT;
+
   return (
     <div
       className="relative rounded-xl overflow-hidden"
       style={{
-        width: 350,
-        height: 280,
+        width: VIEW_WIDTH,
+        height: VIEW_HEIGHT,
         background: "rgba(255,255,255,0.1)",
         border: "2px solid rgba(255,255,255,0.2)",
       }}
@@ -122,8 +138,8 @@ function SceneView({ items, differences, foundDiffs, hintStage, onItemTap, label
               isFound ? "ring-2 ring-[var(--color-feedback-correct)]" : ""
             } ${isHintTarget ? "animate-pulse-gentle" : ""}`}
             style={{
-              left: item.x,
-              top: item.y,
+              left: Math.round(item.x * scaleX),
+              top: Math.round(item.y * scaleY),
               width: 40,
               height: 40,
               background: color,

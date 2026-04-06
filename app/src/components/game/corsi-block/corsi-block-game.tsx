@@ -8,6 +8,7 @@ import { generateCorsiLayout } from "@/lib/games/corsi-block/generate";
 type Props = {
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onRoundComplete: () => void;
 };
 
 type Phase = "watching" | "input" | "result";
@@ -18,7 +19,7 @@ const DEFAULT_PARAMS: CorsiBlockParams = {
   displayMs: 1200,
 };
 
-export function CorsiBlockGame({ hintStage, onTrialResult }: Props) {
+export function CorsiBlockGame({ hintStage, onTrialResult, onRoundComplete }: Props) {
   const layout = useMemo(() => generateCorsiLayout(DEFAULT_PARAMS), []);
   const [phase, setPhase] = useState<Phase>("watching");
   const [activeBlock, setActiveBlock] = useState<number | null>(null);
@@ -81,6 +82,14 @@ export function CorsiBlockGame({ hintStage, onTrialResult }: Props) {
     },
     [phase, inputSequence, layout.sequence, trialStart, onTrialResult]
   );
+
+  // Auto-complete round when result shown
+  useEffect(() => {
+    if (phase === "result") {
+      const timer = setTimeout(() => onRoundComplete(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, onRoundComplete]);
 
   // Find the next expected block for hints
   const nextExpectedBlock =
