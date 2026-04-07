@@ -144,7 +144,10 @@ export function useGameSession(
   const [sessionStars, setSessionStars] = useState(0);
   const [motorBaseline, setMotorBaseline] = useState<MotorBaseline | null>(null);
   const sessionIdRef = useRef<string | null>(null);
-  const roundIdRef = useRef<string | null>(null);
+  // BUG-15 fix: store the in-flight persistRound promise so that trials played
+  // immediately after advanceRound attach to the *new* round_id, not the
+  // previous one. handleTrialResult awaits this before calling persistTrial.
+  const roundIdPromiseRef = useRef<Promise<string | null>>(Promise.resolve(null));
   const trialNumberRef = useRef(0);
   const roundTrialCountRef = useRef(0);
   const roundCorrectCountRef = useRef(0);
@@ -159,19 +162,19 @@ export function useGameSession(
     const initial = createSessionState(childId, gameType, startParams);
     setState(initial);
     sessionIdRef.current = null;
-    roundIdRef.current = null;
+    roundIdPromiseRef.current = Promise.resolve(null);
     trialNumberRef.current = 0;
     nciTrialBufferRef.current = [];
 
-    // セッションをDBに記録 (fire-and-forget)
-    void persistSessionStart(childId, gameType, startParams).then((id) => {
+    // セッションをDBに記録 + 初回ラウンドIDを promise チェーンで繋ぐ
+    roundIdPromiseRef.current = persistSessionStart(
+      childId,
+      gameType,
+      startParams
+    ).then((id) => {
       sessionIdRef.current = id;
-      if (id) {
-        // 初回ラウンドもDBに記録
-        void persistRound(id, 1, startParams).then((rid) => {
-          roundIdRef.current = rid;
-        });
-      }
+      if (!id) return null;
+      return persistRound(id, 1, startParams);
     });
 
     if (previousMotorBaseline != null) {
@@ -240,27 +243,37 @@ export function useGameSession(
         },
       ];
 
-      // DB persistence (副作用は setState updater の外で)
-      const sid = sessionIdRef.current;
-      const rid = roundIdRef.current;
-      if (sid && rid) {
-        trialNumberRef.current += 1;
+      // DB persistence — await the in-flight round promise so the trial
+      // attaches to the *current* round_id, not a stale one (BUG-15).
+      trialNumberRef.current += 1;
+      const trialNumber = trialNumberRef.current;
+      const presentedAt = new Date(Date.now() - result.reactionTimeMs).toISOString();
+      const respondedAt = new Date().toISOString();
+      const captured = {
+        correct: result.correct,
+        reactionTimeMs: result.reactionTimeMs,
+        hintStageReached: result.hintStageReached,
+        gameData: result.gameData,
+      };
+      void roundIdPromiseRef.current.then((rid) => {
+        const sid = sessionIdRef.current;
+        if (!sid || !rid) return;
         void persistTrial({
           roundId: rid,
           sessionId: sid,
           childId,
-          trialNumber: trialNumberRef.current,
+          trialNumber,
           gameType,
-          correct: result.correct,
-          reactionTimeMs: result.reactionTimeMs,
-          hintStageReached: result.hintStageReached,
-          gameData: result.gameData,
-          difficultyParams: currentParamsRef.current,
+          correct: captured.correct,
+          reactionTimeMs: captured.reactionTimeMs,
+          hintStageReached: captured.hintStageReached,
+          gameData: captured.gameData,
+          difficultyParams: playedParams,
           irtB: null,
-          presentedAt: new Date(Date.now() - result.reactionTimeMs).toISOString(),
-          respondedAt: new Date().toISOString(),
+          presentedAt,
+          respondedAt,
         });
-      }
+      });
     },
     [childId, gameType]
   );
@@ -295,28 +308,29 @@ export function useGameSession(
   }, []);
 
   const advanceRound = useCallback(() => {
-    let newRoundNumber = 0;
-    let newParams: DifficultyParams | null = null;
-    setState((prev) => {
-      if (!prev) return null;
-      const { state: newState } = completeRound(prev, iqBand);
-      newRoundNumber = newState.roundNumber;
-      newParams = newState.currentParams;
-      currentParamsRef.current = newState.currentParams;
-      return newState;
-    });
+    // BUG-15 fix: compute the new round state synchronously *outside* setState
+    // so the DB-side roundNumber/params read is reliable. Reading from a variable
+    // closed over by the updater was racy — React doesn't execute updaters
+    // synchronously, so persistRound saw the initial (0 / null) values and all
+    // rounds got persisted as round_number = 1.
+    const prev = state;
+    if (!prev) return;
+    const { state: newState } = completeRound(prev, iqBand);
+    currentParamsRef.current = newState.currentParams;
+    setState(newState);
     roundTrialCountRef.current = 0;
     roundCorrectCountRef.current = 0;
     setPhase("playing");
 
-    // DB副作用は setState の外
     const sid = sessionIdRef.current;
-    if (sid && newParams) {
-      void persistRound(sid, newRoundNumber, newParams).then((rid) => {
-        roundIdRef.current = rid;
-      });
+    if (sid) {
+      // Chain onto the previous promise so trials in-flight still resolve
+      // against the correct (previous) round_id before switching.
+      roundIdPromiseRef.current = roundIdPromiseRef.current.then(() =>
+        persistRound(sid, newState.roundNumber, newState.currentParams)
+      );
     }
-  }, [iqBand]);
+  }, [iqBand, state]);
 
   const endSessionFn = useCallback((): SessionSummary | null => {
     if (!state) return null;

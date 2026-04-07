@@ -24,6 +24,9 @@ export function getInitialDifficulty(gameType: GameType): MemoryMatchParams | So
     case "visual-search":
       return { sceneItems: 4, diffCount: 1, diffSubtlety: 20 };
     case "corsi-block":
-      return { blocks: 6, seqLength: 2, displayMs: 1200 };
+      // 4ブロック開始 — 3-6歳・ID児向け改訂Corsi (Farrell Pagulayan 2006;
+      // Orsini 1987)。標準Corsiは9ブロック固定だが、発達初期・重度ID向けは
+      // 4から開始し staircase で 6→9 へ拡張する方が感度が高い。
+      return { blocks: 4, seqLength: 2, displayMs: 1200 };
   }
 }

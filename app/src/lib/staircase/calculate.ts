@@ -186,7 +186,7 @@ function adjustMemoryMatchDown(p: MemoryMatchParams, step: number): MemoryMatchP
 
 function adjustSortingUp(p: SortingParams, step: number): SortingParams {
   const newItems = Math.ceil(p.items * step);
-  if (newItems <= 15 && newItems > p.items) {
+  if (newItems <= 10 && newItems > p.items) {
     return clampSorting({ ...p, items: newItems });
   }
   if (p.items >= 10 && p.categories < 5) {

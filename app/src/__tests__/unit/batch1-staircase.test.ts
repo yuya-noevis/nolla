@@ -253,7 +253,7 @@ describe("§G Staircase — clamping", () => {
     ).toEqual({ pairs: 2, similarity: 0, flipDelay: 2000, cardSize: 64 });
   });
 
-  it("G11 sorting clamps: categories 2-5, items 3-15", () => {
+  it("G11 sorting clamps: categories 2-5, items 3-10 (attention cap)", () => {
     const c = clampSorting({
       categories: 99,
       items: 999,
@@ -261,7 +261,7 @@ describe("§G Staircase — clamping", () => {
       switching: "none",
     });
     expect(c.categories).toBe(5);
-    expect(c.items).toBe(15);
+    expect(c.items).toBe(10);
   });
 
   it("G11 visual-search clamps: sceneItems 3-25, diffCount 1-7, diffSubtlety 0-100", () => {

@@ -352,7 +352,7 @@ describe("calculateNextDifficulty — sorting (extended)", () => {
   it("UP: increases categories when items >= 10 and categories < 5", () => {
     const params: SortingParams = {
       categories: 3,
-      items: 15,  // at max, can't increase further
+      items: 10,  // at max, can't increase further
       criterion: "color",
       switching: "none",
     };
@@ -372,7 +372,7 @@ describe("calculateNextDifficulty — sorting (extended)", () => {
   it("UP: advances switching when categories maxed", () => {
     const params: SortingParams = {
       categories: 5,
-      items: 15,
+      items: 10,
       criterion: "color",
       switching: "none",
     };
@@ -783,7 +783,7 @@ describe("getInitialDifficulty", () => {
 
   it("returns Band B2 params for corsi-block", () => {
     const params = getInitialDifficulty("corsi-block");
-    expect(params.blocks).toBe(6);
+    expect(params.blocks).toBe(4);
     expect(params.seqLength).toBeGreaterThanOrEqual(2);
     expect(params.displayMs).toBe(1200);
   });

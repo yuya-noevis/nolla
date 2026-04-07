@@ -33,6 +33,8 @@ function saveMotorBaselineFromHome(medianRt: number): void {
 
 type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 
+const LAST_BUILDING_KEY = "nolla_last_building_game_type";
+
 export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const router = useRouter();
   const buildings = getEnabledBuildings(gamesEnabled);
@@ -40,11 +42,18 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const [warmupPhase, setWarmupPhase] = useState<WarmupPhase>("checking");
   const [localStars, setLocalStars] = useState(starBalance);
 
-  // Check if baseline needed on mount + load stars from localStorage
+  // Check if baseline needed on mount + load stars from localStorage +
+  // restore last-played building index.
   useEffect(() => {
     const saved = parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10);
     if (saved > 0) setLocalStars(saved);
-  }, []);
+
+    const lastGame = localStorage.getItem(LAST_BUILDING_KEY);
+    if (lastGame) {
+      const idx = buildings.findIndex((b) => b.gameType === lastGame);
+      if (idx >= 0) setCurrentIndex(idx);
+    }
+  }, [buildings]);
 
   // Check if baseline needed on mount
   useEffect(() => {
@@ -76,6 +85,11 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   const handleBuildingTap = useCallback(
     (building: Building) => {
+      try {
+        localStorage.setItem(LAST_BUILDING_KEY, building.gameType);
+      } catch {
+        // ignore quota / private mode
+      }
       router.push(`/game/${building.gameType}`);
     },
     [router]

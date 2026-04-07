@@ -20,7 +20,10 @@ const MEMORY_MATCH_LIMITS: Record<keyof MemoryMatchParams, Limits> = {
 
 const SORTING_LIMITS: Record<keyof SortingParams, Limits> = {
   categories: { min: 2, max: 5 },
-  items: { min: 3, max: 15 },
+  // items per round cap 10 — 3-8歳 ASD/ID児の注意持続時間 10-15分 を踏まえ、
+  // 1セッション(3ラウンド)で最大30問に抑える。IRT的には 1R 10 trials でも
+  // θ 推定は有効 (NCI設計 §2.3)。
+  items: { min: 3, max: 10 },
   criterion: { min: 0, max: 4 },   // enum index placeholder
   switching: { min: 0, max: 2 },   // enum index placeholder
 };
