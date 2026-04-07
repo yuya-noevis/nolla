@@ -42,8 +42,13 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const [warmupPhase, setWarmupPhase] = useState<WarmupPhase>("checking");
   const [localStars, setLocalStars] = useState(starBalance);
 
-  // Check if baseline needed on mount + load stars from localStorage +
-  // restore last-played building index.
+  // Mount-only: load stars + restore last-played building index.
+  // IMPORTANT: buildings is recomputed on every render, so do NOT put it
+  // in the dep array — that would refire this effect on every render and
+  // snap the carousel back to the last-played building, making the
+  // left/right arrows look broken (they trigger a re-render which
+  // re-runs this effect which resets currentIndex).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const saved = parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10);
     if (saved > 0) setLocalStars(saved);
@@ -53,7 +58,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       const idx = buildings.findIndex((b) => b.gameType === lastGame);
       if (idx >= 0) setCurrentIndex(idx);
     }
-  }, [buildings]);
+  }, []);
 
   // Check if baseline needed on mount
   useEffect(() => {
