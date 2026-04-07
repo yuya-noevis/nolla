@@ -6,6 +6,23 @@ import type { HintStage } from "@/hooks/use-errorless";
 
 type CardState = "face-down" | "face-up" | "matched";
 
+// Placeholder card art: each imageKey maps to a unique glyph until real
+// illustrations are produced. Using distinct glyphs is critical — relying on
+// the first letter of imageKey caused different pairs that share an initial
+// (e.g. penguin/pear/pineapple all "P") to look identical, which made valid
+// matches register as wrong and prevented the staircase from advancing.
+const IMAGE_GLYPH: Record<string, string> = {
+  cat: "🐱", dog: "🐶", bird: "🐦", fish: "🐟", rabbit: "🐰",
+  bear: "🐻", frog: "🐸", turtle: "🐢", lion: "🦁", elephant: "🐘",
+  penguin: "🐧", owl: "🦉", dolphin: "🐬", horse: "🐴", butterfly: "🦋",
+  apple: "🍎", banana: "🍌", grape: "🍇", orange: "🍊", strawberry: "🍓",
+  cherry: "🍒", watermelon: "🍉", peach: "🍑", pear: "🍐", lemon: "🍋",
+  pineapple: "🍍", kiwi: "🥝", mango: "🥭", blueberry: "🫐", melon: "🍈",
+  car: "🚗", bus: "🚌", train: "🚆", airplane: "✈️", boat: "⛵",
+  bicycle: "🚲", rocket: "🚀", helicopter: "🚁", truck: "🚚", ambulance: "🚑",
+  taxi: "🚕", submarine: "🛳️", scooter: "🛴", tractor: "🚜", balloon: "🎈",
+};
+
 type Props = {
   board: MemoryMatchBoard;
   cardSize: number;
@@ -171,8 +188,8 @@ function CardCell({ card, state, size, isHintTarget, isHintGlow, onTap }: CardCe
           border: "2px solid var(--color-mc-stone-light)",
         }}
       >
-        <span className="text-2xl font-bold text-nolla-text select-none">
-          {card.imageKey.charAt(0).toUpperCase()}
+        <span className="text-4xl select-none" style={{ lineHeight: 1 }}>
+          {IMAGE_GLYPH[card.imageKey] ?? card.imageKey}
         </span>
       </div>
     </button>
