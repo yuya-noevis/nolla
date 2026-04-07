@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import type { SortingParams } from "@/types/domain";
+import type { SortingParams, SortingCriterion } from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
 import { generateSortingRound } from "@/lib/games/sorting/generate";
 
@@ -20,6 +20,161 @@ const COLOR_CSS: Record<string, string> = {
   green: "#2ECC71",
   purple: "#9B59B6",
 };
+
+const SIZE_PX: Record<string, number> = {
+  tiny: 56,
+  small: 72,
+  medium: 88,
+  large: 104,
+  huge: 120,
+};
+
+const CATEGORY_GLYPH: Record<string, string> = {
+  fruit: "🍎",
+  animal: "🐶",
+  vehicle: "🚗",
+  clothing: "👕",
+  furniture: "🛋️",
+};
+
+const NEUTRAL_BG = "#9FB8C8";
+
+// Render a sorting item or category according to the active criterion.
+// CRITICAL: items and categories MUST share the same visual encoding so the
+// child can match by sight. The previous implementation only rendered color,
+// breaking shape/size/category/multi entirely.
+function SortingVisual({
+  criterion,
+  attributes,
+  size = 88,
+}: {
+  criterion: SortingCriterion;
+  attributes: Readonly<Record<string, string>>;
+  size?: number;
+}) {
+  const fill =
+    criterion === "color" || criterion === "multi"
+      ? COLOR_CSS[attributes.color ?? ""] ?? NEUTRAL_BG
+      : NEUTRAL_BG;
+
+  const shapeName = attributes.shape ?? "circle";
+  const sizePx =
+    criterion === "size" ? SIZE_PX[attributes.size ?? "medium"] ?? size : size;
+
+  if (criterion === "category") {
+    return (
+      <div
+        className="flex items-center justify-center rounded-2xl"
+        style={{
+          width: size,
+          height: size,
+          background: "rgba(255,255,255,0.95)",
+          border: "3px solid var(--color-mc-dark-oak)",
+        }}
+      >
+        <span className="text-4xl select-none" style={{ lineHeight: 1 }}>
+          {CATEGORY_GLYPH[attributes.category ?? ""] ?? "❓"}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ width: sizePx, height: sizePx }}
+    >
+      <ShapeSvg shape={shapeName} fill={fill} size={sizePx} />
+    </div>
+  );
+}
+
+function ShapeSvg({
+  shape,
+  fill,
+  size,
+}: {
+  shape: string;
+  fill: string;
+  size: number;
+}) {
+  const stroke = "rgba(0,0,0,0.25)";
+  const strokeWidth = 3;
+  const c = size / 2;
+  const r = size / 2 - strokeWidth;
+  switch (shape) {
+    case "circle":
+      return (
+        <svg width={size} height={size}>
+          <circle cx={c} cy={c} r={r} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+        </svg>
+      );
+    case "square":
+      return (
+        <svg width={size} height={size}>
+          <rect
+            x={strokeWidth}
+            y={strokeWidth}
+            width={size - strokeWidth * 2}
+            height={size - strokeWidth * 2}
+            rx={6}
+            fill={fill}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+          />
+        </svg>
+      );
+    case "triangle":
+      return (
+        <svg width={size} height={size}>
+          <polygon
+            points={`${c},${strokeWidth} ${size - strokeWidth},${size - strokeWidth} ${strokeWidth},${size - strokeWidth}`}
+            fill={fill}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    case "star": {
+      const points: string[] = [];
+      for (let i = 0; i < 10; i++) {
+        const angle = (Math.PI / 5) * i - Math.PI / 2;
+        const rr = i % 2 === 0 ? r : r * 0.5;
+        points.push(`${c + rr * Math.cos(angle)},${c + rr * Math.sin(angle)}`);
+      }
+      return (
+        <svg width={size} height={size}>
+          <polygon
+            points={points.join(" ")}
+            fill={fill}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    }
+    case "diamond":
+      return (
+        <svg width={size} height={size}>
+          <polygon
+            points={`${c},${strokeWidth} ${size - strokeWidth},${c} ${c},${size - strokeWidth} ${strokeWidth},${c}`}
+            fill={fill}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    default:
+      return (
+        <svg width={size} height={size}>
+          <circle cx={c} cy={c} r={r} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+        </svg>
+      );
+  }
+}
 
 export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
   const round = useMemo(() => generateSortingRound(params), [params, roundKey]);
@@ -46,9 +201,10 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
 
       if (correct) {
         setCurrentItemIndex((i) => i + 1);
+        setTrialStart(Date.now());
       }
     },
-    [currentItem, round, currentItemIndex, trialStart, onTrialResult]
+    [currentItem, round, trialStart, onTrialResult]
   );
 
   useEffect(() => {
@@ -70,20 +226,29 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
     (c) => c.matchValue === currentItem.attributes[round.criterion]
   );
 
+  // Build category attribute lookup so the box visual mirrors the item visual.
+  const categoryAttrs = (matchValue: string): Record<string, string> => {
+    switch (round.criterion) {
+      case "color":
+        return { color: matchValue, shape: "circle" };
+      case "shape":
+        return { shape: matchValue };
+      case "size":
+        return { size: matchValue, shape: "circle" };
+      case "category":
+        return { category: matchValue };
+      case "multi":
+        return { color: matchValue, shape: "circle" };
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-8">
-      {/* Current item to sort */}
-      <div
-        className="w-24 h-24 rounded-2xl flex items-center justify-center shadow-elevated"
-        style={{ background: currentItem.attributes.color ?? "var(--color-mc-oak-light)" }}
-      >
-        <span className="text-3xl font-bold text-white drop-shadow-md select-none">
-          {currentItem.attributes.shape?.charAt(0).toUpperCase() ?? "?"}
-        </span>
-      </div>
+      {/* Current item */}
+      <SortingVisual criterion={round.criterion} attributes={currentItem.attributes} size={96} />
 
       {/* Category boxes */}
-      <div className="flex gap-6">
+      <div className="flex gap-6 flex-wrap justify-center">
         {round.categories.map((cat) => {
           const isHintTarget = hintStage >= 2 && cat.id === correctCategory?.id;
           const isHintGlow = hintStage >= 3 && cat.id === correctCategory?.id;
@@ -93,18 +258,24 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
               key={cat.id}
               type="button"
               onClick={() => handleCategoryTap(cat.id)}
-              className={`touch-target-child w-28 h-28 rounded-2xl flex items-center justify-center transition-all ${
+              className={`touch-target-child rounded-2xl flex items-center justify-center transition-all p-2 ${
                 isHintTarget ? "animate-pulse-gentle" : ""
               } ${isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""}`}
               style={{
-                background: COLOR_CSS[cat.matchValue]
-                  ? COLOR_CSS[cat.matchValue]
-                  : "linear-gradient(135deg, var(--color-mc-oak-light), var(--color-mc-oak))",
+                background: "rgba(255,255,255,0.15)",
                 border: "3px solid var(--color-mc-dark-oak)",
                 boxShadow: "0 4px 0 var(--color-mc-dark-oak-light)",
+                width: 124,
+                height: 124,
               }}
               aria-label={cat.label}
-            />
+            >
+              <SortingVisual
+                criterion={round.criterion}
+                attributes={categoryAttrs(cat.matchValue)}
+                size={88}
+              />
+            </button>
           );
         })}
       </div>

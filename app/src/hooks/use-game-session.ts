@@ -14,6 +14,8 @@ import {
   completeSession,
 } from "@/lib/session/session-state";
 import { calculateMotorBaseline } from "@/lib/session/motor-baseline";
+import { shouldAdvanceCriterion } from "@/lib/staircase/criterion";
+import type { SortingParams, SortingCriterion } from "@/types/domain";
 import {
   persistSessionStart,
   persistRound,
@@ -51,6 +53,52 @@ const MAX_ROUNDS = 3;
 
 const LAST_PARAMS_KEY = (childId: string, gameType: GameType) =>
   `nolla_last_params_${childId}_${gameType}`;
+
+const SORTING_HISTORY_KEY = (childId: string) =>
+  `nolla_sorting_history_${childId}`;
+
+const SORTING_CRITERIA_ORDER: readonly SortingCriterion[] = [
+  "color",
+  "shape",
+  "size",
+  "category",
+  "multi",
+];
+
+type SortingSessionRecord = {
+  readonly accuracy: number;
+  readonly hintStage3Rate: number;
+  readonly criterion: SortingCriterion;
+};
+
+function loadSortingHistory(childId: string): readonly SortingSessionRecord[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(SORTING_HISTORY_KEY(childId));
+    if (!raw) return [];
+    return JSON.parse(raw) as SortingSessionRecord[];
+  } catch {
+    return [];
+  }
+}
+
+function saveSortingHistory(
+  childId: string,
+  history: readonly SortingSessionRecord[]
+): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(SORTING_HISTORY_KEY(childId), JSON.stringify(history));
+  } catch {
+    // ignore
+  }
+}
+
+function nextCriterion(current: SortingCriterion): SortingCriterion {
+  const idx = SORTING_CRITERIA_ORDER.indexOf(current);
+  if (idx < 0 || idx >= SORTING_CRITERIA_ORDER.length - 1) return current;
+  return SORTING_CRITERIA_ORDER[idx + 1];
+}
 
 function loadLastParams(
   childId: string,
@@ -204,18 +252,10 @@ export function useGameSession(
 
     let roundStars = 1;
 
-    if (gameType === "memory-match") {
-      if (wrongCount <= correctCount) {
-        roundStars = 3;
-      } else if (wrongCount <= correctCount * 2) {
-        roundStars = 2;
-      }
-    } else {
-      if (totalTrials > 0 && correctCount === totalTrials) {
-        roundStars = 3;
-      } else if (totalTrials > 0 && correctCount >= totalTrials * 0.5) {
-        roundStars = 2;
-      }
+    if (totalTrials > 0 && correctCount === totalTrials) {
+      roundStars = 3;
+    } else if (totalTrials > 0 && correctCount >= totalTrials * 0.8) {
+      roundStars = 2;
     }
 
     setSessionStars((s) => s + roundStars);
@@ -266,7 +306,43 @@ export function useGameSession(
     setPhase("completed");
 
     // 最終パラメータをlocalStorageに保存(=次回セッション初期値)
-    saveLastParams(childId, gameType, postFinal.currentParams);
+    let paramsToSave: DifficultyParams = postFinal.currentParams;
+
+    // Sorting: criterion advancement (was previously dead code — wired in here)
+    if (gameType === "sorting") {
+      const sp = paramsToSave as SortingParams;
+      const accuracy =
+        summary.totalTrials > 0
+          ? summary.correctCount / summary.totalTrials
+          : 0;
+      const hintStage3Rate =
+        summary.totalTrials > 0
+          ? summary.hintStage3Count / summary.totalTrials
+          : 0;
+      const history = loadSortingHistory(childId);
+      const updated = [
+        ...history,
+        { accuracy, hintStage3Rate, criterion: sp.criterion },
+      ].slice(-10);
+
+      // Only count history entries from the *current* criterion towards advance.
+      const sameLevel = updated.filter((h) => h.criterion === sp.criterion);
+      if (shouldAdvanceCriterion(sameLevel)) {
+        const next = nextCriterion(sp.criterion);
+        if (next !== sp.criterion) {
+          // Reset structural params for the new criterion to its starting point.
+          paramsToSave = {
+            categories: 2,
+            items: 4,
+            criterion: next,
+            switching: "none",
+          } satisfies SortingParams;
+        }
+      }
+      saveSortingHistory(childId, updated);
+    }
+
+    saveLastParams(childId, gameType, paramsToSave);
 
     // セッション終了をDBに記録
     const sid = sessionIdRef.current;
