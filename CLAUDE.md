@@ -118,9 +118,10 @@ type ApiResponse<T> = { success: true; data: T } | { success: false; error: stri
 この4ファイルを読まずに実装を始めるな。
 
 ### 理論背景が必要な場合の参照先
-- **UI/UXデザイン理論** → `nolla_design_rules_asd_research.md`
-- **ゲーム選定の科学的根拠** → `nolla_visuospatial_cognition_research.md`
-- **報酬メカニクス** → `nolla_reward_design_research.md`
+- **UI/UX設計境界・運用目安** → `.claude/rules/common/nolla-mvp-design.md`
+- **色・ビジュアル(単一の正)** → `outputs/nolla_color_regulation.md`
+- **ゲーム選定の科学的根拠** → `outputs/nolla_visuospatial_cognition_research.md`
+- **報酬メカニクス** → `outputs/nolla_reward_design_research.md`
 
 ### ビジュアル実装時
 - **色選択** → `nolla_color_regulation.md`
@@ -133,9 +134,23 @@ type ApiResponse<T> = { success: true; data: T } | { success: false; error: stri
 - 複数版がある場合は最新版のみを使用
 
 ### ファイル整理状況
-- **ACTIVE**: 26個（`outputs/` 直下）
-- **DEPRECATED**: 56個（`outputs/_archive/` に移動済み）
+- **ACTIVE**: `outputs/` 直下
+- **DEPRECATED**: `outputs/_archive/` に移動済み
 - **参照ガイド**: `outputs/INDEX.md` で全体像を把握できる
+
+### ファイル更新時の自動運用ルール（厳守 / 同種ミス防止）
+
+設計書・レポート類を作成・更新する時、Claudeは以下を**必ず実行**する。これを怠ると古いファイルを参照する事故が再発する。
+
+1. **新しいバージョン(v2/v3等)を作成したら、旧版を即 `outputs/_archive/` へ移動**(`mv` or `git mv`)。元の場所に残さない
+2. **同じ目的の既存ファイルを置き換える場合**、旧ファイルを即 `_archive/` へ移動。残してはいけない
+3. **新規ACTIVEファイルを作成したら**、即 `outputs/INDEX.md` の該当カテゴリに1行追加
+4. **日付付きレポート**(`*_review_YYYY-MM-DD.md` 等)は専用カテゴリ「単発レポート」に登録。同種の旧レポートが既存にあれば即 `_archive/` 移動
+5. **一回限りの実行記録**(`COMPLETION_REPORT_*.md` `*_summary_*.md` 等の transient な記録)は最初から `outputs/_archive/reports/` に置く。`outputs/` 直下には絶対に置かない
+6. **タスク完了時に必ず**: `outputs/` 直下のファイル数と `INDEX.md` の登録数が一致するか確認
+7. **archive後はINDEX.mdからも該当行を削除**
+
+これは省略不可のチェックリスト。タスク中で「設計書を更新した/新規作成した」と言ったら、その場でこのルールを実行すること。
 
 この構造により、ドキュメント混乱による参照エラー・バージョン重複使用を防ぐ。
 
