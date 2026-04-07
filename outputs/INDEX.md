@@ -1,0 +1,168 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 設計ドキュメント・資料の索引（ACTIVE ファイル一覧）
+RELATED: nolla_dev_roadmap.md
+---
+
+# Nolla 設計ドキュメント INDEX
+
+このファイルは、Nolla MVP開発における全ACTIVE（現役）ドキュメントの索引です。
+DEPRECATED（廃止済み）ファイルは `outputs/_archive/` ディレクトリに移動されています。
+
+## カテゴリー別一覧
+
+### 1. コア設計仕様書（必読）
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_mvp_design_spec_v3.md](nolla_mvp_design_spec_v3.md) | MVP設計仕様書（完全版）。3-18歳ASD児向けゲーム全体像 | 2026-04-03 |
+| [nolla_ia_design_v3.md](nolla_ia_design_v3.md) | 情報設計：全21画面の構造・フロー・レイアウト | 2026-04-03 |
+| [nolla_game_mechanics_design.md](nolla_game_mechanics_design.md) | 4ゲームメカニクス・難度設計・テスト結果（RCT検証済み） | 2026-04-05 |
+| [nolla_nci_algorithm_design.md](nolla_nci_algorithm_design.md) | NCIスコアリング・適応型難度・保護者画面データ設計 | 2026-04-05 |
+
+**読むべき順序**: 1 → 2 → 3 → 4
+
+---
+
+### 2. ビジュアル・デザインルール
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_color_regulation.md](nolla_color_regulation.md) | カラー規定の単一の正。色は自由(蛍光・点滅・色のみ意味伝達のみNG)。彩度x面積x動きで判断 | 2026-04-04 |
+| [nolla_design_direction.md](nolla_design_direction.md) | ビジュアル方向性・キャラクター・建物スタイル（v4d） | 2026-04-03 |
+| [nolla_v4d_building_design_rules.md](nolla_v4d_building_design_rules.md) | 建物デザイン規則：Minecraft+ACパステル融合スタイル | 2026-04-03 |
+| [nolla_stage_bg_composition_rules.md](nolla_stage_bg_composition_rules.md) | ステージ背景構成ルール・配置・詳細指定 | 2026-04-03 |
+
+---
+
+### 3. デザイン理論・エビデンス
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_visuospatial_cognition_research.md](nolla_visuospatial_cognition_research.md) | 視空間認知訓練：RCT検証済み9ゲーム、IQ別仕様 | 2026-04-05 |
+| [nolla_reward_design_research.md](nolla_reward_design_research.md) | 報酬設計リサーチ・スター計算・shop構成 | 2026-04-04 |
+
+---
+
+### 4. 実装ガイド
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_game_implementation_guide.md](nolla_game_implementation_guide.md) | ゲーム実装ガイドライン・コンテンツ生成手順 | 2026-04-05 |
+
+---
+
+### 5. キャラクター・ビジュアル素材
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_character_design_prompts.md](nolla_character_design_prompts.md) | キャラクター生成プロンプト集 | 2026-03-26 |
+| [nolla_wagaya_image_prompts.md](nolla_wagaya_image_prompts.md) | わが家キャラ画像生成プロンプト | 2026-04-07（修正） |
+
+---
+
+### 6. ユーザーリサーチ・インタビュー
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_interview_guide_v4.md](nolla_interview_guide_v4.md) | ユーザーインタビューガイド v4 | 2026-04-02 |
+
+---
+
+### 7. 動画制作・パイロット（わが家シリーズ）
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_pilot_001_production_guide.md](nolla_pilot_001_production_guide.md) | 動画制作01パイロット：全体制作ガイド | 2026-03-24 |
+| [nolla_pilot_001_storyboard.md](nolla_pilot_001_storyboard.md) | 動画制作01パイロット：ストーリーボード | 2026-03-24 |
+| [nolla_pilot_001_script.md](nolla_pilot_001_script.md) | 動画制作01パイロット：スクリプト | 2026-03-24 |
+| [nolla_pilot_001_sound_design.md](nolla_pilot_001_sound_design.md) | 動画制作01パイロット：サウンドデザイン | 2026-03-24 |
+| [nolla_pilot_001_therapy_sheet.md](nolla_pilot_001_therapy_sheet.md) | 動画制作01パイロット：療育シート | 2026-03-24 |
+
+---
+
+### 8. 保護者向けコンテンツ・教育資料
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_evidence_based_parenting_tips.md](nolla_evidence_based_parenting_tips.md) | 保護者向けTips：エビデンスベース（SNS投稿素材） | 2026-03-26 |
+
+---
+
+### 9. ブランド・わが家設計
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_wagaya_account_design.md](nolla_wagaya_account_design.md) | わが家ブランド・アカウント設計 | 2026-04-07 |
+| [nolla_style_guide.md](nolla_style_guide.md) | ブランドスタイルガイド | 2026-04-07 |
+
+---
+
+### 10. 投資家向け資料
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_investor_overview.md](nolla_investor_overview.md) | 投資家向け概要資料 | 2026-03-22 |
+| [nolla_pitch_deck.md](nolla_pitch_deck.md) | ピッチデック（Marp生成） | 2026-04-07 |
+
+---
+
+### 11. 進捗管理
+
+| ファイル | 目的 | 最終更新 |
+|---------|------|---------|
+| [nolla_dev_roadmap.md](nolla_dev_roadmap.md) | 開発ロードマップ・進捗管理（唯一の進捗統制台帳） | 2026-04-06 |
+
+---
+
+## 参照ルール（CLAUDE.md記載）
+
+### 設計ドキュメントの参照 — 絶対ルール
+
+1. **MVP開発着手前に必読の4ファイル**（Phase 0）
+   ```
+   1. outputs/nolla_mvp_design_spec_v3.md
+   2. outputs/nolla_ia_design_v3.md
+   3. outputs/nolla_game_mechanics_design.md
+   4. outputs/nolla_nci_algorithm_design.md
+   ```
+
+2. **理論的背景が必要な場合**
+   - UI/UXデザイン → `.claude/rules/common/nolla-mvp-design.md` + `nolla_color_regulation.md` (現運用ルール)
+   - ゲーム選定理由 → `nolla_visuospatial_cognition_research.md`
+   - 報酬メカニクス → `nolla_reward_design_research.md`
+
+3. **ビジュアル実装時**
+   - 色選択 → `nolla_color_regulation.md`
+   - キャラ設計 → `nolla_design_direction.md` + `nolla_character_design_prompts.md`
+   - 背景デザイン → `nolla_stage_bg_composition_rules.md` + `nolla_v4d_building_design_rules.md`
+
+4. **版のバージョニング**
+   - v3 = CURRENT（使用）
+   - v1, v2 = DEPRECATED（_archive/ に移動済み）
+   - 複数版がある場合は、最新版のみ使用
+
+---
+
+## アーカイブ ファイル
+
+DEPRECATED ファイル（56個）は全て `outputs/_archive/` に移動されています。
+以下の理由で非表示にされました：
+
+- **v1/v2版**: v3が最新版のため
+- **リサーチドキュメント**: Phase 0で役割終了、引継ぎ情報はv3に統合済み
+- **探索段階の資料**: 最終決定版へ集約済み
+- **パイロット版モック**: 最新版に更新済み
+
+必要に応じて `outputs/_archive/` から取得可能です。
+
+---
+
+## ファイル統計
+
+- **ACTIVE ファイル**: 26個
+- **DEPRECATED ファイル**: 56個（_archive/）
+- **その他**: mockups/, .DS_Store, HTML/PNG
+
+**最終整理日**: 2026-04-07

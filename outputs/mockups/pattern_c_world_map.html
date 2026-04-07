@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - Pattern C: World Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    position: relative;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    position: absolute;
+    top: 20px;
+    left: 28px;
+    right: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 5;
+  }
+
+  .character-greeting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .character-greeting img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  }
+
+  .greeting-bubble {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 8px 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    border: 3px solid rgba(74, 123, 167, 0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    position: relative;
+  }
+
+  .greeting-bubble::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 7px solid transparent;
+    border-right-color: rgba(255, 255, 255, 0.92);
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .star-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 8px 18px;
+    border: 3px solid rgba(212, 165, 116, 0.4);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .adult-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(74, 123, 167, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+
+  /* Clickable building hotspots */
+  .building-hotspot {
+    position: absolute;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .building-hotspot:hover {
+    transform: scale(1.06);
+  }
+
+  .building-hotspot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .building-hotspot:hover::after {
+    opacity: 1;
+  }
+
+  /* Position hotspots over the buildings on the island map */
+  .hotspot-sorting   { width: 120px; height: 120px; bottom: 190px; left: 250px; }
+  .hotspot-memory    { width: 120px; height: 120px; top: 290px; left: 500px; }
+  .hotspot-search    { width: 120px; height: 120px; top: 160px; right: 120px; }
+  .hotspot-words     { width: 120px; height: 120px; top: 150px; left: 280px; }
+  .hotspot-story     { width: 120px; height: 120px; bottom: 200px; right: 180px; }
+
+  /* Tooltip on hover */
+  .building-hotspot .tooltip {
+    position: absolute;
+    bottom: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    border: 2px solid rgba(212, 165, 116, 0.3);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .building-hotspot:hover .tooltip {
+    opacity: 1;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: absolute;
+    bottom: 20px;
+    right: 28px;
+    display: flex;
+    gap: 16px;
+    z-index: 5;
+  }
+
+  .nav-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(107, 164, 122, 0.4);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .nav-btn:hover {
+    transform: translateY(-3px);
+  }
+
+  .nav-btn img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+  }
+
+  .pattern-label {
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/world_map_bg.png" alt="background">
+
+  <div class="overlay">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="character-greeting">
+        <img src="assets/navi_character.png" alt="navi">
+        <div class="greeting-bubble">どこにいく?</div>
+      </div>
+      <div class="top-right">
+        <div class="star-count">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <path d="M16 2L20.1 11.6L30 12.9L22.8 19.6L24.8 30L16 24.8L7.2 30L9.2 19.6L2 12.9L11.9 11.6L16 2Z" fill="#D4A574" stroke="#C49464" stroke-width="1.5"/>
+          </svg>
+          <span style="font-family:'Fredoka';font-weight:700;color:#333">128</span>
+        </div>
+        <div class="adult-btn">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="12" width="16" height="12" rx="3" fill="#4A7BA7" opacity="0.6"/>
+            <path d="M10 12V9C10 6.8 11.8 5 14 5C16.2 5 18 6.8 18 9V12" stroke="#4A7BA7" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Building hotspots (invisible clickable areas over the map buildings) -->
+    <div class="building-hotspot hotspot-sorting">
+      <span class="tooltip">なかまわけ</span>
+    </div>
+    <div class="building-hotspot hotspot-memory">
+      <span class="tooltip">おぼえて</span>
+    </div>
+    <div class="building-hotspot hotspot-search">
+      <span class="tooltip">みつけて</span>
+    </div>
+    <div class="building-hotspot hotspot-words">
+      <span class="tooltip">ことば</span>
+    </div>
+    <div class="building-hotspot hotspot-story">
+      <span class="tooltip">おはなし</span>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-btn" title="マイルーム">
+        <img src="assets/icon_myroom.png" alt="myroom">
+      </div>
+      <div class="nav-btn" title="ショップ">
+        <img src="assets/icon_shop.png" alt="shop">
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-label">Pattern C: World Map</div>
+</body>
+</html>

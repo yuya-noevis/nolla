@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - U2 Name Input</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+.center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+/* Nav character happy */
+.navi-happy { width: 120px; height: 120px; border-radius: 28px; background: rgba(255,255,255,0.95); border: 4px solid rgba(210,185,150,0.5); box-shadow: 0 8px 24px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: happy-bounce 1.5s ease-in-out infinite; }
+.navi-happy img { width: 104px; height: 104px; object-fit: contain; }
+@keyframes happy-bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* Speech bubble (parent-readable text since this is a transition moment) */
+.speech { background: rgba(255,255,255,0.95); border: 3px solid rgba(210,185,150,0.5); border-radius: 24px; padding: 20px 32px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); text-align: center; max-width: 420px; }
+.speech-text { font-size: 18px; font-weight: 700; color: #5A4A3A; line-height: 1.6; }
+
+/* Name input card */
+.name-card { background: rgba(255,255,255,0.95); border: 4px solid rgba(210,185,150,0.5); border-radius: 24px; padding: 24px 40px; box-shadow: 0 8px 28px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 16px; }
+.name-input { width: 240px; height: 56px; border: 3px solid rgba(210,185,150,0.5); border-radius: 16px; padding: 0 20px; font-size: 22px; font-weight: 700; color: #5A4A3A; background: rgba(245,240,232,0.5); outline: none; text-align: center; }
+.name-input::placeholder { color: #CCC; font-size: 16px; }
+
+/* Confirm button */
+.confirm-btn { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(180deg, #6BA47A 0%, #5A8A6A 100%); border: 3px solid #4A7A58; box-shadow: 0 4px 0 #3A6A48, 0 6px 14px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* "Later" button */
+.later-btn { padding: 10px 28px; border-radius: 14px; background: rgba(255,255,255,0.6); border: 2px solid rgba(210,185,150,0.4); font-size: 14px; color: #999; cursor: pointer; transition: background 0.15s; }
+.later-btn:hover { background: rgba(255,255,255,0.9); }
+
+/* Decorative stars */
+.deco-star { position: absolute; z-index: 5; opacity: 0.2; }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/s1_splash_bg.png" alt="">
+
+  <!-- Decorative stars -->
+  <svg class="deco-star" style="top:100px;left:150px;" width="40" height="40" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520"/></svg>
+  <svg class="deco-star" style="top:200px;right:200px;" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520"/></svg>
+  <svg class="deco-star" style="bottom:150px;left:250px;" width="28" height="28" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520"/></svg>
+  <svg class="deco-star" style="bottom:200px;right:180px;" width="36" height="36" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520"/></svg>
+
+  <div class="center">
+    <div class="navi-happy">
+      <img src="assets/navi_character.png" alt="">
+    </div>
+
+    <div class="speech">
+      <div class="speech-text">
+        たのしかった?<br>
+        もっとたのしくするために、<br>
+        おなまえをおしえてね!
+      </div>
+    </div>
+
+    <div class="name-card">
+      <input class="name-input" type="text" placeholder="ニックネーム" value="">
+      <div class="confirm-btn">
+        <svg width="28" height="28" viewBox="0 0 24 24"><path d="M5 12L10 17L19 8" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="later-btn">あとで</div>
+  </div>
+</body>
+</html>

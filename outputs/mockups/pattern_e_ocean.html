@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - Pattern E: Deep Ocean</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    position: relative;
+    background: #1a3a4a;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* Depth layer indicators on the left side */
+  .depth-bar {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 10;
+  }
+
+  .depth-level {
+    width: 6px;
+    height: 60px;
+    border-radius: 3px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
+
+  .depth-level.active {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(100,200,220,0.5);
+  }
+
+  .depth-1 { background: linear-gradient(to bottom, #7EC8D8, #5AA8C0); }
+  .depth-2 { background: linear-gradient(to bottom, #5AA8C0, #3A889A); }
+  .depth-3 { background: linear-gradient(to bottom, #3A889A, #2A6878); }
+  .depth-4 { background: linear-gradient(to bottom, #2A6878, #1A4858); opacity: 0.3; }
+
+  /* Top Bar */
+  .top-bar {
+    position: absolute;
+    top: 16px;
+    left: 40px;
+    right: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 10;
+  }
+
+  .character-greeting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .character-greeting img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(100,200,220,0.3));
+  }
+
+  .greeting-bubble {
+    background: rgba(20, 60, 80, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 7px 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #C0E0E8;
+    border: 2.5px solid rgba(100, 200, 220, 0.3);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3), 0 0 12px rgba(100,200,220,0.08);
+    position: relative;
+  }
+
+  .greeting-bubble::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: rgba(20, 60, 80, 0.85);
+  }
+
+  /* Bubble decoration */
+  .bubble-deco {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(200,240,255,0.15);
+    z-index: 2;
+    pointer-events: none;
+    animation: float-up var(--duration) ease-in-out infinite;
+  }
+
+  @keyframes float-up {
+    0%   { transform: translateY(0) scale(1); opacity: 0.3; }
+    50%  { transform: translateY(-40px) scale(1.1); opacity: 0.6; }
+    100% { transform: translateY(-80px) scale(0.8); opacity: 0; }
+  }
+
+  .bubble-1 { width: 8px; height: 8px; bottom: 200px; left: 300px; --duration: 4s; }
+  .bubble-2 { width: 12px; height: 12px; bottom: 150px; left: 600px; --duration: 5s; animation-delay: 1s; }
+  .bubble-3 { width: 6px; height: 6px; bottom: 300px; right: 200px; --duration: 3.5s; animation-delay: 2s; }
+  .bubble-4 { width: 10px; height: 10px; bottom: 100px; right: 400px; --duration: 4.5s; animation-delay: 0.5s; }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .star-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(20, 60, 80, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 6px 14px;
+    border: 2.5px solid rgba(212, 165, 116, 0.4);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #C0E0E8;
+  }
+
+  .adult-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(20, 60, 80, 0.7);
+    backdrop-filter: blur(10px);
+    border: 2.5px solid rgba(100, 200, 220, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  /* Zone hotspots */
+  .zone {
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 5;
+    border-radius: 16px;
+  }
+
+  .zone:hover {
+    transform: scale(1.04);
+  }
+
+  .zone-glow {
+    position: absolute;
+    inset: -6px;
+    border-radius: 20px;
+    border: 2px solid rgba(100,220,240,0.4);
+    box-shadow: 0 0 20px rgba(100,220,240,0.2);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .zone:hover .zone-glow {
+    opacity: 1;
+  }
+
+  .zone-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(15, 50, 70, 0.88);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 6px 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #B0D8E4;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    border: 2px solid rgba(100,200,220,0.25);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .zone:hover .zone-label {
+    opacity: 1;
+  }
+
+  /* Zone positions on the underwater scene */
+  .zone-coral   { bottom: 80px; left: 30px; width: 280px; height: 240px; }
+  .zone-kelp    { top: 180px; left: 350px; width: 240px; height: 320px; }
+  .zone-ruins   { bottom: 60px; right: 30px; width: 300px; height: 280px; }
+
+  /* Deeper zone hint (locked) */
+  .deeper-zone {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to top, rgba(10,30,50,0.7), transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  .deeper-text {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12px;
+    color: rgba(120,180,200,0.5);
+    letter-spacing: 2px;
+  }
+
+  /* Arrows suggesting horizontal scroll */
+  .scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 8;
+    width: 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.4;
+    animation: arrow-pulse 2s ease-in-out infinite;
+  }
+
+  .scroll-arrow-right { right: 8px; }
+  .scroll-arrow-left { left: 28px; }
+
+  @keyframes arrow-pulse {
+    0%, 100% { opacity: 0.2; transform: translateY(-50%) translateX(0); }
+    50% { opacity: 0.5; transform: translateY(-50%) translateX(4px); }
+  }
+
+  .scroll-arrow-left { animation-name: arrow-pulse-left; }
+  @keyframes arrow-pulse-left {
+    0%, 100% { opacity: 0.2; transform: translateY(-50%) translateX(0); }
+    50% { opacity: 0.5; transform: translateY(-50%) translateX(-4px); }
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: absolute;
+    bottom: 48px;
+    right: 24px;
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .nav-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(20, 60, 80, 0.85);
+    backdrop-filter: blur(10px);
+    border: 2.5px solid rgba(100, 200, 220, 0.25);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .nav-btn:hover { transform: translateY(-3px); }
+  .nav-btn img { width: 36px; height: 36px; object-fit: contain; }
+
+  .pattern-label {
+    position: absolute;
+    bottom: 4px;
+    left: 40px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11px;
+    color: rgba(120,180,200,0.3);
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/ocean_bg.png" alt="deep ocean">
+
+  <div class="overlay">
+    <!-- Depth bar -->
+    <div class="depth-bar">
+      <div class="depth-level depth-1 active"></div>
+      <div class="depth-level depth-2 active"></div>
+      <div class="depth-level depth-3"></div>
+      <div class="depth-level depth-4"></div>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="character-greeting">
+        <img src="assets/navi_character.png" alt="navi">
+        <div class="greeting-bubble">うみをたんけんしよう!</div>
+      </div>
+      <div class="top-right">
+        <div class="star-count">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+            <path d="M16 2L20.1 11.6L30 12.9L22.8 19.6L24.8 30L16 24.8L7.2 30L9.2 19.6L2 12.9L11.9 11.6L16 2Z" fill="#D4A574" stroke="#C49464" stroke-width="1.5"/>
+          </svg>
+          <span>128</span>
+        </div>
+        <div class="adult-btn">
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="12" width="16" height="12" rx="3" fill="#6AB8C8" opacity="0.6"/>
+            <path d="M10 12V9C10 6.8 11.8 5 14 5C16.2 5 18 6.8 18 9V12" stroke="#6AB8C8" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decorative bubbles -->
+    <div class="bubble-deco bubble-1"></div>
+    <div class="bubble-deco bubble-2"></div>
+    <div class="bubble-deco bubble-3"></div>
+    <div class="bubble-deco bubble-4"></div>
+
+    <!-- Zone hotspots -->
+    <div class="zone zone-coral">
+      <div class="zone-glow"></div>
+      <div class="zone-label">サンゴのいりえ（きおく）</div>
+    </div>
+
+    <div class="zone zone-kelp">
+      <div class="zone-glow"></div>
+      <div class="zone-label">こんぶのもり（ちゅうい）</div>
+    </div>
+
+    <div class="zone zone-ruins">
+      <div class="zone-glow"></div>
+      <div class="zone-label">こだいのいせき（ことば）</div>
+    </div>
+
+    <!-- Scroll arrows -->
+    <div class="scroll-arrow scroll-arrow-right">
+      <svg width="20" height="40" viewBox="0 0 20 40" fill="none">
+        <path d="M4 4L16 20L4 36" stroke="rgba(100,200,220,0.5)" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- Deeper zone hint -->
+    <div class="deeper-zone">
+      <div class="deeper-text">もっとふかくへ...</div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-btn" title="マイルーム">
+        <img src="assets/icon_myroom.png" alt="myroom">
+      </div>
+      <div class="nav-btn" title="ショップ">
+        <img src="assets/icon_shop.png" alt="shop">
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-label">Pattern E: Deep Ocean</div>
+</body>
+</html>

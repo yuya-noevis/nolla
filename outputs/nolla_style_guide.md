@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: ブランドスタイルガイド
+RELATED: nolla_wagaya_account_design.md
+---
+
 # Nolla スタイルガイド v1.0
 
 > 全動画で一貫したビジュアルを維持するためのデザインルール。

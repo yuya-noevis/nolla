@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - U1 Break Suggestion</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+.center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+
+/* Nav character sleepy */
+.navi-sleepy { width: 140px; height: 140px; border-radius: 32px; background: rgba(255,255,255,0.92); border: 4px solid rgba(210,185,150,0.5); box-shadow: 0 8px 28px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: sleepy-bob 3s ease-in-out infinite; }
+.navi-sleepy img { width: 120px; height: 120px; object-fit: contain; }
+@keyframes sleepy-bob { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(4px) rotate(-3deg); } }
+
+/* Zzz animation */
+.zzz { position: absolute; top: 160px; right: 380px; z-index: 15; }
+.z1,.z2,.z3 { position: absolute; font-size: 24px; font-weight: 800; color: rgba(255,255,255,0.6); }
+.z1 { animation: float-z 2.5s ease-in-out infinite 0s; top: 0; left: 0; font-size: 18px; }
+.z2 { animation: float-z 2.5s ease-in-out infinite 0.5s; top: -20px; left: 20px; font-size: 24px; }
+.z3 { animation: float-z 2.5s ease-in-out infinite 1s; top: -45px; left: 35px; font-size: 30px; }
+@keyframes float-z { 0% { opacity: 0; transform: translateY(10px); } 50% { opacity: 0.8; } 100% { opacity: 0; transform: translateY(-20px); } }
+
+/* Two icon-only buttons */
+.buttons { display: flex; gap: 48px; }
+.break-btn { width: 120px; height: 120px; border-radius: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+.break-btn:hover { transform: scale(1.05); }
+
+/* "Continue playing" button */
+.btn-continue {
+  background: linear-gradient(180deg, #A8D4A0 0%, #7AB870 60%, #6BA47A 100%);
+  border: 5px solid #5A9060;
+  box-shadow: 0 8px 0 #4A7A50, 0 10px 24px rgba(0,0,0,0.2);
+}
+
+/* "Take a break" button */
+.btn-rest {
+  background: linear-gradient(180deg, #B8C8D8 0%, #8FA8C0 60%, #7A96B0 100%);
+  border: 5px solid #6A86A0;
+  box-shadow: 0 8px 0 #5A7690, 0 10px 24px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/u1_break_bg.png" alt="">
+
+  <!-- Zzz floating -->
+  <div class="zzz">
+    <span class="z1">Z</span>
+    <span class="z2">Z</span>
+    <span class="z3">Z</span>
+  </div>
+
+  <div class="center">
+    <!-- Sleepy nav character -->
+    <div class="navi-sleepy">
+      <img src="assets/navi_character.png" alt="">
+    </div>
+
+    <!-- Moon/rest visual hint -->
+    <svg width="80" height="80" viewBox="0 0 80 80">
+      <path d="M45 10C30 10 18 22 18 37C18 52 30 64 45 64C50 64 55 62.5 59 60C52 62 44 58 40 51C36 44 36 35 40 28C44 21 52 17 59 19C55 13 50 10 45 10Z" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    </svg>
+
+    <!-- Two buttons: continue vs rest -->
+    <div class="buttons">
+      <!-- Continue playing (play icon) -->
+      <div class="break-btn btn-continue">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <path d="M18 12L44 28L18 44Z" fill="white" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+        </svg>
+      </div>
+
+      <!-- Take a break (moon/sleep icon) -->
+      <div class="break-btn btn-rest">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <path d="M30 6C18 6 8 16 8 28C8 40 18 46 30 46C34 46 37.5 45 40.5 43C35 44.5 29 42 26 37C23 32 23 25 26 20C29 15 35 12 40.5 13.5C37.5 9 34 6 30 6Z" fill="white" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

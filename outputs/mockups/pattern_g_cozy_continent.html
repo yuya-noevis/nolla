@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - Pattern G: Cozy Continent</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    position: relative;
+    background: #E8EEF2;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* ===== TOP BAR ===== */
+  .top-bar {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 10;
+  }
+
+  .character-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .character-frame {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.9);
+    border: 3px solid rgba(212,165,116,0.6);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .character-frame img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+  }
+
+  .mood {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.9);
+    border: 2px solid rgba(107,164,122,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .star-counter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.9);
+    border: 3px solid rgba(212,165,116,0.5);
+    border-radius: 16px;
+    padding: 6px 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .star-counter span {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2C3E50;
+  }
+
+  .adult-lock {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.75);
+    border: 2px solid rgba(139,155,163,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  /* ===== BOTTOM BAR ===== */
+  .bottom-bar {
+    position: absolute;
+    bottom: 16px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 10;
+  }
+
+  .collection-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.9);
+    border: 3px solid rgba(212,165,116,0.5);
+    border-radius: 16px;
+    padding: 8px 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .progress-blocks {
+    display: flex;
+    gap: 4px;
+  }
+
+  .p-block {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 2px solid rgba(139,155,163,0.5);
+  }
+
+  .p-block.filled {
+    background: #A8D5BA;
+    border-color: #8BC4A0;
+  }
+
+  .p-block.empty {
+    background: rgba(139,155,163,0.15);
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.9);
+    border: 3px solid rgba(212,165,116,0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .nav-btn:hover { transform: scale(1.05); }
+  .nav-btn img { width: 44px; height: 44px; object-fit: contain; }
+
+  /* ===== AREA HOTSPOTS ===== */
+  .area {
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    z-index: 5;
+  }
+
+  .area:hover { transform: scale(1.08); }
+
+  .area-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.92);
+    border: 3px solid rgba(212,165,116,0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+
+  .area:hover .area-icon {
+    box-shadow: 0 4px 16px rgba(168,213,186,0.5), 0 0 0 3px rgba(168,213,186,0.25);
+    border-color: #A8D5BA;
+  }
+
+  /* Positions on the cozy continent */
+  .area-forest   { top: 160px; left: 180px; }
+  .area-snow     { top: 120px; right: 200px; }
+  .area-lake     { top: 260px; right: 320px; }
+  .area-village  { bottom: 230px; left: 340px; }
+  .area-beach    { bottom: 240px; right: 220px; }
+
+  /* Fog */
+  .fog {
+    position: absolute;
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .fog-edges {
+    inset: 0;
+    position: absolute;
+    box-shadow: inset 0 0 80px 40px rgba(232,238,242,0.6);
+  }
+
+  /* Locked */
+  .area-locked .area-icon {
+    opacity: 0.45;
+    filter: grayscale(0.4);
+  }
+
+  .lock-badge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 18px;
+    height: 18px;
+    background: rgba(139,155,163,0.8);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pattern-label {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: system-ui, sans-serif;
+    font-size: 10px;
+    color: rgba(44,62,80,0.25);
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/cozy_continent_bg.png" alt="cozy continent">
+
+  <div class="overlay">
+    <div class="fog fog-edges"></div>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="character-area">
+        <div class="character-frame">
+          <img src="assets/navi_character.png" alt="">
+        </div>
+        <div class="mood">
+          <svg width="20" height="20" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="9" fill="#F9F7F5" stroke="#A8D5BA" stroke-width="1.5"/>
+            <circle cx="7" cy="8" r="1.5" fill="#2C3E50"/>
+            <circle cx="13" cy="8" r="1.5" fill="#2C3E50"/>
+            <path d="M7 13Q10 16 13 13" stroke="#2C3E50" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="top-right">
+        <div class="star-counter">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#D4A574" stroke="#C49464" stroke-width="1"/>
+          </svg>
+          <span>128</span>
+        </div>
+        <div class="adult-lock">
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2" fill="#8B9BA3" opacity="0.5"/>
+            <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="#8B9BA3" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- AREA HOTSPOTS (icon-only) -->
+    <!-- Forest = Memory -->
+    <div class="area area-forest">
+      <div class="area-icon">
+        <svg width="28" height="28" viewBox="0 0 32 32">
+          <path d="M16 4C11 4 7 8 7 12.5C7 17 10 19 10 22H22C22 19 25 17 25 12.5C25 8 21 4 16 4Z" fill="#A8D5BA" opacity="0.8"/>
+          <path d="M13 22V26H19V22" fill="#D2B48C"/>
+          <circle cx="12" cy="12" r="1.5" fill="#F9F7F5" opacity="0.8"/>
+          <circle cx="18" cy="10" r="1" fill="#F9F7F5" opacity="0.6"/>
+          <circle cx="15" cy="14" r="1.2" fill="#F9F7F5" opacity="0.7"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Snow = Planning -->
+    <div class="area area-snow">
+      <div class="area-icon">
+        <svg width="28" height="28" viewBox="0 0 32 32">
+          <path d="M4 22L12 8L16 14L20 8L28 22Z" fill="#B0C4D0" opacity="0.6"/>
+          <path d="M12 8L14 12L10 12Z" fill="#F9F7F5" opacity="0.6"/>
+          <circle cx="16" cy="18" r="4" fill="#8BC4D4" opacity="0.25"/>
+          <circle cx="16" cy="18" r="2" fill="#8BC4D4" opacity="0.5"/>
+          <circle cx="16" cy="18" r="0.8" fill="#2C3E50" opacity="0.7"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Lake = Attention -->
+    <div class="area area-lake">
+      <div class="area-icon">
+        <svg width="28" height="28" viewBox="0 0 32 32">
+          <circle cx="14" cy="14" r="8" fill="none" stroke="#8BC4D4" stroke-width="2.5" opacity="0.7"/>
+          <line x1="20" y1="20" x2="27" y2="27" stroke="#D2B48C" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="14" cy="14" r="3" fill="#8BC4D4" opacity="0.2"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Village = Social -->
+    <div class="area area-village">
+      <div class="area-icon">
+        <svg width="28" height="28" viewBox="0 0 32 32">
+          <circle cx="11" cy="10" r="4" fill="#8BC4D4" opacity="0.5"/>
+          <path d="M5 24C5 19 7.5 16 11 16C14.5 16 17 19 17 24" fill="#8BC4D4" opacity="0.35"/>
+          <circle cx="21" cy="10" r="4" fill="#A8D5BA" opacity="0.5"/>
+          <path d="M15 24C15 19 17.5 16 21 16C24.5 16 27 19 27 24" fill="#A8D5BA" opacity="0.35"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Beach = Flexibility (locked) -->
+    <div class="area area-beach area-locked">
+      <div class="area-icon" style="position:relative;">
+        <svg width="28" height="28" viewBox="0 0 32 32">
+          <path d="M6 12H22L18 8" stroke="#D2B48C" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+          <path d="M26 20H10L14 24" stroke="#8BC4D4" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+        </svg>
+        <div class="lock-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2" fill="#F9F7F5"/>
+            <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="#F9F7F5" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar">
+      <div class="collection-progress">
+        <svg width="22" height="22" viewBox="0 0 24 24">
+          <rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="#D2B48C" stroke-width="2"/>
+          <line x1="2" y1="10" x2="22" y2="10" stroke="#D2B48C" stroke-width="1.5"/>
+          <line x1="12" y1="10" x2="12" y2="20" stroke="#D2B48C" stroke-width="1.5"/>
+          <circle cx="7" cy="7" r="1.5" fill="#A8D5BA"/>
+          <circle cx="17" cy="7" r="1.5" fill="#8BC4D4"/>
+        </svg>
+        <div class="progress-blocks">
+          <div class="p-block filled"></div>
+          <div class="p-block filled"></div>
+          <div class="p-block filled"></div>
+          <div class="p-block empty"></div>
+          <div class="p-block empty"></div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <div class="nav-btn">
+          <img src="assets/icon_myroom.png" alt="">
+        </div>
+        <div class="nav-btn">
+          <img src="assets/icon_shop.png" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-label">Pattern G: Cozy Continent (Animal Crossing-heavy)</div>
+</body>
+</html>

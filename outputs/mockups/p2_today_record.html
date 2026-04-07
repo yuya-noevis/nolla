@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - P2 Today's Record</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+.header { position: absolute; top: 0; left: 0; right: 0; height: 64px; background: rgba(255,255,255,0.95); border-bottom: 2px solid rgba(210,185,150,0.3); z-index: 10; display: flex; align-items: center; padding: 0 24px; }
+.back-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(245,240,232,0.8); border: 2px solid rgba(210,185,150,0.3); display: flex; align-items: center; justify-content: center; }
+.header-title { font-size: 18px; font-weight: 700; color: #333; margin-left: 16px; }
+.header-tabs { display: flex; gap: 4px; margin-left: auto; }
+.header-tab { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #888; cursor: pointer; }
+.header-tab.active { background: #4A7BA7; color: white; }
+
+.content { position: absolute; top: 80px; left: 24px; right: 24px; bottom: 24px; z-index: 10; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; gap: 16px; }
+
+/* Summary cards row */
+.summary-row { grid-column: 1 / -1; display: flex; gap: 16px; }
+.summary-card { flex: 1; background: rgba(255,255,255,0.95); border: 2px solid rgba(210,185,150,0.3); border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.summary-value { font-size: 32px; font-weight: 800; color: #333; }
+.summary-label { font-size: 13px; color: #888; margin-top: 2px; }
+.summary-icon { float: right; opacity: 0.3; }
+
+/* Game detail cards */
+.detail-card { background: rgba(255,255,255,0.95); border: 2px solid rgba(210,185,150,0.3); border-radius: 14px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.detail-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* Game item rows */
+.game-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(210,185,150,0.15); }
+.game-row:last-child { border-bottom: none; }
+.game-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px; }
+.game-name { font-size: 14px; font-weight: 600; color: #444; flex: 1; }
+.game-stat { text-align: right; }
+.game-stat-value { font-size: 16px; font-weight: 700; color: #333; }
+.game-stat-label { font-size: 11px; color: #999; }
+
+/* Mini bar chart */
+.bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin-top: 12px; }
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.bar { width: 100%; border-radius: 4px 4px 0 0; }
+.bar-label { font-size: 10px; color: #999; }
+
+/* Skill badges */
+.skill-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.skill-badge { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.skill-up { background: rgba(107,164,122,0.12); color: #5A8A6A; }
+.skill-stable { background: rgba(74,123,167,0.1); color: #4A7BA7; }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/parent_bg.png" alt="">
+
+  <div class="header">
+    <div class="back-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 5L8 12L15 19" stroke="#666" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="header-title">保護者メニュー</div>
+    <div class="header-tabs">
+      <div class="header-tab active">今日の記録</div>
+      <div class="header-tab">成長の記録</div>
+      <div class="header-tab">AIサポート</div>
+      <div class="header-tab">設定</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Summary cards -->
+    <div class="summary-row">
+      <div class="summary-card">
+        <svg class="summary-icon" width="32" height="32" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#DDD" stroke-width="2"/><path d="M12 7V12L15 14" stroke="#DDD" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <div class="summary-value">42<span style="font-size:16px;color:#888">分</span></div>
+        <div class="summary-label">今日のプレイ時間</div>
+      </div>
+      <div class="summary-card">
+        <svg class="summary-icon" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#EEE"/></svg>
+        <div class="summary-value">12<span style="font-size:16px;color:#888">個</span></div>
+        <div class="summary-label">獲得スター</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value">78<span style="font-size:16px;color:#888">%</span></div>
+        <div class="summary-label">平均正答率</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value">3<span style="font-size:16px;color:#888">回</span></div>
+        <div class="summary-label">セッション数</div>
+      </div>
+    </div>
+
+    <!-- Game-by-game breakdown -->
+    <div class="detail-card">
+      <div class="detail-title">
+        <svg width="20" height="20" viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="3" fill="#4A7BA7"/><path d="M6 10H14M10 6V14" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+        ゲーム別の結果
+      </div>
+      <div class="game-row">
+        <div class="game-icon" style="background: rgba(212,165,116,0.2);">
+          <svg width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="#D4A574"/></svg>
+        </div>
+        <div class="game-name">なかまわけ</div>
+        <div class="game-stat">
+          <div class="game-stat-value">82%</div>
+          <div class="game-stat-label">正答率 / 30試行</div>
+        </div>
+      </div>
+      <div class="game-row">
+        <div class="game-icon" style="background: rgba(74,123,167,0.15);">
+          <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#4A7BA7"/></svg>
+        </div>
+        <div class="game-name">おぼえてタッチ</div>
+        <div class="game-stat">
+          <div class="game-stat-value">75%</div>
+          <div class="game-stat-label">正答率 / 15試行</div>
+        </div>
+      </div>
+      <div class="game-row">
+        <div class="game-icon" style="background: rgba(107,164,122,0.15);">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 4L20 12L12 20L4 12Z" fill="#6BA47A"/></svg>
+        </div>
+        <div class="game-name">みつけて</div>
+        <div class="game-stat">
+          <div class="game-stat-value">70%</div>
+          <div class="game-stat-label">正答率 / 10試行</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time distribution chart -->
+    <div class="detail-card">
+      <div class="detail-title">
+        <svg width="20" height="20" viewBox="0 0 20 20"><rect x="2" y="10" width="4" height="8" rx="1" fill="#4A7BA7"/><rect x="8" y="6" width="4" height="12" rx="1" fill="#6BA47A"/><rect x="14" y="3" width="4" height="15" rx="1" fill="#D4A574"/></svg>
+        時間の使い方
+      </div>
+      <div class="bar-chart">
+        <div class="bar-col"><div class="bar" style="height:60%;background:#D4A574;"></div><div class="bar-label">なかま<br>わけ</div></div>
+        <div class="bar-col"><div class="bar" style="height:35%;background:#4A7BA7;"></div><div class="bar-label">おぼえて<br>タッチ</div></div>
+        <div class="bar-col"><div class="bar" style="height:25%;background:#6BA47A;"></div><div class="bar-label">みつけて</div></div>
+        <div class="bar-col"><div class="bar" style="height:20%;background:#B8A07A;"></div><div class="bar-label">マイ<br>ルーム</div></div>
+      </div>
+
+      <div class="detail-title" style="margin-top:20px;">今日の変化</div>
+      <div class="skill-badges">
+        <div class="skill-badge skill-up">認知的柔軟性 +</div>
+        <div class="skill-badge skill-stable">ワーキングメモリ =</div>
+        <div class="skill-badge skill-up">注意制御 +</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

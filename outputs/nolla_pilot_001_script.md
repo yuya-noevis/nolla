@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 動画制作01パイロット：スクリプト
+RELATED: nolla_pilot_001_production_guide.md
+---
+
 # NOLLA-001 「おはよう の うた」
 
 ## メタ情報

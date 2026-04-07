@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - S4 Consent</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+.step-indicator { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 8px; }
+.step-dot { width: 10px; height: 10px; border-radius: 50%; }
+.step-dot.done { background: #6BA47A; }
+.step-dot.active { background: #4A7BA7; }
+.step-dot.inactive { background: rgba(74,123,167,0.2); }
+
+.card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -48%); z-index: 10; width: 640px; background: rgba(255,255,255,0.95); border: 3px solid rgba(210,185,150,0.4); border-radius: 24px; padding: 36px 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+.card-title { font-size: 20px; font-weight: 800; color: #333; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.card-sub { font-size: 14px; color: #888; margin-bottom: 24px; line-height: 1.6; }
+
+.consent-item { display: flex; gap: 14px; padding: 16px; margin-bottom: 10px; border: 2px solid rgba(210,185,150,0.3); border-radius: 14px; background: rgba(245,240,232,0.3); align-items: flex-start; }
+.consent-item.checked { border-color: rgba(107,164,122,0.4); background: rgba(107,164,122,0.06); }
+.checkbox { width: 28px; height: 28px; min-width: 28px; border-radius: 8px; border: 2px solid rgba(210,185,150,0.5); background: white; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+.checkbox.on { background: #6BA47A; border-color: #5A8A6A; }
+.consent-text { flex: 1; }
+.consent-title { font-size: 15px; font-weight: 700; color: #444; margin-bottom: 4px; }
+.consent-desc { font-size: 13px; color: #888; line-height: 1.5; }
+.consent-link { font-size: 12px; color: #4A7BA7; text-decoration: underline; margin-top: 4px; display: inline-block; }
+
+.bottom-nav { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 16px; }
+.nav-btn { padding: 14px 40px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.nav-btn.secondary { background: rgba(210,185,150,0.3); color: #888; }
+.nav-btn.primary { background: linear-gradient(180deg, #6BA47A 0%, #5A8A6A 100%); color: white; box-shadow: 0 4px 0 #4A7A58, 0 6px 14px rgba(0,0,0,0.15); }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/s_onboarding_bg.png" alt="">
+
+  <div class="step-indicator">
+    <div class="step-dot done"></div>
+    <div class="step-dot done"></div>
+    <div class="step-dot active"></div>
+    <div class="step-dot inactive"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 1L3 5V11C3 16.5 6.84 21.7 12 23C17.16 21.7 21 16.5 21 11V5L12 1Z" fill="#6BA47A" stroke="#5A8A6A" stroke-width="1.5"/><path d="M9 12L11 14L15 10" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      データの取り扱いについて
+    </div>
+    <div class="card-sub">お子さまに最適な体験を提供するため、以下のデータを安全に取得・利用します。</div>
+
+    <!-- Consent 1: Personal info -->
+    <div class="consent-item checked">
+      <div class="checkbox on">
+        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8L6.5 11.5L13 5" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="consent-text">
+        <div class="consent-title">個人情報の取り扱い</div>
+        <div class="consent-desc">お子さまの年齢、性別、特性に関する情報を安全に管理します。第三者には提供しません。</div>
+        <a class="consent-link">プライバシーポリシーを読む</a>
+      </div>
+    </div>
+
+    <!-- Consent 2: Eye tracking -->
+    <div class="consent-item checked">
+      <div class="checkbox on">
+        <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8L6.5 11.5L13 5" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="consent-text">
+        <div class="consent-title">眼球データの取得（カメラ使用）</div>
+        <div class="consent-desc">フロントカメラで注視パターンを分析します。映像はデバイス上でのみ処理され、サーバーには送信されません。設定でいつでもOFFにできます。</div>
+      </div>
+    </div>
+
+    <!-- Consent 3: Behavioral data -->
+    <div class="consent-item">
+      <div class="checkbox"></div>
+      <div class="consent-text">
+        <div class="consent-title">行動データの取得</div>
+        <div class="consent-desc">ゲームプレイの正答率、反応時間、操作パターンを記録し、お子さまの発達をサポートします。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn secondary">もどる</button>
+    <button class="nav-btn primary">同意して始める</button>
+  </div>
+</body>
+</html>

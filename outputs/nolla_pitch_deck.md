@@ -1,3 +1,10 @@
+<!-- 
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: ピッチデック（Marp生成）
+RELATED: nolla_investor_overview.md
+-->
+
 ---
 marp: true
 theme: uncover

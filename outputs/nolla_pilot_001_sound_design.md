@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 動画制作01パイロット：サウンドデザイン
+RELATED: nolla_pilot_001_production_guide.md
+---
+
 # 音声設計書 — NOLLA-001「おはよう の うた」
 
 ---

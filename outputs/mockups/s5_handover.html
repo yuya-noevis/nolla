@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - S5 Device Handover</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+.step-indicator { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 8px; }
+.step-dot { width: 10px; height: 10px; border-radius: 50%; }
+.step-dot.done { background: #6BA47A; }
+.step-dot.active { background: #4A7BA7; }
+
+.center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+
+.handover-card { background: rgba(255,255,255,0.95); border: 4px solid rgba(210,185,150,0.5); border-radius: 28px; padding: 48px 64px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); text-align: center; max-width: 580px; }
+
+.handover-title { font-size: 24px; font-weight: 800; color: #333; margin-bottom: 16px; }
+.handover-sub { font-size: 16px; color: #777; margin-bottom: 32px; line-height: 1.6; }
+
+/* iPad illustration (landscape orientation guide) */
+.ipad-illustration { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-bottom: 24px; }
+.ipad-frame { width: 240px; height: 170px; border: 4px solid #C4A882; border-radius: 16px; background: linear-gradient(135deg, #E8F0E4 0%, #D4E8D0 100%); display: flex; align-items: center; justify-content: center; position: relative; }
+.ipad-camera { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; border-radius: 50%; background: #999; }
+.ipad-home { position: absolute; right: -20px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; border: 2px solid #C4A882; }
+.ipad-screen-text { font-size: 14px; color: #6BA47A; font-weight: 600; }
+
+/* Rotation arrow */
+.rotate-hint { display: flex; align-items: center; gap: 8px; color: #888; font-size: 14px; }
+
+/* Navi character big */
+.navi-big { width: 120px; height: 120px; border-radius: 28px; background: rgba(255,255,255,0.95); border: 4px solid rgba(210,185,150,0.5); box-shadow: 0 6px 20px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: navi-wave 2s ease-in-out infinite; }
+.navi-big img { width: 104px; height: 104px; object-fit: contain; }
+@keyframes navi-wave { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } }
+
+.start-btn { padding: 18px 60px; border: none; border-radius: 18px; background: linear-gradient(180deg, #6BA47A 0%, #5A8A6A 100%); color: white; font-size: 20px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 0 #4A7A58, 0 8px 18px rgba(0,0,0,0.15); transition: transform 0.15s; letter-spacing: 2px; }
+.start-btn:hover { transform: translateY(-2px); }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/s_onboarding_bg.png" alt="">
+
+  <div class="step-indicator">
+    <div class="step-dot done"></div>
+    <div class="step-dot done"></div>
+    <div class="step-dot done"></div>
+    <div class="step-dot active"></div>
+  </div>
+
+  <div class="center">
+    <div class="navi-big">
+      <img src="assets/navi_character.png" alt="">
+    </div>
+
+    <div class="handover-card">
+      <div class="handover-title">お子さまにわたしてください</div>
+      <div class="handover-sub">iPadを横向きにして、お子さまの手の届く場所に置いてください。</div>
+
+      <div class="ipad-illustration">
+        <div class="ipad-frame">
+          <div class="ipad-camera"></div>
+          <div class="ipad-screen-text">nolla</div>
+        </div>
+        <div class="rotate-hint">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path d="M16.48 2.52C18.78 4.22 20.24 6.92 20.24 10H23L19 14L15 10H17.74C17.74 6.68 15.34 3.94 12.18 3.22L13.26 1.14C14.42 1.42 15.5 1.88 16.48 2.52Z" fill="#888"/>
+            <path d="M4.26 14C4.26 17.32 6.66 20.06 9.82 20.78L8.74 22.86C5.22 21.96 2.76 18.28 2.76 14H0L4 10L8 14H4.26Z" fill="#888"/>
+          </svg>
+          横向きにしてね
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn">あそぶ!</button>
+  </div>
+</body>
+</html>

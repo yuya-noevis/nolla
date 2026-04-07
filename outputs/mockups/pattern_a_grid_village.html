@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - Pattern A: Grid Village</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    position: relative;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 32px;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .character-greeting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .character-greeting img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  }
+
+  .greeting-bubble {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 10px 18px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    border: 3px solid rgba(74, 123, 167, 0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+    position: relative;
+  }
+
+  .greeting-bubble::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 8px solid transparent;
+    border-right-color: rgba(255, 255, 255, 0.85);
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .star-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 24px;
+    padding: 8px 20px;
+    border: 3px solid rgba(212, 165, 116, 0.4);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .star-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .adult-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(74, 123, 167, 0.2);
+    backdrop-filter: blur(8px);
+    border: 3px solid rgba(74, 123, 167, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .adult-btn img {
+    width: 28px;
+    height: 28px;
+    opacity: 0.7;
+  }
+
+  /* Center Game Grid */
+  .game-grid-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .game-grid {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+
+  .game-btn {
+    width: 140px;
+    height: 140px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(4px);
+    border: 4px solid rgba(212, 165, 116, 0.5);
+    box-shadow:
+      0 8px 24px rgba(0,0,0,0.15),
+      0 4px 8px rgba(0,0,0,0.1),
+      inset 0 2px 0 rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .game-btn:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow:
+      0 12px 32px rgba(0,0,0,0.2),
+      0 6px 12px rgba(0,0,0,0.12),
+      inset 0 2px 0 rgba(255,255,255,0.4);
+  }
+
+  .game-btn img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+  }
+
+  /* Bottom Bar */
+  .bottom-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    padding-top: 8px;
+  }
+
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .nav-btn:hover {
+    transform: translateY(-3px);
+  }
+
+  .nav-btn-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 3px solid rgba(107, 164, 122, 0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12), inset 0 2px 0 rgba(255,255,255,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-btn-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+
+  /* Pattern label */
+  .pattern-label {
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12px;
+    color: rgba(51, 51, 51, 0.4);
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/background.png" alt="background">
+
+  <div class="overlay">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="character-greeting">
+        <img src="assets/navi_character.png" alt="navi">
+        <div class="greeting-bubble">こんにちは!</div>
+      </div>
+      <div class="top-right">
+        <div class="star-count">
+          <svg class="star-icon" viewBox="0 0 32 32" fill="none">
+            <path d="M16 2L20.1 11.6L30 12.9L22.8 19.6L24.8 30L16 24.8L7.2 30L9.2 19.6L2 12.9L11.9 11.6L16 2Z" fill="#D4A574" stroke="#C49464" stroke-width="1.5"/>
+          </svg>
+          <span>128</span>
+        </div>
+        <div class="adult-btn">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="12" width="16" height="12" rx="3" fill="#4A7BA7" opacity="0.6"/>
+            <path d="M10 12V9C10 6.8 11.8 5 14 5C16.2 5 18 6.8 18 9V12" stroke="#4A7BA7" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Grid -->
+    <div class="game-grid-area">
+      <div class="game-grid">
+        <div class="game-btn" title="なかまわけ">
+          <img src="assets/icon_sorting.png" alt="sorting">
+        </div>
+        <div class="game-btn" title="おぼえて">
+          <img src="assets/icon_memory.png" alt="memory">
+        </div>
+        <div class="game-btn" title="みつけて">
+          <img src="assets/icon_search.png" alt="search">
+        </div>
+        <div class="game-btn" title="ことば">
+          <img src="assets/icon_words.png" alt="words">
+        </div>
+        <div class="game-btn" title="おはなし">
+          <img src="assets/icon_story.png" alt="story">
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <div class="nav-btn" title="マイルーム">
+        <div class="nav-btn-icon">
+          <img src="assets/icon_myroom.png" alt="myroom">
+        </div>
+      </div>
+      <div class="nav-btn" title="ショップ">
+        <div class="nav-btn-icon">
+          <img src="assets/icon_shop.png" alt="shop">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-label">Pattern A: Grid Village</div>
+</body>
+</html>

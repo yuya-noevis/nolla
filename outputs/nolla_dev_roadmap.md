@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 開発ロードマップ・進捗管理
+RELATED: nolla_mvp_design_spec_v3.md,nolla_ia_design_v3.md,nolla_nci_algorithm_design.md
+---
+
 # Nolla MVP 開発ロードマップ
 
 **最終更新**: 2026-04-06
@@ -278,3 +285,6 @@ M1のデザインが固まった後、世界観を統一して全画面のモッ
 | 2026-04-06 | オフライン+NCI日次+ブランク復帰完了 | オフライン: sync.ts（キュー→Supabase書き込み）+ persist-client.ts（クライアント側キューイング）。NCI: persist-snapshot.ts（日次UPSERT+最新θ取得）。ブランク復帰: 14日検知+Staircaseリセット（6テスト追加、211テストpass） |
 | 2026-04-06 | 全ゲームデバッグ+修正完了 | レイアウト崩れ(h-screen→h-full、landscape-content)、文字化け3箇所、オンボーディング全テキスト日本語化、ゲームフロー修正(onRoundCompleteで各ゲームからラウンド完了通知)、ソーティング4問目バグ、視覚探索座標スケーリング。211テストpass |
 | 2026-04-06 | UX改善 | motor baseline→ホーム画面ウォームアップに移動(1日1回/スタートボタン)、ソーティング文字なし化(色箱)、スター報酬統一(正解率ベース3/2/1)、神経衰弱スター公平化(探索コスト考慮)、ラウンド表示→ドットインジケーター(文字なし)、ナビキャラMVP非表示、スター累計localStorage保存、間違い探し左右両パネルタップ対応 |
+| 2026-04-07 | 難度調整・スコアリング・データ収集の重大バグ修正 | (1)Sorting/VisualSearch/Corsiが`DEFAULT_PARAMS`をハードコードし`currentParams`を完全無視→props経由化+ラウンド毎に再生成。(2)`completeRound`が`roundConsecutiveCorrect`(毎ラウンドリセット)を使用→累積`state.consecutiveCorrect`へ変更、UP/DOWN発火時のみリセット。(3)最終ラウンドのStaircaseが呼ばれていない→`endSession`で最終`completeRound`を実行。(4)`persistSessionStart/Round/Trial/End`関数が定義済みだが**どこからも呼ばれず全データSupabase保存ゼロ**→`useGameSession`から全wire完了。(5)セッション間パラメータ復元なし→localStorage `nolla_last_params_<childId>_<gameType>`で永続化。(6)神経衰弱初期`pairs:3→2`(Jade ND等の重度向け参照値、4枚スタート)、Corsi `seqLength:3→2`。(7)`setState`updater内副作用によるReactエラー修正。Playwright実機検証で`pairs:2→3`への自動上昇を確認。211テストpass、ビルド成功 |
+| 2026-04-07 | ドキュメント整理(別エージェント実施) | DEPRECATED 59ファイルを`outputs/_archive/`へ移動(git mv)、ACTIVE 26ファイルに統一YAMLヘッダ追加、`outputs/INDEX.md`新規作成(11カテゴリ+Phase 0必読4ファイル明示)、`CLAUDE.md`に参照ルール追加 |
+| 2026-04-07 | 設計ルール仕分け | `nolla_design_rules_asd_research.md`を`_archive/`へ移動(現運用と矛盾する旧厳格ルール多数)、`.claude/rules/common/nolla-mvp-design.md`の「絶対禁止事項」を「設計境界(必ず守る)+運用目安(状況で判断)」の2階層に再構成、白背景/6個以上情報/100%ゲージを緩和、蛍光色表現を「彩度の高い色は小面積・短時間アクセントに限定」に変更、`nolla_game_implementation_guide.md`も同様に再構成、INDEX.mdから旧ファイル削除 |

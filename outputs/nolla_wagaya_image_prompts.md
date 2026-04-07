@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: わが家キャラ画像生成プロンプト
+RELATED: nolla_character_design_prompts.md
+---
+
 # 今日もわが家は通常運転 — 画像生成プロンプト集
 
 Nano Banana 2（Gemini）にそのままコピペ。
@@ -1095,64 +1102,68 @@ Canvaで作成。テキストのみ。
 
 ---
 
-## 投稿⑬「エスカレーターの前で止まった」
+## 投稿⑬「電気パチパチ止まらない」
 
 ### 枚1（タイトルカード）
 
 ```
-4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, soft warm background (light blue and cream gradient). Cute deformed chibi style, hand-drawn feel.
+4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, soft warm background (light yellow and cream gradient). Cute deformed chibi style, hand-drawn feel.
 
-A small boy (spiky hair, oversized striped t-shirt, shoes on) standing frozen in front of an escalator, looking down at the moving steps with wide eyes. His body is stiff, feet planted on the ground. His small green one-eyed alien plush toy is tucked under his arm. The mother (messy short hair, round glasses, shoes on) stands behind him, one hand gently on his shoulder. Above them, compact Japanese title: "エスカレーターの前で止まった" in round gothic font, no more than 50% of the image width.
+A small boy (spiky hair, oversized striped t-shirt, socks, no shoes — indoor scene) standing on tiptoe reaching up to a light switch on a wall. His finger is on the switch. His eyes are wide and sparkling with intense focus. His small green one-eyed alien plush toy is tucked under his other arm. The room is half-lit, half-dark to show the switching effect. Above the character, compact Japanese title: "電気パチパチ止まらない" in round gothic font, no more than 50% of the image width.
 
 Generous margins from all edges (at least 15%). No narration box, no white bar, no frame title. The image contains only the Japanese title above and nothing else — no other text, no other letters, no onomatopoeia, no labels.
 ```
 
-### 枚2（ショッピングモール）
+### 枚2（シーン1：リビングでくつろぐ母、歩き出す息子）
 
 ```
 4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
 
-Simple loose line art, thick outlines, flat pastel colors, white/light background. Cute deformed chibi style, hand-drawn feel.
+Simple loose line art, thick outlines, flat pastel colors, warm light background. Cute deformed chibi style, hand-drawn feel.
 
-Indoor shopping mall scene. The mother (messy short hair, round glasses, shoes on) and son (spiky hair, oversized striped t-shirt, shoes on) are walking hand-in-hand through a bright, simple shopping mall corridor. The son is looking around calmly, holding his green alien plush toy in his other hand. The mother has a relaxed, happy expression. Peaceful shopping trip atmosphere.
+Indoor living room scene, bright and cozy. The mother (messy short hair, round glasses, oversized hoodie, socks) is sitting on the sofa, legs curled up, reading a magazine with a relaxed smile. The ceiling light is on, warm atmosphere.
+
+The son (spiky hair, oversized striped t-shirt, socks) is seen from behind, walking away from the sofa toward the hallway where a light switch is visible on the wall. He is holding his green alien plush toy in one hand, his back facing the viewer. He is heading toward the switch with quiet determination. A peaceful, unsuspecting moment.
 ```
 
-### 枚3（足が止まる）
-
-```
-4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
-
-Simple loose line art, thick outlines, flat pastel colors, white/light background. Cute deformed chibi style, hand-drawn feel.
-
-Indoor shopping mall, at the bottom of an escalator. The son is standing completely frozen at the edge of the escalator, staring down at the moving steps with intense focus. His body is stiff like a statue, both feet firmly planted on the ground. He clutches his green alien plush toy tightly against his chest.
-
-The mother is gently tugging his hand, looking back at him with a patient but slightly worried expression. Behind them, a few simple silhouettes of other shoppers are walking past.
-```
-
-### 枚4（抱っこ作戦失敗）
+### 枚3（シーン2：突然の暗闘 — 目だけ）
 
 ```
 4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
 
-Simple loose line art, thick outlines, flat pastel colors, white/light background. Cute deformed chibi style, hand-drawn feel.
+Simple loose line art, thick outlines. Cute deformed chibi style, hand-drawn feel.
 
-Indoor shopping mall, same escalator area. The mother is trying to pick up the son, her arms under his armpits. But the son's body is completely rigid and straight like a wooden board — arms pressed to his sides, legs stiff and straight, not bending at all. He is holding his green alien plush toy with a death grip.
-
-The mother is straining with effort, a sweat drop on her forehead. The contrast between her effort and his total rigidity is funny.
+Almost entirely dark scene — the room light has been switched off. The background is very dark navy/charcoal. In the darkness, only TWO things are visible: (1) the mother's wide shocked eyes with round glasses floating in the dark on the left side, her eyes are huge white circles with tiny dot pupils expressing total surprise, and (2) a small simple white starburst or spark effect near the light switch area on the right side, suggesting the click sound. Everything else is hidden in darkness. The contrast between the dark background and the bright shocked eyes creates a comedic dramatic effect.
 ```
 
-### 枚5（オチ：クスッ）
+### 枚4（シーン3：明るくなる — 振り返る母）
 
 ```
-4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, white/light background. Cute deformed chibi style, hand-drawn feel.
+4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
 
-Indoor shopping mall, a staircase. The mother is trudging up the stairs, exhausted, carrying shopping bags, sweating. She has a tired but accepting smile.
+Simple loose line art, thick outlines, flat pastel colors, bright warm background. Cute deformed chibi style, hand-drawn feel.
 
-The son is walking up the stairs beside her, perfectly calm and happy, holding his green alien plush toy, stepping up one stair at a time with a content expression — as if nothing happened at all.
+Indoor living room scene, light is back ON — bright and fully lit. The mother is twisting her body around on the sofa, turning to look behind her toward the hallway with a startled, confused expression. Her glasses are slightly crooked, her magazine is half-falling from her hands.
 
-The mother has a round speech bubble containing only: "…エレベーターって選択肢もあったな"
+In the hallway behind her, the son is standing on tiptoe with his finger on the light switch, looking perfectly calm and content, completely unbothered. His green alien plush toy is tucked under his other arm. He has a serene, focused expression as if he just completed something very important. A small spark effect near the switch.
+```
 
-The image contains only the mother's Japanese speech bubble above and nothing else — no other text, no other letters, no onomatopoeia, no narration box, no frame title.
+### 枚5（シーン4：終わらないループ）
+
+```
+4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
+
+Simple loose line art, thick outlines, flat pastel colors. Cute deformed chibi style, hand-drawn feel.
+
+Same living room scene divided into 9 small panels arranged in a 3x3 grid within the single image, reading left-to-right, top-to-bottom like a comic strip. Each panel shows the same room from the same angle but alternating between light ON (bright warm colors) and light OFF (dark navy, only eyes visible).
+
+Row 1 (top): Panel 1: bright room, mother on sofa looking startled. Panel 2: dark, mother's wide shocked eyes and glasses glowing in the dark. Panel 3: bright again, mother looking confused, turning around.
+
+Row 2 (middle): Panel 4: dark, mother's eyes now annoyed dots in the dark. Panel 5: bright, mother standing up from sofa with hands on hips. Panel 6: dark, mother's eyes are tired half-circles in the dark.
+
+Row 3 (bottom): Panel 7: bright, mother slumped back on sofa, defeated posture. Panel 8: dark, mother's eyes are barely visible tiny dots — she has completely given up. Panel 9: bright, mother lying face-down on the sofa, totally surrendered.
+
+In ALL 9 panels, the son is in the same position at the light switch in the hallway — on tiptoe, finger on switch, calm and content, holding his green alien plush toy. His expression never changes across any panel. The 9-panel repetition creates a comedic rhythm of escalating maternal exhaustion vs total child serenity.
 ```
 
 ### 枚6（Tips — テキスト画像）
@@ -1163,28 +1174,34 @@ Canvaで作成。テキストのみ。
 テキスト内容:
 
 ```
-【動くものが怖い・乗れない子】
+【電気スイッチをずっとカチカチする子】
 
-エスカレーター、エレベーター、自動ドア——
-「動く床」の前で固まること、ありませんか？
+パチパチパチパチ……
+電気をつけたり消したりが止まらない、ありませんか？
 
 🧠 なぜそうなる？
-・動いている地面に足を乗せるタイミングが
-　感覚的につかめない
-・「いつ足を出せばいいか」の判断を
-　脳が瞬時に処理できず、体がフリーズする
-・怖がっているのではなく、
-　体の動かし方がわからない状態に近い
+・「押す→光る/消える」が明確な因果関係で、
+　予測通りの結果が毎回得られる安心感がある
+・光の変化が視覚的な刺激になり、
+　行動そのものが心地よい感覚を生んでいる
+　（ABAでは「自動強化」と呼ばれる状態）
+・止められないのは「わがまま」ではなく、
+　脳が感覚的な報酬を受け取り続けている状態
 
 ✅ こうするといい感じ
-・無理に乗せず、階段やエレベーターを使う
-・「ママが抱っこして乗るよ」と事前に伝える
-・慣れてきたら止まっているエスカレーターで
-　「乗る練習」から始める
+・「ダメ！」で止めるより、
+　同じ感覚を得られる代わりの活動を用意する
+　（光るおもちゃ、押すと音が出るボタンなど）
+・「10回押したらおしまい」と
+　終わりの目安を視覚的に示す
+　（指で数える、カードを並べるなど）
+・スイッチ遊びの後に好きな活動を設定して
+　自然に移行する流れを作る
 
 🚫 これは逆効果かも
-・「みんな乗ってるよ！」と急かす
-・後ろから押して乗せようとする
+・手をつかんで無理にやめさせる
+・「もうやめなさい！」と叱る
+　→ パニックや癇癪の原因になりやすい
 
 ※お子さんによって合う方法は違います
 ```

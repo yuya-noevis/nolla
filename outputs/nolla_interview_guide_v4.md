@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: ユーザーインタビューガイド v4
+RELATED: nolla_mvp_design_spec_v3.md
+---
+
 # Nolla ユーザーインタビューガイド v4
 
 **前版**: nolla_interview_guide_v3.md

@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: わが家ブランド・アカウント設計
+RELATED: 
+---
+
 # 今日もわが家は通常運転（@wagaya_ordinary）
 
 ## アカウント設計

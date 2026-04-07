@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Nolla - App Flow v1.0</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Hiragino Sans', sans-serif; background: #F8F6F3; color: #333; padding: 40px; line-height: 1.6; }
+h1 { font-size: 28px; color: #4A7BA7; margin-bottom: 8px; }
+.subtitle { color: #888; font-size: 14px; margin-bottom: 40px; }
+.section { margin-bottom: 60px; }
+.section-title { font-size: 20px; font-weight: 700; color: #5A4A3A; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 2px solid #D4A574; }
+
+/* Flow chart */
+.flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.flow-row { display: flex; align-items: center; gap: 16px; }
+.node { padding: 14px 24px; border-radius: 14px; font-size: 14px; font-weight: 600; text-align: center; min-width: 200px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.node-start { background: #4A7BA7; color: white; border-radius: 28px; }
+.node-parent { background: #E8D5F0; color: #5A3A6A; border: 2px solid #C9A8D8; }
+.node-child { background: #D4EDDA; color: #2D5A3A; border: 2px solid #A8D5B8; }
+.node-game { background: #FFF3D4; color: #6A5A2A; border: 2px solid #E8D5A0; }
+.node-reward { background: #FFE0CC; color: #6A3A1A; border: 2px solid #E8C0A0; }
+.node-decision { background: #FFF; color: #333; border: 2px solid #ccc; border-radius: 8px; transform: rotate(0deg); font-size: 13px; }
+.node-end { background: #6BA47A; color: white; border-radius: 28px; }
+.node-parent-ui { background: #F0E0F8; color: #5A3A6A; border: 2px solid #D0B0E0; }
+.node small { display: block; font-weight: 400; font-size: 11px; color: inherit; opacity: 0.75; margin-top: 4px; }
+
+.arrow { display: flex; flex-direction: column; align-items: center; padding: 6px 0; }
+.arrow::after { content: ''; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #aaa; }
+.arrow-line { width: 2px; height: 20px; background: #aaa; }
+.arrow-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+
+.branch { display: flex; gap: 24px; align-items: flex-start; justify-content: center; margin-top: 0; }
+.branch-item { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.branch-connector { display: flex; align-items: flex-start; justify-content: center; position: relative; }
+.branch-connector::before { content: ''; position: absolute; top: 0; left: 25%; right: 25%; height: 2px; background: #aaa; }
+
+.legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; padding: 16px; background: white; border-radius: 12px; border: 1px solid #eee; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.legend-dot { width: 16px; height: 16px; border-radius: 4px; }
+
+/* Structure diagram */
+.tree { padding: 24px; background: white; border-radius: 16px; border: 1px solid #eee; }
+.tree-level { margin-left: 32px; position: relative; }
+.tree-level::before { content: ''; position: absolute; left: -20px; top: 0; bottom: 12px; width: 2px; background: #ddd; }
+.tree-item { position: relative; padding: 8px 16px; margin: 8px 0; border-radius: 10px; font-size: 14px; display: inline-block; }
+.tree-item::before { content: ''; position: absolute; left: -20px; top: 50%; width: 18px; height: 2px; background: #ddd; }
+.tree-item.cat { background: #E8D5F0; color: #5A3A6A; }
+.tree-item.game { background: #D4EDDA; color: #2D5A3A; }
+.tree-item.st { background: #D4E8F0; color: #2A4A5A; }
+.tree-item.reward { background: #FFE0CC; color: #6A3A1A; }
+.tree-item.parent { background: #F5F5F5; color: #666; }
+.tree-item.root { background: #4A7BA7; color: white; font-weight: 700; font-size: 16px; }
+.tree-item.future { opacity: 0.5; border: 2px dashed #ccc; }
+.tree-item .badge { font-size: 10px; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+
+/* Carousel diagram */
+.carousel-demo { padding: 30px; background: white; border-radius: 16px; border: 1px solid #eee; text-align: center; }
+.carousel-strip { display: flex; gap: 16px; justify-content: center; align-items: flex-end; padding: 20px 0; overflow-x: auto; }
+.building { width: 120px; text-align: center; }
+.building-img { width: 100px; height: 100px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.2s; }
+.building-img:hover { transform: scale(1.08); }
+.building-label { font-size: 12px; font-weight: 600; color: #5A4A3A; }
+.building-sub { font-size: 10px; color: #999; }
+.building.active .building-img { box-shadow: 0 6px 20px rgba(74,123,167,0.3); transform: scale(1.05); }
+.carousel-arrows { font-size: 24px; color: #C4A882; margin: 0 12px; cursor: pointer; }
+.carousel-dots { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
+.carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
+.carousel-dot.active { background: #4A7BA7; }
+
+/* Decision table */
+.decision-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.decision-table th { background: #4A7BA7; color: white; padding: 10px 14px; text-align: left; }
+.decision-table td { padding: 10px 14px; border-bottom: 1px solid #eee; }
+.decision-table tr:nth-child(even) { background: #FAFAFA; }
+.status-decided { color: #6BA47A; font-weight: 700; }
+.status-open { color: #D4A574; font-weight: 700; }
+
+.note { background: #FFF8E8; border-left: 4px solid #D4A574; padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13px; margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<h1>Nolla App Flow v1.0</h1>
+<p class="subtitle">情報設計書 | 2026-04-04 | ASD+知的障害児（3-18歳）向け発達支援アプリ</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#4A7BA7"></div> 起点/終点</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#E8D5F0"></div> 保護者操作</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#D4EDDA"></div> 子ども操作</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FFF3D4"></div> ゲームプレイ</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FFE0CC"></div> 報酬系</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#F5F5F5; border:1px solid #ccc"></div> 親向け画面</div>
+</div>
+
+<!-- Section 1: Content Structure -->
+<div class="section">
+  <div class="section-title">1. コンテンツ構造（今 + 将来）</div>
+
+  <div class="tree">
+    <div class="tree-item root" style="margin-left:0">Nolla（村の広場）</div>
+
+    <div class="tree-level">
+      <div class="tree-item cat">認知的柔軟性のコテージ</div>
+      <div class="tree-level">
+        <div class="tree-item game">なかまわけ <span class="badge">MVP</span></div>
+        <div class="tree-item game future">ルールチェンジ <span class="badge">将来</span></div>
+        <div class="tree-item game future">... 最大20種 <span class="badge">将来</span></div>
+      </div>
+
+      <div class="tree-item cat">ワーキングメモリの天文台</div>
+      <div class="tree-level">
+        <div class="tree-item game">おぼえてタッチ <span class="badge">MVP</span></div>
+        <div class="tree-item game future">... 最大20種 <span class="badge">将来</span></div>
+      </div>
+
+      <div class="tree-item cat">注意制御のツリーハウス</div>
+      <div class="tree-level">
+        <div class="tree-item game">みつけてタッチ <span class="badge">MVP</span></div>
+        <div class="tree-item game future">... 最大20種 <span class="badge">将来</span></div>
+      </div>
+
+      <div class="tree-item cat future">実行機能の... <span class="badge">将来 +12エリア</span></div>
+
+      <div class="tree-item st">ことばの図書館 <span class="badge">ST系</span></div>
+      <div class="tree-level">
+        <div class="tree-item st">AAC（発語支援）<span class="badge">MVP</span></div>
+        <div class="tree-item st">音声模倣 <span class="badge">MVP</span></div>
+      </div>
+
+      <div class="tree-item st">おはなしの劇場 <span class="badge">ST系</span></div>
+      <div class="tree-level">
+        <div class="tree-item st">構音練習 <span class="badge">MVP</span></div>
+        <div class="tree-item st">ビデオモデリング <span class="badge">MVP</span></div>
+      </div>
+
+      <div class="tree-item reward">マイルーム</div>
+      <div class="tree-item reward">ショップ</div>
+      <div class="tree-item parent">親向けダッシュボード <span class="badge">PIN認証</span></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>設計判断:</strong> 子どもの画面では「認知ゲーム」と「ST」を区別しない。全て「建物に入って遊ぶ」体験に統一。親向け画面でのみ分類表示。
+  </div>
+</div>
+
+<!-- Section 2: Carousel -->
+<div class="section">
+  <div class="section-title">2. ホーム画面: カルーセル（MVP構成）</div>
+
+  <div class="carousel-demo">
+    <p style="font-size:13px; color:#888; margin-bottom:16px;">左右の矢印 or スワイプで建物を切り替え。建物をタップで中に入る。</p>
+
+    <div style="display:flex; align-items: center; justify-content: center;">
+      <span class="carousel-arrows">&larr;</span>
+      <div class="carousel-strip">
+        <div class="building">
+          <div class="building-img" style="background: linear-gradient(135deg, #E8C0A0, #D4A574);">&#x1F3E0;</div>
+          <div class="building-label">なかまわけ</div>
+          <div class="building-sub">認知的柔軟性</div>
+        </div>
+        <div class="building active">
+          <div class="building-img" style="background: linear-gradient(135deg, #A0C8D4, #7AB0C4);">&#x1F52D;</div>
+          <div class="building-label">おぼえて</div>
+          <div class="building-sub">ワーキングメモリ</div>
+        </div>
+        <div class="building">
+          <div class="building-img" style="background: linear-gradient(135deg, #A8D5A0, #7BBC70);">&#x1F333;</div>
+          <div class="building-label">みつけて</div>
+          <div class="building-sub">注意制御</div>
+        </div>
+        <div class="building">
+          <div class="building-img" style="background: linear-gradient(135deg, #F0C8D8, #E0A8C0);">&#x1F4DA;</div>
+          <div class="building-label">ことば</div>
+          <div class="building-sub">AAC + 音声模倣</div>
+        </div>
+        <div class="building">
+          <div class="building-img" style="background: linear-gradient(135deg, #C8B8E0, #A898D0);">&#x1F3AD;</div>
+          <div class="building-label">おはなし</div>
+          <div class="building-sub">構音 + モデリング</div>
+        </div>
+        <div class="building">
+          <div class="building-img" style="background: linear-gradient(135deg, #E0D0B8, #C8B898);">&#x1F3E1;</div>
+          <div class="building-label">マイルーム</div>
+          <div class="building-sub"></div>
+        </div>
+        <div class="building">
+          <div class="building-img" style="background: linear-gradient(135deg, #F0E0A0, #E0D080);">&#x1F6D2;</div>
+          <div class="building-label">ショップ</div>
+          <div class="building-sub"></div>
+        </div>
+      </div>
+      <span class="carousel-arrows">&rarr;</span>
+    </div>
+
+    <div class="carousel-dots">
+      <div class="carousel-dot"></div>
+      <div class="carousel-dot active"></div>
+      <div class="carousel-dot"></div>
+      <div class="carousel-dot"></div>
+      <div class="carousel-dot"></div>
+      <div class="carousel-dot"></div>
+      <div class="carousel-dot"></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>表示ルール:</strong> アセスメント結果に基づき、子どもに適したコンテンツを手前に配置。発語なし→「ことば」が先頭。会話OK→認知ゲームが先頭。親が設定で非表示にした建物はスキップ。<br>
+    <strong>予測可能性:</strong> 建物の並び順は毎回固定（サプライズなし）。端でループしない。
+  </div>
+</div>
+
+<!-- Section 3: Initial Flow -->
+<div class="section">
+  <div class="section-title">3. 初回起動フロー</div>
+
+  <div class="flow">
+    <div class="node node-start">アプリ起動</div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-start">スプラッシュ<small>ロゴ + ナビキャラ登場（3秒）</small></div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-parent">保護者: アカウント作成<small>メール or Apple/Google</small></div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-parent">保護者: お子さまの情報入力<small>基本3問 + コミュ4問 + 好み3問（2分）</small></div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-parent">保護者: 同意取得<small>個人情報 + 眼球データ</small></div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-parent" style="background:#E8D5F0; border-style:dashed;">「お子さまにわたしてください」<small>ここで操作者が切り替わる</small></div>
+    <div class="arrow"><div class="arrow-label">子どもに端末を渡す</div><div class="arrow-line"></div></div>
+
+    <div class="node node-child">ナビキャラ登場<small>「いっしょにあそぼう！」</small></div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-game">実技アセスメント<small>4つのミニゲーム（各5-8試行、時間制限なし）</small></div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-reward">アセスメント完了!<small>ナビキャラ「すごい！」+ 初回スター獲得</small></div>
+    <div class="arrow"><div class="arrow-label">パーソナライゼーション計算（裏側）</div><div class="arrow-line"></div></div>
+
+    <div class="node node-end">ホーム画面（村の広場）へ</div>
+  </div>
+</div>
+
+<!-- Section 4: Normal Flow -->
+<div class="section">
+  <div class="section-title">4. 通常利用フロー（毎回の起動）</div>
+
+  <div class="flow">
+    <div class="node node-start">アプリ起動</div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-child" style="min-width:320px;">ホーム画面（村の広場）<small>ナビキャラ「〇〇ちゃん、きょうもあそぼう！」<br>カルーセルで建物が並ぶ</small></div>
+    <div class="arrow"><div class="arrow-label">建物をタップ</div><div class="arrow-line"></div></div>
+
+    <div class="node node-decision">エリア内にゲームは何個？</div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="branch">
+      <div class="branch-item">
+        <div class="node node-child" style="min-width:160px;">1個（MVP）<small>即ゲーム開始</small></div>
+        <div class="arrow"><div class="arrow-line"></div></div>
+        <div class="node node-game">ゲームプレイ</div>
+      </div>
+      <div class="branch-item">
+        <div class="node node-child" style="min-width:160px;">複数（将来）<small>エリア内一覧</small></div>
+        <div class="arrow"><div class="arrow-label">ゲーム選択</div><div class="arrow-line"></div></div>
+        <div class="node node-game">ゲームプレイ</div>
+      </div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line" style="height:30px;"></div></div>
+
+    <div class="node node-game" style="min-width:350px;">ゲーム中<small>適応型難度 | 即座フィードバック | エラーレス学習 | スター獲得<br>連続60分 →「きゅうけいする？」（提案のみ、強制なし）</small></div>
+    <div class="arrow"><div class="arrow-label">セッション終了</div><div class="arrow-line"></div></div>
+
+    <div class="node node-reward" style="min-width:280px;">報酬まとめ<small>獲得スター表示</small></div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="node node-decision" style="min-width:300px;">どこに行く？（3つの選択肢をアイコンで表示）</div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="branch">
+      <div class="branch-item">
+        <div class="node node-reward" style="min-width:120px;">ショップ<small>スター交換</small></div>
+      </div>
+      <div class="branch-item">
+        <div class="node node-reward" style="min-width:120px;">マイルーム<small>アイテム配置</small></div>
+      </div>
+      <div class="branch-item">
+        <div class="node node-child" style="min-width:120px;">ホームへ<small>もっと遊ぶ</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Parent Flow -->
+<div class="section">
+  <div class="section-title">5. 親向けフロー</div>
+
+  <div class="flow">
+    <div class="node node-child">ホーム画面</div>
+    <div class="arrow"><div class="arrow-label">右下ロックアイコン → PIN or 生体認証</div><div class="arrow-line"></div></div>
+
+    <div class="node node-parent-ui" style="min-width:320px;">親向けダッシュボード</div>
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="branch">
+      <div class="branch-item">
+        <div class="node node-parent-ui" style="min-width:140px;">今日の記録<small>プレイ時間<br>ゲーム別評価</small></div>
+      </div>
+      <div class="branch-item">
+        <div class="node node-parent-ui" style="min-width:140px;">成長の記録<small>認知スキル推移<br>グラフ表示</small></div>
+      </div>
+      <div class="branch-item">
+        <div class="node node-parent-ui" style="min-width:140px;">設定<small>時間制限<br>コンテンツ管理<br>音声認識ON/OFF</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 6: Decisions -->
+<div class="section">
+  <div class="section-title">6. 設計判断の一覧</div>
+
+  <table class="decision-table">
+    <tr>
+      <th>項目</th>
+      <th>判断</th>
+      <th>理由</th>
+      <th>状態</th>
+    </tr>
+    <tr>
+      <td>ゲーム vs ST の分離</td>
+      <td>子ども画面では分けない。全て「建物」として統一</td>
+      <td>知的障害児に選択の認知負荷をかけない。STを避けられるリスク排除</td>
+      <td><span class="status-decided">提案</span></td>
+    </tr>
+    <tr>
+      <td>ナビゲーション方式</td>
+      <td>ワールド型カルーセル（建物 → エリア内 の2階層）</td>
+      <td>MVP(3個)でも将来(300個)でも破綻しない構造</td>
+      <td><span class="status-decided">提案</span></td>
+    </tr>
+    <tr>
+      <td>コンテンツ表示順</td>
+      <td>アセスメント結果で優先度順。毎回同じ並び順</td>
+      <td>予測可能性 + パーソナライゼーション</td>
+      <td><span class="status-decided">提案</span></td>
+    </tr>
+    <tr>
+      <td>MVPのエリア内遷移</td>
+      <td>ゲーム1個の場合、建物タップ → 即ゲーム開始</td>
+      <td>無駄な画面遷移を減らす</td>
+      <td><span class="status-decided">提案</span></td>
+    </tr>
+    <tr>
+      <td>親子分離</td>
+      <td>PIN/生体認証で完全分離</td>
+      <td>全ベンチマークが採用。業界標準</td>
+      <td><span class="status-decided">提案</span></td>
+    </tr>
+    <tr>
+      <td>名前収集タイミング</td>
+      <td>初回セッション完了後</td>
+      <td>仕様書v3準拠。サインアップ率優先</td>
+      <td><span class="status-open">要確認</span></td>
+    </tr>
+    <tr>
+      <td>ゲーム終了トリガー</td>
+      <td>一定試行数で自動終了？子どもが選択？</td>
+      <td>仕様書に明記なし</td>
+      <td><span class="status-open">未決定</span></td>
+    </tr>
+    <tr>
+      <td>将来のエリア内ナビ</td>
+      <td>カード型一覧？縦スクロール？</td>
+      <td>20種規模のUI設計が必要</td>
+      <td><span class="status-open">未決定</span></td>
+    </tr>
+    <tr>
+      <td>ゲームのアンロック方式</td>
+      <td>順番開放？全開放？親選択？</td>
+      <td>ASD児の予測可能性 vs 自由度のバランス</td>
+      <td><span class="status-open">未決定</span></td>
+    </tr>
+    <tr>
+      <td>複数子ども対応</td>
+      <td>兄弟アカウント切替</td>
+      <td>MVP必要？将来対応？</td>
+      <td><span class="status-open">未決定</span></td>
+    </tr>
+  </table>
+</div>
+
+</body>
+</html>

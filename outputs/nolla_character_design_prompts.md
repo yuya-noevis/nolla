@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: キャラクター生成プロンプト
+RELATED: nolla_design_direction.md
+---
+
 # Nolla Instagram キャラクターデザイン プロンプト集
 
 Nano Banana 2（Gemini）で使用。各プロンプトをそのままコピペしてください。

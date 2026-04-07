@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - R1 Reward Screen</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+/* Star animation area */
+.stars-area { position: absolute; top: 120px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 40px; align-items: center; }
+.big-star { animation: star-bounce 1.2s ease-out; }
+@keyframes star-bounce {
+  0% { transform: scale(0) rotate(-30deg); }
+  60% { transform: scale(1.2) rotate(10deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.star-1 { animation-delay: 0s; }
+.star-2 { animation-delay: 0.3s; }
+.star-3 { animation-delay: 0.6s; }
+
+/* Star count update */
+.star-count-area { position: absolute; top: 300px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.92); border: 4px solid rgba(218,165,32,0.4); border-radius: 24px; padding: 12px 32px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+.star-count-area span { font-size: 32px; font-weight: 800; color: #333; }
+.plus-stars { font-size: 24px; font-weight: 700; color: #6BA47A; }
+
+/* Visual guide: star -> ? silhouette -> shop icon */
+.visual-guide { position: absolute; top: 420px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 24px; }
+.guide-item { width: 80px; height: 80px; border-radius: 20px; background: rgba(255,255,255,0.88); border: 3px solid rgba(210,185,150,0.5); box-shadow: 0 4px 14px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
+.guide-arrow { color: #B8A07A; font-size: 28px; }
+
+/* Bottom buttons: play again + home */
+.bottom-buttons { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); display: flex; gap: 60px; z-index: 10; }
+.action-btn { width: 120px; height: 120px; border-radius: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+.action-btn:hover { transform: scale(1.05); }
+
+.btn-replay {
+  background: linear-gradient(180deg, #A8D4A0 0%, #7AB870 60%, #6BA47A 100%);
+  border: 5px solid #5A9060;
+  box-shadow: 0 8px 0 #4A7A50, 0 10px 24px rgba(0,0,0,0.2);
+}
+.btn-home {
+  background: linear-gradient(180deg, #E8D5B5 0%, #D4B896 60%, #C4A882 100%);
+  border: 5px solid #B09A78;
+  box-shadow: 0 8px 0 #9A8468, 0 10px 24px rgba(0,0,0,0.2);
+}
+
+/* Nav character celebrating */
+.navi-celebrate { position: absolute; bottom: 60px; left: 80px; z-index: 10; }
+.navi-frame { width: 100px; height: 100px; border-radius: 24px; background: rgba(255,255,255,0.92); border: 4px solid rgba(210,185,150,0.5); box-shadow: 0 6px 18px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: navi-jump 1s ease-in-out infinite; }
+.navi-frame img { width: 88px; height: 88px; object-fit: contain; }
+@keyframes navi-jump { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/r1_reward_bg.png" alt="">
+
+  <!-- 3 big stars animation -->
+  <div class="stars-area">
+    <div class="big-star star-1">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <path d="M50 5L61 38L96 40L69 60L78 95L50 75L22 95L31 60L4 40L39 38Z" fill="#DAA520" stroke="#B8860B" stroke-width="2"/>
+        <path d="M50 5L61 38L96 40L69 60L78 95L50 75L22 95L31 60L4 40L39 38Z" fill="url(#star-grad)" opacity="0.4"/>
+        <defs><radialGradient id="star-grad" cx="40%" cy="35%"><stop offset="0%" stop-color="white"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+      </svg>
+    </div>
+    <div class="big-star star-2">
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <path d="M50 5L61 38L96 40L69 60L78 95L50 75L22 95L31 60L4 40L39 38Z" fill="#DAA520" stroke="#B8860B" stroke-width="2"/>
+        <path d="M50 5L61 38L96 40L69 60L78 95L50 75L22 95L31 60L4 40L39 38Z" fill="url(#star-grad2)" opacity="0.4"/>
+        <defs><radialGradient id="star-grad2" cx="40%" cy="35%"><stop offset="0%" stop-color="white"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+      </svg>
+    </div>
+    <div class="big-star star-3">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <path d="M50 5L61 38L96 40L69 60L78 95L50 75L22 95L31 60L4 40L39 38Z" fill="#DAA520" stroke="#B8860B" stroke-width="2"/>
+        <path d="M50 5L61 38L96 40L69 60L78 95L50 75L22 95L31 60L4 40L39 38Z" fill="url(#star-grad3)" opacity="0.4"/>
+        <defs><radialGradient id="star-grad3" cx="40%" cy="35%"><stop offset="0%" stop-color="white"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Star count: 128 + 3 = 131 -->
+  <div class="star-count-area">
+    <svg width="36" height="36" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520" stroke="#B8860B" stroke-width="1"/></svg>
+    <span>131</span>
+    <span class="plus-stars">+3</span>
+  </div>
+
+  <!-- Visual guide: star -> ? -> shop -->
+  <div class="visual-guide">
+    <!-- Star icon -->
+    <div class="guide-item">
+      <svg width="40" height="40" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520" stroke="#B8860B" stroke-width="1"/></svg>
+    </div>
+    <!-- Arrow -->
+    <svg class="guide-arrow" width="32" height="32" viewBox="0 0 24 24"><path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#B8A07A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <!-- Mystery silhouette -->
+    <div class="guide-item" style="background: rgba(210,185,150,0.3);">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <rect x="8" y="12" width="28" height="24" rx="6" fill="#C4A882" opacity="0.4"/>
+        <text x="22" y="30" text-anchor="middle" font-size="24" font-weight="800" fill="#B8A07A">?</text>
+      </svg>
+    </div>
+    <!-- Arrow -->
+    <svg class="guide-arrow" width="32" height="32" viewBox="0 0 24 24"><path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#B8A07A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <!-- Shop icon -->
+    <div class="guide-item">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <rect x="6" y="16" width="32" height="22" rx="4" fill="#D4B896" stroke="#B8A07A" stroke-width="2"/>
+        <path d="M6 16L10 6H34L38 16" fill="#E8D5B5" stroke="#B8A07A" stroke-width="2"/>
+        <rect x="18" y="26" width="8" height="12" rx="2" fill="#B8A07A"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Bottom: 2 action buttons (icons only, no text) -->
+  <div class="bottom-buttons">
+    <!-- Replay button (play icon) -->
+    <div class="action-btn btn-replay">
+      <svg width="56" height="56" viewBox="0 0 56 56">
+        <path d="M18 12L44 28L18 44Z" fill="white" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+      </svg>
+    </div>
+    <!-- Home button (house icon) -->
+    <div class="action-btn btn-home">
+      <svg width="56" height="56" viewBox="0 0 56 56">
+        <path d="M28 8L6 28H14V46H24V34H32V46H42V28H50L28 8Z" fill="white" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Nav character celebrating -->
+  <div class="navi-celebrate">
+    <div class="navi-frame">
+      <img src="assets/navi_character.png" alt="">
+    </div>
+  </div>
+</body>
+</html>

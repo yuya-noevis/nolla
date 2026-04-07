@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - Pattern D: Space Galaxy</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    position: relative;
+    background: #1a2a4a;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    right: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 10;
+  }
+
+  .character-greeting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .character-greeting img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(100,180,255,0.4));
+  }
+
+  .greeting-bubble {
+    background: rgba(30, 50, 80, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 7px 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #E0E8F0;
+    border: 2.5px solid rgba(100, 180, 255, 0.3);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3), 0 0 16px rgba(100,180,255,0.1);
+    position: relative;
+  }
+
+  .greeting-bubble::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: rgba(30, 50, 80, 0.85);
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .star-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(30, 50, 80, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 6px 14px;
+    border: 2.5px solid rgba(212, 165, 116, 0.4);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    font-family: 'Fredoka', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #E0E8F0;
+  }
+
+  .adult-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(30, 50, 80, 0.7);
+    backdrop-filter: blur(10px);
+    border: 2.5px solid rgba(100, 180, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  /* Planet hotspots */
+  .planet {
+    position: absolute;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 5;
+  }
+
+  .planet:hover {
+    transform: scale(1.08);
+  }
+
+  .planet-glow {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    box-shadow: 0 0 24px rgba(100,180,255,0.4);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .planet:hover .planet-glow {
+    opacity: 1;
+  }
+
+  .planet-label {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20, 40, 70, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 4px 12px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #C0D0E8;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border: 2px solid rgba(100,180,255,0.2);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .planet:hover .planet-label {
+    opacity: 1;
+  }
+
+  /* Planet positions matching the generated image */
+  .planet-forest  { top: 80px;  left: 80px;  width: 180px; height: 180px; }
+  .planet-water   { top: 60px;  left: 500px; width: 190px; height: 190px; }
+  .planet-earth   { top: 200px; right: 80px; width: 170px; height: 170px; }
+  .planet-crystal { bottom: 160px; left: 120px; width: 160px; height: 160px; }
+  .planet-cloud   { bottom: 120px; left: 420px; width: 180px; height: 180px; }
+
+  /* Locked planet indicator */
+  .planet-locked {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .planet-locked svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.7;
+  }
+
+  /* Undiscovered area hint */
+  .undiscovered {
+    position: absolute;
+    border: 2px dashed rgba(100,180,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+  }
+
+  .undiscovered-text {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12px;
+    color: rgba(150,180,220,0.4);
+    text-align: center;
+  }
+
+  .undiscovered-1 { bottom: 40px; right: 60px; width: 120px; height: 120px; }
+  .undiscovered-2 { top: 30px; right: 180px; width: 100px; height: 100px; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: absolute;
+    bottom: 16px;
+    right: 24px;
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .nav-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(30, 50, 80, 0.85);
+    backdrop-filter: blur(10px);
+    border: 2.5px solid rgba(100, 180, 255, 0.25);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .nav-btn:hover { transform: translateY(-3px); }
+  .nav-btn img { width: 36px; height: 36px; object-fit: contain; }
+
+  /* Zoom hint */
+  .zoom-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20, 40, 70, 0.88);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(180, 200, 230, 0.8);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border: 2px solid rgba(100,180,255,0.15);
+    z-index: 10;
+    animation: pulse-hint 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-hint {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .pattern-label {
+    position: absolute;
+    bottom: 4px;
+    left: 12px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11px;
+    color: rgba(150,180,220,0.3);
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/space_bg.png" alt="space galaxy">
+
+  <div class="overlay">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="character-greeting">
+        <img src="assets/navi_character.png" alt="navi">
+        <div class="greeting-bubble">どのほしにいく?</div>
+      </div>
+      <div class="top-right">
+        <div class="star-count">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+            <path d="M16 2L20.1 11.6L30 12.9L22.8 19.6L24.8 30L16 24.8L7.2 30L9.2 19.6L2 12.9L11.9 11.6L16 2Z" fill="#D4A574" stroke="#C49464" stroke-width="1.5"/>
+          </svg>
+          <span>128</span>
+        </div>
+        <div class="adult-btn">
+          <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+            <rect x="6" y="12" width="16" height="12" rx="3" fill="#7AA0C4" opacity="0.6"/>
+            <path d="M10 12V9C10 6.8 11.8 5 14 5C16.2 5 18 6.8 18 9V12" stroke="#7AA0C4" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Planet Hotspots -->
+    <div class="planet planet-forest">
+      <div class="planet-glow"></div>
+      <div class="planet-label">みどりのほし（きおく）</div>
+    </div>
+
+    <div class="planet planet-water">
+      <div class="planet-glow"></div>
+      <div class="planet-label">みずのほし（ちゅうい）</div>
+    </div>
+
+    <div class="planet planet-earth">
+      <div class="planet-glow"></div>
+      <div class="planet-label">つちのほし（ことば）</div>
+    </div>
+
+    <div class="planet planet-crystal">
+      <div class="planet-glow"></div>
+      <div class="planet-label">クリスタルのほし（しこう）</div>
+    </div>
+
+    <div class="planet planet-cloud">
+      <div class="planet-glow"></div>
+      <div class="planet-label">くものほし（そうぞう）</div>
+    </div>
+
+    <!-- Undiscovered areas -->
+    <div class="undiscovered undiscovered-1">
+      <div class="undiscovered-text">???</div>
+    </div>
+    <div class="undiscovered undiscovered-2">
+      <div class="undiscovered-text">???</div>
+    </div>
+
+    <!-- Zoom Hint -->
+    <div class="zoom-hint">ほしをタップしてぼうけん</div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-btn" title="マイルーム">
+        <img src="assets/icon_myroom.png" alt="myroom">
+      </div>
+      <div class="nav-btn" title="ショップ">
+        <img src="assets/icon_shop.png" alt="shop">
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-label">Pattern D: Space Galaxy</div>
+</body>
+</html>

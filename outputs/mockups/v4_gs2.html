@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - Observatory Tower</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.overlay { position: absolute; inset: 0; z-index: 1; }
+.top-left { position: absolute; top: 16px; left: 20px; display: flex; align-items: center; gap: 8px; z-index: 10; }
+.char-frame { width: 64px; height: 64px; border-radius: 16px; background: rgba(255,255,255,0.92); border: 3px solid rgba(210,185,150,0.5); box-shadow: 0 4px 14px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.char-frame img { width: 56px; height: 56px; object-fit: contain; }
+.mood { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.92); border: 2px solid rgba(210,185,150,0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
+.top-right { position: absolute; top: 16px; right: 20px; display: flex; align-items: center; gap: 10px; z-index: 10; }
+.star-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.92); border: 3px solid rgba(218,165,32,0.35); border-radius: 18px; padding: 6px 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+.star-badge span { font-size: 20px; font-weight: 800; color: #333; }
+.lock-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.85); border: 2px solid rgba(210,185,150,0.35); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 54px; height: 54px; border-radius: 10px; background: linear-gradient(180deg, #E8D5B5 0%, #D4B896 100%); border: 3px solid #C4A882; box-shadow: 0 4px 0 #A88E6C, 0 6px 14px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.arrow-left { left: 24px; }
+.arrow-right { right: 24px; }
+.game-name { position: absolute; bottom: 105px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); border: 3px solid rgba(210,185,150,0.5); border-radius: 18px; padding: 8px 32px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); z-index: 10; }
+.game-name span { font-size: 22px; font-weight: 800; color: #5A4A3A; letter-spacing: 4px; }
+.bottom-left { position: absolute; bottom: 16px; left: 20px; display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.92); border: 3px solid rgba(210,185,150,0.4); border-radius: 14px; padding: 8px 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); z-index: 10; }
+.prog-blocks { display: flex; gap: 4px; }
+.pb { width: 14px; height: 14px; border-radius: 4px; }
+.pb.on { background: #6BA47A; }
+.pb.off { background: rgba(0,0,0,0.08); }
+.bottom-right { position: absolute; bottom: 16px; right: 20px; display: flex; gap: 10px; z-index: 10; }
+.nav-btn { width: 64px; height: 64px; border-radius: 14px; background: rgba(255,255,255,0.92); border: 3px solid rgba(210,185,150,0.4); box-shadow: 0 4px 14px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
+.nav-btn img { width: 44px; height: 44px; object-fit: contain; }
+.label { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 10px; color: rgba(255,255,255,0.25); z-index: 10; }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/v4_gs2_bg.png" alt="">
+  <div class="overlay">
+    <div class="top-left">
+      <div class="char-frame"><img src="assets/navi_character.png" alt=""></div>
+      <div class="mood"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#FFF4C2"/><circle cx="8.5" cy="10" r="1.8" fill="#333"/><circle cx="15.5" cy="10" r="1.8" fill="#333"/><path d="M8 15.5Q12 19 16 15.5" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>
+    </div>
+    <div class="top-right">
+      <div class="star-badge"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520" stroke="#B8860B" stroke-width="1"/></svg><span>128</span></div>
+      <div class="lock-btn"><svg width="20" height="20" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="#999" opacity="0.5"/><path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="#999" stroke-width="2" stroke-linecap="round" opacity="0.5"/></svg></div>
+    </div>
+    <div class="arrow arrow-left"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 5L8 12L15 19" stroke="#7A6548" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="arrow arrow-right"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M9 5L16 12L9 19" stroke="#7A6548" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="game-name"><span>おぼえて</span></div>
+    <div class="bottom-left">
+      <svg width="22" height="22" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="#6BA47A" stroke-width="2"/><line x1="2" y1="10" x2="22" y2="10" stroke="#6BA47A" stroke-width="1.5"/><line x1="12" y1="10" x2="12" y2="20" stroke="#6BA47A" stroke-width="1.5"/></svg>
+      <div class="prog-blocks"><div class="pb on"></div><div class="pb on"></div><div class="pb off"></div><div class="pb off"></div><div class="pb off"></div></div>
+    </div>
+    <div class="bottom-right">
+      <div class="nav-btn"><img src="assets/icon_myroom.png" alt=""></div>
+      <div class="nav-btn"><img src="assets/icon_shop.png" alt=""></div>
+    </div>
+  </div>
+  <div class="label">Nolla - Observatory Tower</div>
+</body>
+</html>

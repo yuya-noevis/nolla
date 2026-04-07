@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - S3 Child Profile</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+/* Step indicator */
+.step-indicator { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 8px; }
+.step-dot { width: 10px; height: 10px; border-radius: 50%; }
+.step-dot.done { background: #6BA47A; }
+.step-dot.active { background: #4A7BA7; }
+.step-dot.inactive { background: rgba(74,123,167,0.2); }
+
+/* Step section tabs */
+.section-tabs { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 6px; }
+.section-tab { padding: 8px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; }
+.section-tab.active { background: #4A7BA7; color: white; }
+.section-tab.done { background: rgba(107,164,122,0.2); color: #5A8A6A; }
+.section-tab.next { background: rgba(210,185,150,0.3); color: #999; }
+
+/* Main content card */
+.card { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -48%); z-index: 10; width: 700px; background: rgba(255,255,255,0.95); border: 3px solid rgba(210,185,150,0.4); border-radius: 24px; padding: 36px 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+.card-title { font-size: 20px; font-weight: 800; color: #333; margin-bottom: 8px; }
+.card-sub { font-size: 14px; color: #888; margin-bottom: 28px; }
+
+/* Age slider */
+.slider-group { margin-bottom: 28px; }
+.slider-label { font-size: 15px; font-weight: 600; color: #555; margin-bottom: 12px; display: block; }
+.slider-track { position: relative; height: 8px; background: rgba(210,185,150,0.3); border-radius: 4px; margin: 0 8px; }
+.slider-fill { height: 100%; width: 35%; background: #4A7BA7; border-radius: 4px; }
+.slider-thumb { position: absolute; top: -10px; left: 35%; width: 28px; height: 28px; border-radius: 50%; background: white; border: 3px solid #4A7BA7; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transform: translateX(-50%); }
+.slider-value { text-align: center; margin-top: 8px; font-size: 24px; font-weight: 800; color: #4A7BA7; }
+.slider-range { display: flex; justify-content: space-between; font-size: 12px; color: #BBB; margin-top: 4px; padding: 0 8px; }
+
+/* Choice buttons */
+.choice-group { margin-bottom: 24px; }
+.choice-label { font-size: 15px; font-weight: 600; color: #555; margin-bottom: 10px; display: block; }
+.choices { display: flex; gap: 10px; flex-wrap: wrap; }
+.choice-btn { padding: 10px 20px; border: 2px solid rgba(210,185,150,0.5); border-radius: 12px; background: rgba(245,240,232,0.5); font-size: 14px; color: #555; cursor: pointer; transition: all 0.2s; }
+.choice-btn.selected { background: rgba(74,123,167,0.12); border-color: #4A7BA7; color: #4A7BA7; font-weight: 600; }
+
+/* Multi-select chips */
+.chip-group { margin-bottom: 24px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { padding: 8px 16px; border: 2px solid rgba(210,185,150,0.4); border-radius: 20px; background: rgba(245,240,232,0.4); font-size: 13px; color: #666; cursor: pointer; }
+.chip.selected { background: rgba(107,164,122,0.15); border-color: #6BA47A; color: #5A8A6A; }
+.chip.selected::before { content: ""; margin-right: 4px; }
+
+/* Bottom nav */
+.bottom-nav { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 16px; }
+.nav-btn { padding: 14px 40px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.nav-btn.secondary { background: rgba(210,185,150,0.3); color: #888; }
+.nav-btn.primary { background: linear-gradient(180deg, #4A7BA7 0%, #3A6B97 100%); color: white; box-shadow: 0 4px 0 #2A5B87, 0 6px 14px rgba(0,0,0,0.15); }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/s_onboarding_bg.png" alt="">
+
+  <!-- Step indicator: 2 of 4 -->
+  <div class="step-indicator">
+    <div class="step-dot done"></div>
+    <div class="step-dot active"></div>
+    <div class="step-dot inactive"></div>
+    <div class="step-dot inactive"></div>
+  </div>
+
+  <!-- Section tabs -->
+  <div class="section-tabs">
+    <div class="section-tab active">Step 1: 基本情報</div>
+    <div class="section-tab next">Step 2: コミュニケーション</div>
+    <div class="section-tab next">Step 3: 好み</div>
+  </div>
+
+  <!-- Form card -->
+  <div class="card">
+    <div class="card-title">お子さまについて教えてください</div>
+    <div class="card-sub">お子さまに合わせた最適な体験をご用意します（2分以内）</div>
+
+    <!-- Age slider -->
+    <div class="slider-group">
+      <label class="slider-label">お子さまの年齢</label>
+      <div class="slider-track">
+        <div class="slider-fill"></div>
+        <div class="slider-thumb"></div>
+      </div>
+      <div class="slider-value">7歳</div>
+      <div class="slider-range"><span>3歳</span><span>18歳</span></div>
+    </div>
+
+    <!-- Gender -->
+    <div class="choice-group">
+      <label class="choice-label">性別</label>
+      <div class="choices">
+        <div class="choice-btn selected">男の子</div>
+        <div class="choice-btn">女の子</div>
+        <div class="choice-btn">回答しない</div>
+      </div>
+    </div>
+
+    <!-- Traits (multi-select) -->
+    <div class="chip-group">
+      <label class="choice-label">あてはまることを選んでください（複数選択OK）</label>
+      <div class="chips">
+        <div class="chip selected">よく同じ動作を繰り返す</div>
+        <div class="chip">音や光に敏感</div>
+        <div class="chip selected">新しい環境で不安になる</div>
+        <div class="chip">興味が限定的</div>
+        <div class="chip">指示の理解が難しい時がある</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn secondary">もどる</button>
+    <button class="nav-btn primary">つぎへ</button>
+  </div>
+</body>
+</html>

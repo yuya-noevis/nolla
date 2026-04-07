@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - P4 AI Support</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+.header { position: absolute; top: 0; left: 0; right: 0; height: 64px; background: rgba(255,255,255,0.95); border-bottom: 2px solid rgba(210,185,150,0.3); z-index: 10; display: flex; align-items: center; padding: 0 24px; }
+.back-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(245,240,232,0.8); border: 2px solid rgba(210,185,150,0.3); display: flex; align-items: center; justify-content: center; }
+.header-title { font-size: 18px; font-weight: 700; color: #333; margin-left: 16px; }
+.header-tabs { display: flex; gap: 4px; margin-left: auto; }
+.header-tab { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #888; cursor: pointer; }
+.header-tab.active { background: #4A7BA7; color: white; }
+
+.content { position: absolute; top: 80px; left: 24px; right: 24px; bottom: 24px; z-index: 10; display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+
+/* Left sidebar: notification cards */
+.sidebar { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.notif-card { background: rgba(255,255,255,0.95); border: 2px solid rgba(210,185,150,0.3); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: border-color 0.15s; }
+.notif-card:hover { border-color: #4A7BA7; }
+.notif-card.active { border-color: #4A7BA7; background: rgba(74,123,167,0.04); }
+.notif-type { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.notif-type.report { color: #4A7BA7; }
+.notif-type.growth { color: #6BA47A; }
+.notif-type.advice { color: #D4A574; }
+.notif-type.alert { color: #C48A8A; }
+.notif-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 2px; }
+.notif-date { font-size: 11px; color: #BBB; }
+.notif-unread { width: 8px; height: 8px; border-radius: 50%; background: #4A7BA7; float: right; margin-top: 2px; }
+
+/* Right: chat area */
+.chat-area { background: rgba(255,255,255,0.95); border: 2px solid rgba(210,185,150,0.3); border-radius: 14px; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.chat-header { padding: 16px 20px; border-bottom: 1px solid rgba(210,185,150,0.2); display: flex; align-items: center; gap: 12px; }
+.ai-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4A7BA7, #6BA47A); display: flex; align-items: center; justify-content: center; }
+.chat-header-text { font-size: 15px; font-weight: 700; color: #333; }
+.chat-header-sub { font-size: 12px; color: #999; }
+
+.chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+
+.msg { max-width: 80%; }
+.msg-ai { align-self: flex-start; }
+.msg-user { align-self: flex-end; }
+.msg-bubble { padding: 14px 18px; border-radius: 16px; font-size: 14px; line-height: 1.7; }
+.msg-ai .msg-bubble { background: rgba(245,240,232,0.8); color: #444; border-bottom-left-radius: 4px; }
+.msg-user .msg-bubble { background: #4A7BA7; color: white; border-bottom-right-radius: 4px; }
+.msg-time { font-size: 10px; color: #BBB; margin-top: 4px; }
+.msg-ai .msg-time { text-align: left; }
+.msg-user .msg-time { text-align: right; }
+
+/* Quick action chips */
+.quick-chips { padding: 8px 20px; display: flex; gap: 6px; flex-wrap: wrap; }
+.quick-chip { padding: 6px 14px; border: 2px solid rgba(74,123,167,0.3); border-radius: 20px; font-size: 12px; color: #4A7BA7; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.quick-chip:hover { background: rgba(74,123,167,0.08); }
+
+/* Chat input */
+.chat-input { padding: 12px 20px; border-top: 1px solid rgba(210,185,150,0.2); display: flex; gap: 10px; align-items: center; }
+.chat-field { flex: 1; height: 44px; border: 2px solid rgba(210,185,150,0.4); border-radius: 12px; padding: 0 16px; font-size: 14px; color: #333; background: rgba(245,240,232,0.3); outline: none; }
+.chat-field::placeholder { color: #BBB; }
+.send-btn { width: 44px; height: 44px; border-radius: 12px; background: #4A7BA7; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/parent_bg.png" alt="">
+
+  <div class="header">
+    <div class="back-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path d="M15 5L8 12L15 19" stroke="#666" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="header-title">保護者メニュー</div>
+    <div class="header-tabs">
+      <div class="header-tab">今日の記録</div>
+      <div class="header-tab">成長の記録</div>
+      <div class="header-tab active">AIサポート</div>
+      <div class="header-tab">設定</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Left sidebar: notifications -->
+    <div class="sidebar">
+      <div class="notif-card active">
+        <div class="notif-unread"></div>
+        <div class="notif-type report">週次レポート</div>
+        <div class="notif-title">今週の認知特性レポート</div>
+        <div class="notif-date">2026-04-04</div>
+      </div>
+      <div class="notif-card">
+        <div class="notif-type growth">成長検出</div>
+        <div class="notif-title">ルール切替速度が向上しました</div>
+        <div class="notif-date">2026-04-03</div>
+      </div>
+      <div class="notif-card">
+        <div class="notif-type advice">家庭アドバイス</div>
+        <div class="notif-title">認知的柔軟性を伸ばす日常の工夫</div>
+        <div class="notif-date">2026-04-02</div>
+      </div>
+      <div class="notif-card">
+        <div class="notif-unread"></div>
+        <div class="notif-type alert">注意</div>
+        <div class="notif-title">午後の集中時間が短い傾向</div>
+        <div class="notif-date">2026-04-01</div>
+      </div>
+      <div class="notif-card">
+        <div class="notif-type report">週次レポート</div>
+        <div class="notif-title">先週の認知特性レポート</div>
+        <div class="notif-date">2026-03-28</div>
+      </div>
+    </div>
+
+    <!-- Right: chat -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <div class="ai-avatar">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="none" stroke="white" stroke-width="2"/><circle cx="9" cy="10" r="1.5" fill="white"/><circle cx="15" cy="10" r="1.5" fill="white"/><path d="M8 15C9.33 16.33 10.67 17 12 17s2.67-.67 4-2" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="chat-header-text">Nolla AI サポート</div>
+          <div class="chat-header-sub">お子さまのデータに基づいた個別アドバイス</div>
+        </div>
+      </div>
+
+      <div class="chat-messages">
+        <div class="msg msg-ai">
+          <div class="msg-bubble">
+            こんにちは! 今週のレポートをお届けします。<br><br>
+            <strong>認知的柔軟性</strong>が先週比で大きく伸びています。特に「なかまわけ」のLevel 3での正答率が65%から82%に向上しました。ルールの切り替えがスムーズになってきています。<br><br>
+            <strong>おすすめ</strong>: 日常生活でも「いつもと違う順番でやってみよう」という遊びを取り入れると、ゲームで鍛えているスキルが日常に般化しやすくなります。例えば、お着替えの順番を一つだけ変えてみるなど、小さな変化から始めてみてください。
+          </div>
+          <div class="msg-time">14:30</div>
+        </div>
+
+        <div class="msg msg-user">
+          <div class="msg-bubble">
+            最近、かんしゃくが減った気がするんですが、関係ありますか？
+          </div>
+          <div class="msg-time">14:32</div>
+        </div>
+
+        <div class="msg msg-ai">
+          <div class="msg-bubble">
+            とても良い観察です。認知的柔軟性の向上と行動面の改善には関連が報告されています。<br><br>
+            認知的柔軟性が高まると、予期しない状況への対応力が上がり、「思い通りにいかない」場面でのストレスが軽減される傾向があります（PMC研究: 認知的柔軟性とASD児の行動調整）。<br><br>
+            引き続きデータを観察していきますね。
+          </div>
+          <div class="msg-time">14:33</div>
+        </div>
+      </div>
+
+      <div class="quick-chips">
+        <div class="quick-chip">今週のまとめを見る</div>
+        <div class="quick-chip">家庭でできることは？</div>
+        <div class="quick-chip">難度を変えたい</div>
+        <div class="quick-chip">次の目標は？</div>
+      </div>
+
+      <div class="chat-input">
+        <input class="chat-field" type="text" placeholder="質問や相談を入力...">
+        <button class="send-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="white"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

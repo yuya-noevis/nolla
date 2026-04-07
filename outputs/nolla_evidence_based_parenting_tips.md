@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 保護者向けTips：エビデンスベース
+RELATED: 
+---
+
 # 発達障害児の子育て：科学的エビデンスに基づく家庭向けTips
 
 作成日: 2026-03-26

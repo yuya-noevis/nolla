@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 動画制作01パイロット：療育シート
+RELATED: nolla_pilot_001_production_guide.md
+---
+
 # 療育目標シート — NOLLA-001
 
 ```

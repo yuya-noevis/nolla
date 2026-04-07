@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - M3 Tutorial</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
+.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+
+/* Dark overlay (spotlight effect) */
+.spotlight-overlay { position: absolute; inset: 0; background: radial-gradient(circle 200px at 597px 400px, transparent 0%, rgba(0,0,0,0.65) 100%); z-index: 5; }
+
+/* Highlighted target (the building to tap) */
+.target-glow { position: absolute; top: 280px; left: 50%; transform: translateX(-50%); z-index: 10; width: 200px; height: 200px; border-radius: 24px; display: flex; align-items: center; justify-content: center; animation: glow-pulse 1.5s ease-in-out infinite; }
+@keyframes glow-pulse {
+  0%,100% { box-shadow: 0 0 30px rgba(218,165,32,0.3), 0 0 60px rgba(218,165,32,0.15); }
+  50% { box-shadow: 0 0 50px rgba(218,165,32,0.5), 0 0 100px rgba(218,165,32,0.25); }
+}
+
+/* Building placeholder (cottage) */
+.building-icon { width: 160px; height: 160px; }
+
+/* Hand gesture animation */
+.hand-gesture { position: absolute; top: 460px; left: 54%; z-index: 20; animation: tap-gesture 2s ease-in-out infinite; }
+@keyframes tap-gesture {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+  40% { transform: translate(-10px, -20px) scale(1); opacity: 0.9; }
+  50% { transform: translate(-10px, -20px) scale(0.85); opacity: 1; }
+  60% { transform: translate(-10px, -20px) scale(1); opacity: 0.9; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+}
+
+/* Nav character speaking */
+.navi-speech { position: absolute; bottom: 80px; left: 60px; z-index: 20; display: flex; align-items: flex-end; gap: 16px; }
+.navi-frame { width: 100px; height: 100px; border-radius: 24px; background: rgba(255,255,255,0.95); border: 4px solid rgba(210,185,150,0.5); box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.navi-frame img { width: 88px; height: 88px; object-fit: contain; }
+
+/* Speech bubble with icon only (no text) */
+.speech-bubble { background: rgba(255,255,255,0.95); border: 3px solid rgba(210,185,150,0.5); border-radius: 20px 20px 20px 4px; padding: 16px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; }
+.speech-arrow { display: flex; align-items: center; }
+
+/* Tutorial step indicator */
+.tutorial-steps { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 8px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 8px 16px; }
+.tut-step { width: 12px; height: 12px; border-radius: 50%; }
+.tut-step.active { background: rgba(255,255,255,0.9); }
+.tut-step.inactive { background: rgba(255,255,255,0.3); }
+
+/* Skip button (small, for parents) */
+.skip-btn { position: absolute; top: 20px; right: 20px; z-index: 20; padding: 6px 14px; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); font-size: 12px; color: rgba(255,255,255,0.6); cursor: pointer; }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/m4_nakamawake_bg.png" alt="">
+  <div class="spotlight-overlay"></div>
+
+  <!-- Tutorial step indicator -->
+  <div class="tutorial-steps">
+    <div class="tut-step active"></div>
+    <div class="tut-step inactive"></div>
+    <div class="tut-step inactive"></div>
+  </div>
+
+  <!-- Skip (for parents) -->
+  <div class="skip-btn">skip</div>
+
+  <!-- Highlighted target: building/cottage -->
+  <div class="target-glow">
+    <svg class="building-icon" viewBox="0 0 160 160">
+      <!-- Cottage building -->
+      <rect x="30" y="60" width="100" height="80" rx="6" fill="#D4B896" stroke="#B8A07A" stroke-width="3"/>
+      <!-- Roof -->
+      <path d="M20 65L80 20L140 65Z" fill="#C48A6A" stroke="#A87050" stroke-width="3"/>
+      <!-- Door -->
+      <rect x="60" y="100" width="40" height="40" rx="4" fill="#8B6B4A" stroke="#7A5A3A" stroke-width="2"/>
+      <circle cx="92" cy="120" r="3" fill="#DAA520"/>
+      <!-- Window -->
+      <rect x="40" y="75" width="25" height="20" rx="3" fill="#B5D4E8" stroke="#8FB8D4" stroke-width="2"/>
+      <line x1="52" y1="75" x2="52" y2="95" stroke="#8FB8D4" stroke-width="1.5"/>
+      <line x1="40" y1="85" x2="65" y2="85" stroke="#8FB8D4" stroke-width="1.5"/>
+      <rect x="95" y="75" width="25" height="20" rx="3" fill="#B5D4E8" stroke="#8FB8D4" stroke-width="2"/>
+      <line x1="107" y1="75" x2="107" y2="95" stroke="#8FB8D4" stroke-width="1.5"/>
+      <line x1="95" y1="85" x2="120" y2="85" stroke="#8FB8D4" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <!-- Hand tap gesture -->
+  <div class="hand-gesture">
+    <svg width="64" height="64" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="28" fill="rgba(255,255,255,0.5)" stroke="rgba(218,165,32,0.6)" stroke-width="3"/>
+      <path d="M32 18C32 18 28 22 28 30C28 34 30 38 32 38C34 38 36 34 36 30C36 22 32 18 32 18Z" fill="rgba(218,165,32,0.7)"/>
+      <circle cx="32" cy="28" r="4" fill="rgba(218,165,32,0.9)"/>
+    </svg>
+  </div>
+
+  <!-- Nav character with speech bubble -->
+  <div class="navi-speech">
+    <div class="navi-frame">
+      <img src="assets/navi_character.png" alt="">
+    </div>
+    <div class="speech-bubble">
+      <!-- "Tap here!" expressed with icons only -->
+      <div class="speech-arrow">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <!-- Finger tap icon -->
+          <circle cx="16" cy="10" r="6" fill="#D4A574" stroke="#B8906A" stroke-width="1.5"/>
+          <rect x="13" y="14" width="6" height="12" rx="3" fill="#D4A574" stroke="#B8906A" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <svg width="28" height="28" viewBox="0 0 24 24"><path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#D4A574" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <!-- Building mini icon -->
+      <svg width="36" height="36" viewBox="0 0 36 36">
+        <rect x="6" y="14" width="24" height="18" rx="3" fill="#D4B896" stroke="#B8A07A" stroke-width="1.5"/>
+        <path d="M4 16L18 4L32 16" fill="#C48A6A" stroke="#A87050" stroke-width="1.5"/>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>

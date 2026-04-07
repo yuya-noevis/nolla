@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1194, height=834">
+<title>Nolla - Pattern F: Block Continent</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    position: relative;
+    background: #C5D8E8;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* ===== TOP BAR ===== */
+  .top-bar {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 10;
+  }
+
+  /* Character + mood */
+  .character-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .character-frame {
+    width: 64px;
+    height: 64px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.88);
+    border: 3px solid #D4A574;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .character-frame img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+  }
+
+  /* Mood indicator - simple face */
+  .mood {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.88);
+    border: 2px solid #6BA47A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Star counter */
+  .star-counter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.88);
+    border: 3px solid #D4A574;
+    border-radius: 4px;
+    padding: 6px 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  .star-counter span {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2C3E50;
+  }
+
+  /* Adult lock */
+  .adult-lock {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.7);
+    border: 2px solid #8B9BA3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+
+  /* ===== BOTTOM BAR ===== */
+  .bottom-bar {
+    position: absolute;
+    bottom: 16px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 10;
+  }
+
+  /* Collection progress - block style */
+  .collection-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.88);
+    border: 3px solid #D4A574;
+    border-radius: 4px;
+    padding: 8px 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  .collection-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .progress-blocks {
+    display: flex;
+    gap: 3px;
+  }
+
+  .p-block {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    border: 2px solid #8B9BA3;
+  }
+
+  .p-block.filled {
+    background: #6BA47A;
+    border-color: #5A8A6A;
+  }
+
+  .p-block.empty {
+    background: rgba(139,155,163,0.2);
+  }
+
+  /* Nav buttons */
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.88);
+    border: 3px solid #D4A574;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  .nav-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .nav-btn img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+  }
+
+  /* ===== AREA HOTSPOTS ===== */
+  .area {
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .area:hover {
+    transform: scale(1.05);
+  }
+
+  /* Area icon badge */
+  .area-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.9);
+    border: 3px solid #D4A574;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .area:hover .area-icon {
+    box-shadow: 0 4px 16px rgba(74,123,167,0.4), 0 0 0 3px rgba(74,123,167,0.2);
+  }
+
+  /* Positions on the block continent map */
+  .area-forest   { top: 140px; left: 140px; }
+  .area-mountain  { top: 100px; right: 200px; }
+  .area-lake      { top: 260px; right: 260px; }
+  .area-village   { top: 320px; left: 280px; }
+  .area-desert    { bottom: 180px; left: 480px; }
+
+  /* Fog overlays */
+  .fog {
+    position: absolute;
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .fog-left {
+    top: 0; left: 0; bottom: 0;
+    width: 60px;
+    background: linear-gradient(to right, rgba(197,216,232,0.7), transparent);
+  }
+
+  .fog-right {
+    top: 0; right: 0; bottom: 0;
+    width: 60px;
+    background: linear-gradient(to left, rgba(197,216,232,0.7), transparent);
+  }
+
+  .fog-top {
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(197,216,232,0.5), transparent);
+  }
+
+  .fog-bottom {
+    bottom: 0; left: 0; right: 0;
+    height: 50px;
+    background: linear-gradient(to top, rgba(197,216,232,0.6), transparent);
+  }
+
+  /* Locked area indicator */
+  .area-locked .area-icon {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+  }
+
+  .lock-overlay {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    background: #8B9BA3;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pattern-label {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: system-ui, sans-serif;
+    font-size: 10px;
+    color: rgba(44,62,80,0.3);
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/block_continent_bg.png" alt="block continent">
+
+  <div class="overlay">
+    <!-- Fog -->
+    <div class="fog fog-left"></div>
+    <div class="fog fog-right"></div>
+    <div class="fog fog-top"></div>
+    <div class="fog fog-bottom"></div>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="character-area">
+        <div class="character-frame">
+          <img src="assets/navi_character.png" alt="">
+        </div>
+        <div class="mood">
+          <svg width="20" height="20" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="9" fill="#F9F7F5" stroke="#6BA47A" stroke-width="1.5"/>
+            <circle cx="7" cy="8" r="1.5" fill="#2C3E50"/>
+            <circle cx="13" cy="8" r="1.5" fill="#2C3E50"/>
+            <path d="M7 13Q10 16 13 13" stroke="#2C3E50" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="top-right">
+        <div class="star-counter">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#D4A574" stroke="#B8905E" stroke-width="1"/>
+          </svg>
+          <span>128</span>
+        </div>
+        <div class="adult-lock">
+          <svg width="22" height="22" viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2" fill="#8B9BA3" opacity="0.6"/>
+            <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="#8B9BA3" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- AREA HOTSPOTS (icon-only, no text) -->
+    <!-- Forest = Memory (brain icon) -->
+    <div class="area area-forest">
+      <div class="area-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <path d="M16 4C11 4 7 8 7 12.5C7 17 10 19 10 22H22C22 19 25 17 25 12.5C25 8 21 4 16 4Z" fill="#6BA47A" opacity="0.8"/>
+          <path d="M13 22V26H19V22" fill="#D4A574"/>
+          <circle cx="12" cy="12" r="1.5" fill="#F9F7F5" opacity="0.8"/>
+          <circle cx="18" cy="10" r="1" fill="#F9F7F5" opacity="0.6"/>
+          <circle cx="15" cy="14" r="1.2" fill="#F9F7F5" opacity="0.7"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Mountain = Planning (eye icon) -->
+    <div class="area area-mountain">
+      <div class="area-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <path d="M4 22L12 8L16 14L20 8L28 22Z" fill="#8B9BA3" opacity="0.7"/>
+          <path d="M12 8L14 12L10 12Z" fill="#F9F7F5" opacity="0.5"/>
+          <circle cx="16" cy="18" r="4" fill="#4A7BA7" opacity="0.3"/>
+          <circle cx="16" cy="18" r="2" fill="#4A7BA7" opacity="0.6"/>
+          <circle cx="16" cy="18" r="0.8" fill="#2C3E50"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Lake = Attention (magnifying glass) -->
+    <div class="area area-lake">
+      <div class="area-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <circle cx="14" cy="14" r="8" fill="none" stroke="#4A7BA7" stroke-width="3" opacity="0.7"/>
+          <line x1="20" y1="20" x2="27" y2="27" stroke="#D4A574" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="14" cy="14" r="3" fill="#4A7BA7" opacity="0.2"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Village = Social (two figures) -->
+    <div class="area area-village">
+      <div class="area-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <circle cx="11" cy="10" r="4" fill="#4A7BA7" opacity="0.6"/>
+          <path d="M5 24C5 19 7.5 16 11 16C14.5 16 17 19 17 24" fill="#4A7BA7" opacity="0.4"/>
+          <circle cx="21" cy="10" r="4" fill="#6BA47A" opacity="0.6"/>
+          <path d="M15 24C15 19 17.5 16 21 16C24.5 16 27 19 27 24" fill="#6BA47A" opacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Desert = Flexibility (switch arrows) -->
+    <div class="area area-desert area-locked">
+      <div class="area-icon" style="position:relative;">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <path d="M6 12H22L18 8" stroke="#D4A574" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+          <path d="M26 20H10L14 24" stroke="#4A7BA7" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+        </svg>
+        <div class="lock-overlay">
+          <svg width="12" height="12" viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2" fill="#F9F7F5"/>
+            <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="#F9F7F5" stroke-width="2" fill="none"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar">
+      <!-- Collection progress -->
+      <div class="collection-progress">
+        <svg class="collection-icon" width="24" height="24" viewBox="0 0 24 24">
+          <rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="#D4A574" stroke-width="2"/>
+          <line x1="2" y1="10" x2="22" y2="10" stroke="#D4A574" stroke-width="1.5"/>
+          <line x1="12" y1="10" x2="12" y2="20" stroke="#D4A574" stroke-width="1.5"/>
+          <circle cx="7" cy="7" r="1.5" fill="#6BA47A"/>
+          <circle cx="17" cy="7" r="1.5" fill="#4A7BA7"/>
+        </svg>
+        <div class="progress-blocks">
+          <div class="p-block filled"></div>
+          <div class="p-block filled"></div>
+          <div class="p-block filled"></div>
+          <div class="p-block empty"></div>
+          <div class="p-block empty"></div>
+        </div>
+      </div>
+
+      <!-- Nav buttons -->
+      <div class="nav-buttons">
+        <div class="nav-btn">
+          <img src="assets/icon_myroom.png" alt="">
+        </div>
+        <div class="nav-btn">
+          <img src="assets/icon_shop.png" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-label">Pattern F: Block Continent (Minecraft-heavy)</div>
+</body>
+</html>

@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 動画制作01パイロット：ストーリーボード
+RELATED: nolla_pilot_001_production_guide.md
+---
+
 # ストーリーボード — NOLLA-001「おはよう の うた」
 
 > 台本の各セクションを映像コマで描写。AI動画生成時のシーン指示書として使用。

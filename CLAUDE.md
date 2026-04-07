@@ -105,6 +105,40 @@ type ApiResponse<T> = { success: true; data: T } | { success: false; error: stri
 - 日本語で応答する（ファイル名・コード・コマンドは英語可）
 - 回答は簡潔に。冗長な説明より結論と根拠を先に出す
 
+## 設計ドキュメント参照ルール（厳守）
+
+設計ドキュメントは `outputs/INDEX.md` で一元管理。以下のルールに従うこと。
+
+### MVP開発着手前の必読4ファイル（Phase 0）
+1. `outputs/nolla_mvp_design_spec_v3.md` — MVP全体仕様
+2. `outputs/nolla_ia_design_v3.md` — 21画面情報設計
+3. `outputs/nolla_game_mechanics_design.md` — ゲームメカニクス・テスト結果
+4. `outputs/nolla_nci_algorithm_design.md` — スコアリング・適応型難度
+
+この4ファイルを読まずに実装を始めるな。
+
+### 理論背景が必要な場合の参照先
+- **UI/UXデザイン理論** → `nolla_design_rules_asd_research.md`
+- **ゲーム選定の科学的根拠** → `nolla_visuospatial_cognition_research.md`
+- **報酬メカニクス** → `nolla_reward_design_research.md`
+
+### ビジュアル実装時
+- **色選択** → `nolla_color_regulation.md`
+- **キャラクター設計** → `nolla_design_direction.md` + `nolla_character_design_prompts.md`
+- **背景デザイン** → `nolla_stage_bg_composition_rules.md` + `nolla_v4d_building_design_rules.md`
+
+### バージョニングルール
+- **v3 = CURRENT**（使用）
+- **v1, v2 = DEPRECATED**（`outputs/_archive/` に移動済み）
+- 複数版がある場合は最新版のみを使用
+
+### ファイル整理状況
+- **ACTIVE**: 26個（`outputs/` 直下）
+- **DEPRECATED**: 56個（`outputs/_archive/` に移動済み）
+- **参照ガイド**: `outputs/INDEX.md` で全体像を把握できる
+
+この構造により、ドキュメント混乱による参照エラー・バージョン重複使用を防ぐ。
+
 ## このプロジェクトでよく行うタスク
 
 1. **市場リサーチ・競合分析** — Web検索 → `outputs/` にまとめ

@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 動画制作01パイロット：制作ガイド
+RELATED: 
+---
+
 # 制作ガイド — NOLLA-001「おはよう の うた」
 
 > Yuyaが実際に手を動かして動画を完成させるための手順書。

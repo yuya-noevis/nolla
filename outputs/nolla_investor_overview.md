@@ -1,3 +1,10 @@
+---
+STATUS: ACTIVE
+LAST_UPDATED: 2026-04-07
+PURPOSE: 投資家向け概要資料
+RELATED: 
+---
+
 # Nolla — サービス概要
 
 ---
