@@ -6,21 +6,22 @@ import type { HintStage } from "@/hooks/use-errorless";
 import { generateVisualSearchScene } from "@/lib/games/visual-search/generate";
 
 type Props = {
+  params: VisualSearchParams;
+  roundKey: number;
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
   onRoundComplete: () => void;
 };
 
-const DEFAULT_PARAMS: VisualSearchParams = {
-  sceneItems: 4,
-  diffCount: 1,
-  diffSubtlety: 20,
-};
-
-export function VisualSearchGame({ hintStage, onTrialResult, onRoundComplete }: Props) {
-  const scene = useMemo(() => generateVisualSearchScene(DEFAULT_PARAMS), []);
+export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
+  const scene = useMemo(() => generateVisualSearchScene(params), [params, roundKey]);
   const [foundDiffs, setFoundDiffs] = useState<ReadonlyArray<string>>([]);
-  const [trialStart] = useState(Date.now());
+  const [trialStart, setTrialStart] = useState(Date.now());
+
+  useEffect(() => {
+    setFoundDiffs([]);
+    setTrialStart(Date.now());
+  }, [roundKey]);
 
   const handleItemTap = useCallback(
     (itemId: string) => {

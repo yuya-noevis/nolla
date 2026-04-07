@@ -6,6 +6,8 @@ import type { HintStage } from "@/hooks/use-errorless";
 import { generateSortingRound } from "@/lib/games/sorting/generate";
 
 type Props = {
+  params: SortingParams;
+  roundKey: number;
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
   onRoundComplete: () => void;
@@ -19,17 +21,15 @@ const COLOR_CSS: Record<string, string> = {
   purple: "#9B59B6",
 };
 
-const DEFAULT_PARAMS: SortingParams = {
-  categories: 2,
-  items: 4,
-  criterion: "color",
-  switching: "none",
-};
-
-export function SortingGame({ hintStage, onTrialResult, onRoundComplete }: Props) {
-  const round = useMemo(() => generateSortingRound(DEFAULT_PARAMS), []);
+export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
+  const round = useMemo(() => generateSortingRound(params), [params, roundKey]);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [trialStart] = useState(Date.now());
+  const [trialStart, setTrialStart] = useState(Date.now());
+
+  useEffect(() => {
+    setCurrentItemIndex(0);
+    setTrialStart(Date.now());
+  }, [roundKey]);
 
   const currentItem = round.items[currentItemIndex];
 

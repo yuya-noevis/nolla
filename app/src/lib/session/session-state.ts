@@ -87,8 +87,12 @@ export function completeRound(
   state: SessionState,
   iqBand: IQBand
 ): CompleteRoundResult {
+  // 連続正解は「ラウンド跨ぎ」で評価する。
+  // 各ラウンドの試行数が少ないため、ラウンド内のみで N=5 を達成するのは
+  // 設計上ほぼ不可能。仕様 0d2 の「N連続正解」はセッションを跨いだ
+  // 連続正解を意図している。
   const roundResult = {
-    consecutiveCorrect: state.roundConsecutiveCorrect,
+    consecutiveCorrect: state.consecutiveCorrect,
     hintStage3Count: state.roundHintStage3Count,
     trialCount: state.roundTrialCount,
     correctCount: state.roundCorrectCount,
@@ -101,6 +105,12 @@ export function completeRound(
     state.staircaseState,
     iqBand
   );
+
+  // UP/DOWN が発火した(=方向が変わった or 初回方向が決まった)時のみ
+  // 累積連続正解をリセット。no-op時は維持する。
+  const directionChanged =
+    staircaseResult.state.lastDirection !== state.staircaseState.lastDirection;
+  const resetConsecutive = directionChanged;
 
   const adjustment: AdjustmentDirection =
     staircaseResult.state.lastDirection === "up"
@@ -115,6 +125,7 @@ export function completeRound(
     roundNumber: state.roundNumber + 1,
     currentParams: staircaseResult.params,
     staircaseState: staircaseResult.state,
+    consecutiveCorrect: resetConsecutive ? 0 : state.consecutiveCorrect,
     roundTrialCount: 0,
     roundCorrectCount: 0,
     roundConsecutiveCorrect: 0,

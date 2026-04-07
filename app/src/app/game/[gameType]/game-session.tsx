@@ -2,7 +2,15 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { GameType, DifficultyParams, MemoryMatchParams, TrialResult } from "@/types/domain";
+import type {
+  GameType,
+  DifficultyParams,
+  MemoryMatchParams,
+  SortingParams,
+  VisualSearchParams,
+  CorsiBlockParams,
+  TrialResult,
+} from "@/types/domain";
 import type { IQBand } from "@/types/user";
 import { GameFrame } from "@/components/game/game-frame";
 import { FeedbackOverlay } from "@/components/game/feedback-overlay";
@@ -125,8 +133,13 @@ export function GameSession({
   }, [session.phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle session completion
+  const endedRef = useRef(false);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
   useEffect(() => {
-    if (session.phase === "completed") {
+    if (session.phase === "completed" && !endedRef.current) {
+      endedRef.current = true;
+      sessionRef.current.endSession();
       router.push(`/reward?game=${gameType}&stars=${session.sessionStars}`);
     }
   }, [session.phase, gameType, session.sessionStars, router]);
@@ -136,7 +149,7 @@ export function GameSession({
     () => gameType === "memory-match"
       ? generateMemoryMatchBoard(session.currentParams as MemoryMatchParams)
       : null,
-    [gameType, session.currentParams]
+    [gameType, session.currentParams, session.roundNumber]
   );
 
   return (
@@ -159,6 +172,7 @@ export function GameSession({
           <>
             {gameType === "memory-match" && memoryBoard && (
               <CardGrid
+                key={session.roundNumber}
                 board={memoryBoard}
                 cardSize={(session.currentParams as MemoryMatchParams).cardSize}
                 flipDelay={(session.currentParams as MemoryMatchParams).flipDelay}
@@ -170,6 +184,8 @@ export function GameSession({
 
             {gameType === "sorting" && (
               <SortingGame
+                params={session.currentParams as SortingParams}
+                roundKey={session.roundNumber}
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}
@@ -178,6 +194,8 @@ export function GameSession({
 
             {gameType === "visual-search" && (
               <VisualSearchGame
+                params={session.currentParams as VisualSearchParams}
+                roundKey={session.roundNumber}
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}
@@ -186,6 +204,8 @@ export function GameSession({
 
             {gameType === "corsi-block" && (
               <CorsiBlockGame
+                params={session.currentParams as CorsiBlockParams}
+                roundKey={session.roundNumber}
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}

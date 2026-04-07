@@ -6,6 +6,8 @@ import type { HintStage } from "@/hooks/use-errorless";
 import { generateCorsiLayout } from "@/lib/games/corsi-block/generate";
 
 type Props = {
+  params: CorsiBlockParams;
+  roundKey: number;
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
   onRoundComplete: () => void;
@@ -13,14 +15,8 @@ type Props = {
 
 type Phase = "watching" | "input" | "result";
 
-const DEFAULT_PARAMS: CorsiBlockParams = {
-  blocks: 6,
-  seqLength: 3,
-  displayMs: 1200,
-};
-
-export function CorsiBlockGame({ hintStage, onTrialResult, onRoundComplete }: Props) {
-  const layout = useMemo(() => generateCorsiLayout(DEFAULT_PARAMS), []);
+export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
+  const layout = useMemo(() => generateCorsiLayout(params), [params, roundKey]);
   const [phase, setPhase] = useState<Phase>("watching");
   const [activeBlock, setActiveBlock] = useState<number | null>(null);
   const [seqIndex, setSeqIndex] = useState(0);
@@ -45,13 +41,22 @@ export function CorsiBlockGame({ hintStage, onTrialResult, onRoundComplete }: Pr
     const hideTimer = setTimeout(() => {
       setActiveBlock(null);
       setSeqIndex((i) => i + 1);
-    }, DEFAULT_PARAMS.displayMs);
+    }, params.displayMs);
 
     return () => {
       clearTimeout(showTimer);
       clearTimeout(hideTimer);
     };
-  }, [phase, seqIndex, layout.sequence]);
+  }, [phase, seqIndex, layout.sequence, params.displayMs]);
+
+  // ラウンドが進んだら状態をリセット
+  useEffect(() => {
+    setPhase("watching");
+    setSeqIndex(0);
+    setInputSequence([]);
+    setActiveBlock(null);
+    setTrialStart(Date.now());
+  }, [roundKey]);
 
   const handleBlockTap = useCallback(
     (blockId: number) => {

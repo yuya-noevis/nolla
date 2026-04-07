@@ -17,12 +17,13 @@ export function getInitialDifficulty(gameType: "corsi-block"): CorsiBlockParams;
 export function getInitialDifficulty(gameType: GameType): MemoryMatchParams | SortingParams | VisualSearchParams | CorsiBlockParams {
   switch (gameType) {
     case "memory-match":
-      return { pairs: 3, similarity: 10, flipDelay: 1500, cardSize: 80 };
+      // 4枚スタート(2ペア)= Jade ND等の重度知的障害向け参照値
+      return { pairs: 2, similarity: 10, flipDelay: 1500, cardSize: 80 };
     case "sorting":
-      return { categories: 2, items: 5, criterion: "color" as const, switching: "none" as const };
+      return { categories: 2, items: 4, criterion: "color" as const, switching: "none" as const };
     case "visual-search":
       return { sceneItems: 4, diffCount: 1, diffSubtlety: 20 };
     case "corsi-block":
-      return { blocks: 6, seqLength: 3, displayMs: 1200 };
+      return { blocks: 6, seqLength: 2, displayMs: 1200 };
   }
 }
