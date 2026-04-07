@@ -24,6 +24,8 @@ import {
   persistMotorBaseline,
   persistStars,
 } from "@/lib/session/persist";
+import { finalizeSessionNci, type FinalizeTrial } from "@/lib/nci/finalize-session";
+import { refreshBaselineProgress } from "@/lib/session/baseline-progress";
 import type { MotorBaseline } from "@/types/scoring";
 
 type SessionPhaseUI =
@@ -146,6 +148,9 @@ export function useGameSession(
   const trialNumberRef = useRef(0);
   const roundTrialCountRef = useRef(0);
   const roundCorrectCountRef = useRef(0);
+  // Trial buffer for session-end NCI finalization (BUG-13 fix).
+  // Streamed to DB per-trial; this in-memory copy is consumed once at endSession.
+  const nciTrialBufferRef = useRef<FinalizeTrial[]>([]);
 
   const startSession = useCallback(() => {
     // 前回セッションの最終パラメータを復元
@@ -156,6 +161,7 @@ export function useGameSession(
     sessionIdRef.current = null;
     roundIdRef.current = null;
     trialNumberRef.current = 0;
+    nciTrialBufferRef.current = [];
 
     // セッションをDBに記録 (fire-and-forget)
     void persistSessionStart(childId, gameType, startParams).then((id) => {
@@ -219,6 +225,15 @@ export function useGameSession(
       if (result.correct) {
         roundCorrectCountRef.current += 1;
       }
+
+      // Buffer trial for session-end NCI finalization
+      nciTrialBufferRef.current = [
+        ...nciTrialBufferRef.current,
+        {
+          correct: result.correct,
+          difficultyParams: currentParamsRef.current,
+        },
+      ];
 
       // DB persistence (副作用は setState updater の外で)
       const sid = sessionIdRef.current;
@@ -347,7 +362,15 @@ export function useGameSession(
     // セッション終了をDBに記録
     const sid = sessionIdRef.current;
     if (sid) {
-      void persistSessionEnd(sid, summary);
+      void persistSessionEnd(sid, summary).then(() => {
+        // BUG-13: NCI θ更新 + スナップショット永続化を駆動
+        const trials = nciTrialBufferRef.current;
+        if (trials.length > 0) {
+          void finalizeSessionNci(childId, gameType, trials);
+        }
+        // BUG-14: ベースライン進捗の再計算
+        void refreshBaselineProgress(childId);
+      });
       if (sessionStars > 0) {
         void persistStars(childId, sid, sessionStars, "session_complete");
       }

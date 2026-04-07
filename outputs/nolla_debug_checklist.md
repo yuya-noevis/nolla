@@ -43,9 +43,9 @@
 
 | ID | 内容 | 影響 |
 |---|---|---|
-| **BUG-13** | `persistNciSnapshot` `updateTheta` がプロダクションコードから**1度も呼ばれていない**。NCI算出パイプライン全体がデッドコード | 親ダッシュボードに表示するNCIデータが永久に存在しない。能力可視化機能が事実上動いていない |
-| **BUG-14** | `baseline_sessions_count` への書き込みコードが存在しない。`baseline_established` も同様 | ベースライン確立フェーズ遷移が永久に発生しない。Phase 1-4 表示が機能しない |
-| **GAP-K** | 異常検出の設計6パターンのうち、実装は3パターンのみ (instant RT / RT分散 / 疲労)。パターン4位置繰返・5外部割込・6その他は未実装 | 異常セッションを取りこぼし、NCI精度が下がる |
+| **BUG-13** 🛠 | `persistNciSnapshot` `updateTheta` がプロダクションコードから**1度も呼ばれていない**。NCI算出パイプライン全体がデッドコード | 親ダッシュボードに表示するNCIデータが永久に存在しない。能力可視化機能が事実上動いていない → **修正済 (2026-04-07)**: `lib/nci/finalize-session.ts` 追加。`use-game-session.ts` の `endSessionFn` から `finalizeSessionNci` を発火。trial buffer に各試行の (correct, params) を蓄積し、session-end で θ_axis を Bayes 更新 → `nci_snapshots` に UPSERT。pure helpers (`finalize-session-pure.ts`) に9件の単体テスト追加 (290/290 緑) |
+| **BUG-14** 🛠 | `baseline_sessions_count` への書き込みコードが存在しない。`baseline_established` も同様 | ベースライン確立フェーズ遷移が永久に発生しない。Phase 1-4 表示が機能しない → **修正済 (2026-04-07)**: `lib/session/baseline-progress.ts` 追加。`refreshBaselineProgress` を session-end から発火。4ゲームそれぞれの完了セッション数を集計し、最小値を `baseline_sessions_count` に書込み。`min ≥ 8 セッション` かつ `8暦日経過` で `baseline_established=true` を昇格 (NCI設計 §5.1) |
+| **GAP-K** | 異常検出の設計6パターンのうち、実装は3パターンのみ (instant RT / RT分散 / 疲労)。パターン4位置繰返・5外部割込・6その他は未実装 | 異常セッションを取りこぼし、NCI精度が下がる → **B案で後回し**: 機能停止ではなく精度問題。Batch7 (アクセシビリティ §R/X) と並行で対処予定 |
 
 これら3件は次バッチに進む前にYuyaへ報告して修正方針の決定を仰ぐ。
 
