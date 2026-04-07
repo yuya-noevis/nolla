@@ -72,7 +72,8 @@ describe("calculateInformationFunction", () => {
 // updateTheta — Bayesian EAP update
 // ============================================================
 describe("updateTheta", () => {
-  const initialTheta: ThetaState = { mu: 500, sigma: 150 };
+  // Standard IRT latent scale (θ ~ N(0, 2²))
+  const initialTheta: ThetaState = { mu: 0, sigma: 2 };
 
   it("increases mu after correct response on easy item", () => {
     const updated = updateTheta(initialTheta, true, 1.0, 0.3);
@@ -93,7 +94,7 @@ describe("updateTheta", () => {
   });
 
   it("sigma never becomes zero or negative", () => {
-    let state: ThetaState = { mu: 500, sigma: 1 };
+    let state: ThetaState = { mu: 0, sigma: 1 };
     for (let i = 0; i < 100; i++) {
       state = updateTheta(state, true, 1.0, 0.5);
     }
@@ -101,15 +102,26 @@ describe("updateTheta", () => {
   });
 
   it("larger sigma leads to bigger mu shift", () => {
-    const highUncertainty: ThetaState = { mu: 500, sigma: 150 };
-    const lowUncertainty: ThetaState = { mu: 500, sigma: 10 };
+    const highUncertainty: ThetaState = { mu: 0, sigma: 2 };
+    const lowUncertainty: ThetaState = { mu: 0, sigma: 0.5 };
 
     const updatedHigh = updateTheta(highUncertainty, true, 1.0, 0.5);
     const updatedLow = updateTheta(lowUncertainty, true, 1.0, 0.5);
 
-    const shiftHigh = Math.abs(updatedHigh.mu - 500);
-    const shiftLow = Math.abs(updatedLow.mu - 500);
+    const shiftHigh = Math.abs(updatedHigh.mu - 0);
+    const shiftLow = Math.abs(updatedLow.mu - 0);
     expect(shiftHigh).toBeGreaterThan(shiftLow);
+  });
+
+  it("θ stays bounded after 8 trials at typical MVP b (~0.5)", () => {
+    // Regression: pre-fix this blew up to ±20000 due to scale mismatch.
+    let state: ThetaState = { mu: 0, sigma: 2 };
+    const results = [true, false, true, true, true, false, true, true];
+    for (const correct of results) {
+      state = updateTheta(state, correct, 1.0, 0.5);
+    }
+    expect(state.mu).toBeGreaterThan(-5);
+    expect(state.mu).toBeLessThan(5);
   });
 });
 
@@ -184,10 +196,10 @@ describe("calculateDifficultyB", () => {
 describe("calculateNCI", () => {
   it("returns all 4 axes", () => {
     const result = calculateNCI({
-      thetaM: { mu: 250, sigma: 5 },
-      thetaF: { mu: 200, sigma: 8 },
-      thetaA: { mu: 220, sigma: 6 },
-      thetaS: { mu: 300, sigma: 10 },
+      thetaM: { mu: 0, sigma: 0.5 },
+      thetaF: { mu: 0.2, sigma: 0.8 },
+      thetaA: { mu: -0.1, sigma: 0.6 },
+      thetaS: { mu: 0.3, sigma: 1.0 },
     });
     expect(result).toHaveProperty("nciM");
     expect(result).toHaveProperty("nciF");
@@ -197,10 +209,10 @@ describe("calculateNCI", () => {
 
   it("NCI values are in range 0-999.999", () => {
     const result = calculateNCI({
-      thetaM: { mu: 500, sigma: 5 },
-      thetaF: { mu: 500, sigma: 5 },
-      thetaA: { mu: 500, sigma: 5 },
-      thetaS: { mu: 500, sigma: 5 },
+      thetaM: { mu: 0, sigma: 0.5 },
+      thetaF: { mu: 0, sigma: 0.5 },
+      thetaA: { mu: 0, sigma: 0.5 },
+      thetaS: { mu: 0, sigma: 0.5 },
     });
     expect(result.nciM).toBeGreaterThanOrEqual(0);
     expect(result.nciM).toBeLessThanOrEqual(999.999);
@@ -210,27 +222,37 @@ describe("calculateNCI", () => {
 
   it("higher theta = higher NCI", () => {
     const low = calculateNCI({
-      thetaM: { mu: 100, sigma: 5 },
-      thetaF: { mu: 100, sigma: 5 },
-      thetaA: { mu: 100, sigma: 5 },
-      thetaS: { mu: 100, sigma: 5 },
+      thetaM: { mu: -1, sigma: 0.5 },
+      thetaF: { mu: -1, sigma: 0.5 },
+      thetaA: { mu: -1, sigma: 0.5 },
+      thetaS: { mu: -1, sigma: 0.5 },
     });
     const high = calculateNCI({
-      thetaM: { mu: 800, sigma: 5 },
-      thetaF: { mu: 800, sigma: 5 },
-      thetaA: { mu: 800, sigma: 5 },
-      thetaS: { mu: 800, sigma: 5 },
+      thetaM: { mu: 1, sigma: 0.5 },
+      thetaF: { mu: 1, sigma: 0.5 },
+      thetaA: { mu: 1, sigma: 0.5 },
+      thetaS: { mu: 1, sigma: 0.5 },
     });
     expect(high.nciM).toBeGreaterThan(low.nciM);
     expect(high.nciF).toBeGreaterThan(low.nciF);
   });
 
+  it("NCI center: θ=0 → NCI=500", () => {
+    const result = calculateNCI({
+      thetaM: { mu: 0, sigma: 0.5 },
+      thetaF: { mu: 0, sigma: 0.5 },
+      thetaA: { mu: 0, sigma: 0.5 },
+      thetaS: { mu: 0, sigma: 0.5 },
+    });
+    expect(result.nciM).toBe(500);
+  });
+
   it("includes standard errors", () => {
     const result = calculateNCI({
-      thetaM: { mu: 500, sigma: 10 },
-      thetaF: { mu: 500, sigma: 15 },
-      thetaA: { mu: 500, sigma: 8 },
-      thetaS: { mu: 500, sigma: 20 },
+      thetaM: { mu: 0, sigma: 0.5 },
+      thetaF: { mu: 0, sigma: 0.8 },
+      thetaA: { mu: 0, sigma: 0.3 },
+      thetaS: { mu: 0, sigma: 1.0 },
     });
     expect(result.nciMSe).toBeGreaterThan(0);
     expect(result.nciFSe).toBeGreaterThan(0);

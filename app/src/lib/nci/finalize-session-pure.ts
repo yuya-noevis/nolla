@@ -8,11 +8,18 @@ import { calculateDifficultyB } from "./difficulty-b";
 import { updateTheta } from "./theta";
 
 /**
- * NCI initial prior (per nolla_nci_algorithm_design.md §2.2):
- *   μ_0 = 500 (scale midpoint)
- *   σ_0 = 150 (wide uncertainty)
+ * NCI initial prior — standard IRT latent space (θ ~ N(0, 2²)).
+ *
+ * NOTE on scale: nolla_nci_algorithm_design.md §2.2 writes "μ_0=500, σ_0=150",
+ * but this is the *displayed NCI score* range (0–999). The underlying IRT
+ * latent θ must share scale with `b` (which calculateDifficultyB emits in the
+ * ~0–3 range). Mixing scales makes `p` saturate and the Newton-step
+ * `gradient/(1+σ²·info)` explode on a single incorrect trial.
+ *
+ * We therefore store θ in standard IRT space and convert to displayed NCI via
+ * `calculateNCI()` (see nci-score.ts): NCI = clamp(500 + θ*100, 0, 999.999).
  */
-export const INITIAL_THETA: ThetaState = { mu: 500, sigma: 150 };
+export const INITIAL_THETA: ThetaState = { mu: 0, sigma: 2 };
 
 /**
  * IRT discrimination — initial value for all trial types (design §2.1).

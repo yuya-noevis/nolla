@@ -27,25 +27,27 @@ export type NCIResult = {
 
 const NCI_MIN = 0;
 const NCI_MAX = 999.999;
+const NCI_CENTER = 500;
+const NCI_SCALE = 100; // θ units → NCI units
 
 function clampNCI(value: number): number {
   return Math.max(NCI_MIN, Math.min(NCI_MAX, value));
 }
 
 /**
- * Convert 4-axis theta states to NCI scores.
- * MVP: direct theta-to-NCI mapping (clamped).
- * Post-launch: scaling factor from population calibration data.
+ * θ (standard IRT latent, ~N(0, 2²)) → NCI display score (0–999.999).
+ * Formula: NCI = 500 + θ·100, clamped.
+ * SE is also scaled by 100 (linear transform).
  */
 export function calculateNCI(input: NCIInput): NCIResult {
   return {
-    nciM: clampNCI(input.thetaM.mu),
-    nciF: clampNCI(input.thetaF.mu),
-    nciA: clampNCI(input.thetaA.mu),
-    nciS: clampNCI(input.thetaS.mu),
-    nciMSe: input.thetaM.sigma,
-    nciFSe: input.thetaF.sigma,
-    nciASe: input.thetaA.sigma,
-    nciSSe: input.thetaS.sigma,
+    nciM: clampNCI(NCI_CENTER + input.thetaM.mu * NCI_SCALE),
+    nciF: clampNCI(NCI_CENTER + input.thetaF.mu * NCI_SCALE),
+    nciA: clampNCI(NCI_CENTER + input.thetaA.mu * NCI_SCALE),
+    nciS: clampNCI(NCI_CENTER + input.thetaS.mu * NCI_SCALE),
+    nciMSe: input.thetaM.sigma * NCI_SCALE,
+    nciFSe: input.thetaF.sigma * NCI_SCALE,
+    nciASe: input.thetaA.sigma * NCI_SCALE,
+    nciSSe: input.thetaS.sigma * NCI_SCALE,
   };
 }

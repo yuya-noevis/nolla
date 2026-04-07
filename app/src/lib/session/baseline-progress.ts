@@ -19,17 +19,21 @@ const GAMES = [
  *   - 各ゲーム最低 8 セッション以上
  *   - 8 日間（暦日）以上経過
  *
- * Note: the schema has a single `baseline_sessions_count int`, so we store
- * the *minimum across the 4 games* there (the bottleneck count). This
- * matches the design's "all four games must reach 8" semantics with no
- * migration. Per-game counts are derived live from the sessions table.
+ * Semantics of `baseline_sessions_count` (int, single column in schema):
+ *   = number of games that have reached ≥8 completed sessions (range 0–4).
+ *
+ * Rationale: this gives the parent UI an immediately visible progress
+ * signal ("2 of 4 games ready") after the very first session, unlike a
+ * "min across games" encoding which stays at 0 until all 4 are started.
+ * Per-game raw counts are derived live from the sessions table when
+ * needed.
  *
  * Wires the previously-orphaned baseline columns into the live pipeline
  * (BUG-14 fix).
  */
 export async function refreshBaselineProgress(
   childId: string
-): Promise<{ minSessions: number; established: boolean } | null> {
+): Promise<{ gamesReady: number; established: boolean } | null> {
   const supabase = await createClient();
 
   // Per-game session counts
@@ -44,6 +48,7 @@ export async function refreshBaselineProgress(
       return count ?? 0;
     })
   );
+  const gamesReady = counts.filter((c) => c >= REQUIRED_SESSIONS_PER_GAME).length;
   const minSessions = Math.min(...counts);
 
   // Earliest session (for elapsed-days check)
@@ -74,7 +79,7 @@ export async function refreshBaselineProgress(
     minSessions >= REQUIRED_SESSIONS_PER_GAME && elapsedDays >= REQUIRED_DAYS;
 
   const update: Record<string, unknown> = {
-    baseline_sessions_count: minSessions,
+    baseline_sessions_count: gamesReady,
   };
   if (meetsThreshold && !alreadyEstablished) {
     update.baseline_established = true;
@@ -88,7 +93,7 @@ export async function refreshBaselineProgress(
 
   if (error) return null;
   return {
-    minSessions,
+    gamesReady,
     established: meetsThreshold || alreadyEstablished,
   };
 }

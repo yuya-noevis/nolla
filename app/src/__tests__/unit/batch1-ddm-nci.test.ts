@@ -134,30 +134,30 @@ describe("§I NCI / IRT 2PL", () => {
     expect(theta.sigma).toBeGreaterThanOrEqual(0.1);
   });
 
-  it("I12+I20 NCI score: clamped to 0-999.999, MVP direct theta mapping", () => {
+  it("I12+I20 NCI score: θ→500+θ·100, clamped to 0-999.999", () => {
     const result = calculateNCI({
-      thetaM: { mu: 500, sigma: 1 },
-      thetaF: { mu: -100, sigma: 1 },
-      thetaA: { mu: 1500, sigma: 1 },
-      thetaS: { mu: 250, sigma: 1 },
+      thetaM: { mu: 0, sigma: 1 },   // 500
+      thetaF: { mu: -10, sigma: 1 }, // 500-1000=-500 → clamped 0
+      thetaA: { mu: 10, sigma: 1 },  // 500+1000=1500 → clamped 999.999
+      thetaS: { mu: -2.5, sigma: 1 },// 500-250=250
     });
     expect(result.nciM).toBe(500);
-    expect(result.nciF).toBe(0); // clamped from -100
-    expect(result.nciA).toBe(999.999); // clamped from 1500
+    expect(result.nciF).toBe(0);
+    expect(result.nciA).toBe(999.999);
     expect(result.nciS).toBe(250);
   });
 
-  it("I13 SE field exposed in NCI result", () => {
+  it("I13 SE field exposed in NCI result (scaled ×100)", () => {
     const result = calculateNCI({
       thetaM: { mu: 0, sigma: 1.5 },
       thetaF: { mu: 0, sigma: 0.8 },
       thetaA: { mu: 0, sigma: 0.3 },
       thetaS: { mu: 0, sigma: 1.0 },
     });
-    expect(result.nciMSe).toBe(1.5);
-    expect(result.nciFSe).toBe(0.8);
-    expect(result.nciASe).toBe(0.3);
-    expect(result.nciSSe).toBe(1.0);
+    expect(result.nciMSe).toBe(150);
+    expect(result.nciFSe).toBe(80);
+    expect(result.nciASe).toBeCloseTo(30, 5);
+    expect(result.nciSSe).toBe(100);
   });
 
   it("I7 difficulty b computed for memory-match (monotonic in pairs)", () => {

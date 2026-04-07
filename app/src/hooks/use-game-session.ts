@@ -214,6 +214,11 @@ export function useGameSession(
   const currentParamsRef = useRef<DifficultyParams>(initialParams);
   const handleTrialResult = useCallback(
     (result: TrialResult) => {
+      // Snapshot the params the child actually just played on (BEFORE the
+      // staircase bumps for the next trial). This is what the IRT update
+      // needs — the b that produced this y.
+      const playedParams = currentParamsRef.current;
+
       setState((prev) => {
         if (!prev) return null;
         const next = recordTrialResult(prev, result);
@@ -231,7 +236,7 @@ export function useGameSession(
         ...nciTrialBufferRef.current,
         {
           correct: result.correct,
-          difficultyParams: currentParamsRef.current,
+          difficultyParams: playedParams,
         },
       ];
 
