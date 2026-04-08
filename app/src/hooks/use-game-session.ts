@@ -26,6 +26,7 @@ import {
   persistStars,
 } from "@/lib/session/persist";
 import { finalizeSessionNci, type FinalizeTrial } from "@/lib/nci/finalize-session";
+import { calculateDifficultyB } from "@/lib/nci/difficulty-b";
 import { refreshBaselineProgress } from "@/lib/session/baseline-progress";
 import { calculateRoundStars } from "@/lib/session/round-stars";
 import type { MotorBaseline } from "@/types/scoring";
@@ -274,7 +275,11 @@ export function useGameSession(
           hintStageReached: captured.hintStageReached,
           gameData: captured.gameData,
           difficultyParams: playedParams,
-          irtB: null,
+          // L10 fix: compute IRT b at trial time from the params the child
+          // actually played on, so future θ calibration can re-derive
+          // estimates from the persisted trials without re-running the
+          // staircase.
+          irtB: calculateDifficultyB(gameType, playedParams),
           presentedAt,
           respondedAt,
         });
