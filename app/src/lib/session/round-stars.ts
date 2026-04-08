@@ -9,23 +9,30 @@
  *       0 mistakes → 3★ / 1 mistake → 2★ / 2+ mistakes → 1★
  *
  * (B) Concentration-style memory-match:
- *     The game is exploration-learning — early flips are *necessary*
- *     information-gathering, not errors. Penalizing any miss is wrong.
- *     We use an "expected misses under perfect memory" baseline:
- *       Foerster (1991), Frank & Gerpott (2003) — for n pairs, an
- *       optimal perfect-memory player needs ≈ 4n/3 pair attempts on
- *       average, i.e. ≈ n/3 expected misses.
+ *     Exploration-learning game — early blind flips are *necessary*
+ *     information gathering, not user errors. Even an IQ 130 adult with
+ *     perfect memory can rack up "unlucky misses" purely from drawing
+ *     never-seen cards consecutively.
  *
- *     Thresholds (scale with the current `pairs` difficulty):
- *       missesAllowed3Star = max(1, floor(pairs / 3))   // perfect memory zone
- *       missesAllowed2Star = pairs                       // up to 100% extra
- *       3★ if misses ≤ allow3
- *       2★ if misses ≤ allow2
- *       1★ otherwise
+ *     The 3★ threshold layers two principles:
  *
- *     Scaling check (pairs → max misses for 3★ / 2★):
- *       2 → 1 / 2     4 → 1 / 4     6 → 2 / 6
- *       8 → 2 / 8    12 → 4 / 12   24 → 8 / 24
+ *     1. Max-unlucky baseline (Yuya's spec 2026-04-08):
+ *          pairs:    2 3 4 5 6
+ *          misses:   1 2 2 2 3
+ *        — the most an IQ 130 adult could miss from sheer luck on opening
+ *        flips, derived from "you could draw all-different pairs on the
+ *        first few flips by chance" reasoning.
+ *
+ *     2. ID-child accommodation:
+ *        The target user is intellectually disabled, not an IQ 130 adult.
+ *        For pairs ≥ 7 we relax the threshold to ~70 % of pairs, growing
+ *        the absolute allowance with difficulty (no room at low n where
+ *        the game is short, generous at high n where the game is long).
+ *
+ *     Resulting table (pairs → max misses for 3★ / 2★):
+ *        2 →  1 / 2     3 →  2 / 3     4 →  2 / 4     5 →  2 / 5
+ *        6 →  3 / 6     7 →  4 / 7     8 →  5 / 8    10 →  7 / 10
+ *       12 →  8 / 12   16 → 11 / 16   20 → 14 / 20   24 → 16 / 24
  */
 import type { GameType, DifficultyParams, MemoryMatchParams } from "@/types/domain";
 
@@ -51,6 +58,30 @@ export function calculateRoundStars(input: RoundStarsInput): number {
   return 1;
 }
 
+// Yuya's "max unlucky misses for IQ 130 adult" spec (2026-04-08).
+// Indexed by pair count (only n ≥ 2 is reachable per clamp.ts pairs.min=2).
+const MAX_UNLUCKY_SMALL_N: Record<number, number> = {
+  2: 1,
+  3: 2,
+  4: 2,
+  5: 2,
+  6: 3,
+};
+
+export function memoryMatchAllowance3Star(pairs: number): number {
+  if (pairs <= 6) return MAX_UNLUCKY_SMALL_N[pairs] ?? 1;
+  // ID-accommodation extrapolation: ~70% of pairs allowed as misses.
+  // Grows with the difficulty of the level — generous when the game is
+  // long, structurally tight when it's short.
+  return Math.floor(pairs * 0.7);
+}
+
+export function memoryMatchAllowance2Star(pairs: number): number {
+  // Always at least 1 above 3★ allowance, and at least equal to pairs
+  // (= up to 100 % extra trials).
+  return Math.max(pairs, memoryMatchAllowance3Star(pairs) + 1);
+}
+
 function memoryMatchStars(
   totalTrials: number,
   params: MemoryMatchParams
@@ -59,10 +90,10 @@ function memoryMatchStars(
   // A trial = one pair attempt. Minimum trials to clear = pairs.
   // misses = extra attempts beyond the minimum.
   const misses = Math.max(0, totalTrials - pairs);
-  const missesAllowed3Star = Math.max(1, Math.floor(pairs / 3));
-  const missesAllowed2Star = pairs;
+  const allow3 = memoryMatchAllowance3Star(pairs);
+  const allow2 = memoryMatchAllowance2Star(pairs);
 
-  if (misses <= missesAllowed3Star) return 3;
-  if (misses <= missesAllowed2Star) return 2;
+  if (misses <= allow3) return 3;
+  if (misses <= allow2) return 2;
   return 1;
 }

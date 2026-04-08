@@ -84,21 +84,28 @@ describe("calculateRoundStars — memory-match efficiency rule", () => {
     difficultyParams: mm(pairs),
   });
 
-  // Spec table from the design discussion (must match exactly)
+  // Spec table per Yuya 2026-04-08 (max unlucky baseline + ID accommodation).
   // pairs → max misses for 3★ / 2★
-  //   2 → 1 / 2     4 → 1 / 4     6 → 2 / 6
-  //   8 → 2 / 8    12 → 4 / 12   24 → 8 / 24
+  //   2 →  1 / 2     3 →  2 / 3     4 →  2 / 4     5 →  2 / 5
+  //   6 →  3 / 6     7 →  4 / 7     8 →  5 / 8    10 →  7 / 10
+  //  12 →  8 / 12   16 → 11 / 16   20 → 14 / 20   24 → 16 / 24
   const cases: ReadonlyArray<{
     pairs: number;
     star3MaxMisses: number;
     star2MaxMisses: number;
   }> = [
     { pairs: 2, star3MaxMisses: 1, star2MaxMisses: 2 },
-    { pairs: 4, star3MaxMisses: 1, star2MaxMisses: 4 },
-    { pairs: 6, star3MaxMisses: 2, star2MaxMisses: 6 },
-    { pairs: 8, star3MaxMisses: 2, star2MaxMisses: 8 },
-    { pairs: 12, star3MaxMisses: 4, star2MaxMisses: 12 },
-    { pairs: 24, star3MaxMisses: 8, star2MaxMisses: 24 },
+    { pairs: 3, star3MaxMisses: 2, star2MaxMisses: 3 },
+    { pairs: 4, star3MaxMisses: 2, star2MaxMisses: 4 },
+    { pairs: 5, star3MaxMisses: 2, star2MaxMisses: 5 },
+    { pairs: 6, star3MaxMisses: 3, star2MaxMisses: 6 },
+    { pairs: 7, star3MaxMisses: 4, star2MaxMisses: 7 },
+    { pairs: 8, star3MaxMisses: 5, star2MaxMisses: 8 },
+    { pairs: 10, star3MaxMisses: 7, star2MaxMisses: 10 },
+    { pairs: 12, star3MaxMisses: 8, star2MaxMisses: 12 },
+    { pairs: 16, star3MaxMisses: 11, star2MaxMisses: 16 },
+    { pairs: 20, star3MaxMisses: 14, star2MaxMisses: 20 },
+    { pairs: 24, star3MaxMisses: 16, star2MaxMisses: 24 },
   ];
 
   for (const c of cases) {
@@ -119,8 +126,17 @@ describe("calculateRoundStars — memory-match efficiency rule", () => {
     });
   }
 
-  it("Yuya scenario: pairs=2, 1 miss/round × 3 rounds → 9★ total", () => {
+  it("Yuya scenario A: pairs=2, 1 miss/round × 3 rounds → 9★ total", () => {
     const oneRound = calculateRoundStars(mmInput(2, 1));
+    expect(oneRound).toBe(3);
+    expect(oneRound * 3).toBe(9);
+  });
+
+  it("Yuya scenario B: pairs=3, 2 misses/round × 3 rounds → 9★ total", () => {
+    // The 2026-04-08 reported case from production. With the prior n/3
+    // formula this produced 6★ (2★/round). New table-based formula must
+    // give 9★ because 2 misses ≤ max-unlucky baseline for n=3.
+    const oneRound = calculateRoundStars(mmInput(3, 2));
     expect(oneRound).toBe(3);
     expect(oneRound * 3).toBe(9);
   });
