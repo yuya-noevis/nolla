@@ -54,7 +54,7 @@
 
 **Low (設計意図あり、実装なし)**:
 4. [x] 診断情報暗号化 (2026-04-08) — `lib/crypto/pii.ts` AES-256-GCM、`getChild`/`getActiveChild` で透過 decrypt、`encryptStringArray` で書込時暗号化。env `NOLLA_PII_KEY` (64hex) を Vercel に設定すれば有効化、未設定時は graceful 平文。レガシー平文と共存可
-5. サービスロールキー無し → GDPR 完全削除 (auth.users削除) に管理API必要
+5. [x] サービスロールキー導入 (2026-04-08) — `lib/supabase/admin.ts` + `POST /api/parent/delete-account` (要 confirm:"DELETE")。parents カスケード削除 + auth.users 削除 + signOut。env `SUPABASE_SERVICE_ROLE_KEY` 未設定時は 503 で安全停止
 
 **注**: 1-3 は pre-launch 必須、4-5 は Phase1対応可
 
