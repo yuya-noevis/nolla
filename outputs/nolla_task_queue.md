@@ -25,7 +25,7 @@
   - 検証結果 (2026-04-08):
     - ✅ 合格 (13項目): L1-L4, L6-L9, L11-L14, L19
     - [x] **L10 irt_b 計算** → commit dc9c66c で修正済 (要 Yuya 実機プレイ→DB確認)
-    - [ ] **L5 game_data 空** (Medium優先, Phase1延期候補)
+    - [x] **L5 game_data 空** (2026-04-08) — 4ゲーム全てで gameData populate (sorting/visual-search/memory-match/corsi-block)。位置繰返検出も解禁
     - [x] **L15 途中終了ハンドリング** (2026-04-08 修正) — beforeunload + visibilitychange + /api/session/abandon + sendBeacon。要 Yuya 実機確認 (プレイ中にタブ閉じ→sessions.ended_at 確認)
     - [ ] **L16-L18 オフラインキュー デッドコード** (Low優先, Phase1延期候補)
 
@@ -86,7 +86,7 @@
 
 - [x] **Q8/Q9 NCI 時系列ビュー** (2026-04-08) — growth ページに週/月/年/全期間トグル + day1比較 + SVG sparkline 実装 (`timeline-view.tsx`, `getNciSnapshotHistory` query)
 - [x] **T1 round-transition unused phase 削除** (2026-04-08) — use-game-session.ts の SessionPhaseUI から削除
-- [>] **GAP-K 異常検出** — 外部割込 (RT>30s) 実装済 (2026-04-08, anomaly.ts §4)。位置繰返・タッチダイナミクスは gameData/touchEvents スキーマ拡張が前提 → Phase2
+- [>] **GAP-K 異常検出** — 外部割込 (RT>30s) + 位置繰返 (≥80%同一答) 実装済 (2026-04-08, anomaly.ts §4-5)。残る touchダイナミクス は pointer events 収集が前提 → Phase2
 - [x] **P13 リンク切れ検証** (2026-04-08) — 静的解析で全router.push/href/redirect先を列挙 → 全14ルート存在確認、リンク切れゼロ
 - [ ] **P1-P5 オンボーディング画面検証** (S1-S5)
 

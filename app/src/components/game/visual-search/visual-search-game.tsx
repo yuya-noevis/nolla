@@ -14,7 +14,11 @@ type Props = {
   params: VisualSearchParams;
   roundKey: number;
   hintStage: HintStage;
-  onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onTrialResult: (
+    correct: boolean,
+    reactionTimeMs: number,
+    gameData?: Record<string, unknown>
+  ) => void;
   onRoundComplete: () => void;
 };
 
@@ -61,7 +65,11 @@ export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, o
         setFoundDiffs((prev) => [...prev, itemId]);
       }
 
-      onTrialResult(isDifference, rt);
+      onTrialResult(isDifference, rt, {
+        itemId,
+        isDifference,
+        sceneIndex,
+      });
     },
     [scene.differences, foundDiffs, trialStart, onTrialResult]
   );

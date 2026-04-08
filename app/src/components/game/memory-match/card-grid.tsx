@@ -33,7 +33,11 @@ type Props = {
   params: MemoryMatchParams;
   roundKey: number;
   hintStage: HintStage;
-  onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onTrialResult: (
+    correct: boolean,
+    reactionTimeMs: number,
+    gameData?: Record<string, unknown>
+  ) => void;
   onRoundComplete: () => void;
 };
 
@@ -123,7 +127,11 @@ export function CardGrid({
             setCardStates(updatedStates);
             setFlippedIndices([]);
             setLocked(false);
-            onTrialResult(true, rt);
+            onTrialResult(true, rt, {
+              tappedIndices: [first, second],
+              outcome: "match",
+              boardIndex,
+            });
             trialStartRef.current = Date.now();
 
             // Check if all pairs on this board matched
@@ -152,7 +160,11 @@ export function CardGrid({
             );
             setFlippedIndices([]);
             setLocked(false);
-            onTrialResult(false, rt);
+            onTrialResult(false, rt, {
+              tappedIndices: [first, second],
+              outcome: "miss",
+              boardIndex,
+            });
             trialStartRef.current = Date.now();
           }, params.flipDelay);
         }

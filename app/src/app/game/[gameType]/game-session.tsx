@@ -89,12 +89,16 @@ export function GameSession({
   }, [session.motorBaseline]);
 
   const handleTrialResult = useCallback(
-    (correct: boolean, reactionTimeMs: number) => {
+    (
+      correct: boolean,
+      reactionTimeMs: number,
+      gameData: Record<string, unknown> = {}
+    ) => {
       const result: TrialResult = {
         correct,
         reactionTimeMs,
         hintStageReached: hintStage,
-        gameData: {},
+        gameData,
       };
 
       session.handleTrialResult(result);

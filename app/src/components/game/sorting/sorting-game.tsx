@@ -10,7 +10,11 @@ type Props = {
   params: SortingParams;
   roundKey: number;
   hintStage: HintStage;
-  onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onTrialResult: (
+    correct: boolean,
+    reactionTimeMs: number,
+    gameData?: Record<string, unknown>
+  ) => void;
   onRoundComplete: () => void;
 };
 
@@ -218,7 +222,12 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
       const correct = selectedCategory?.matchValue === correctValue;
       const rt = Date.now() - trialStart;
 
-      onTrialResult(correct, rt);
+      onTrialResult(correct, rt, {
+        itemId: currentItem.id,
+        targetCategoryId: categoryId,
+        criterion: round.criterion,
+        sceneIndex,
+      });
 
       if (correct) {
         setCurrentItemIndex((i) => i + 1);

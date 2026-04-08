@@ -51,7 +51,28 @@ export function calculateAnomalyScore(
     }
   }
 
-  // 4. External interruption detection (very long RT outliers)
+  // 4. Position-repeat detection (random tapping the same target)
+  // Looks for a single answer key (sorting.targetCategoryId,
+  // visual-search.itemId, memory-match first tap) chosen ≥80% of trials.
+  // Only triggers when ≥6 trials have a usable position field.
+  const positions = trials
+    .map((t) => extractPositionKey(t.gameData))
+    .filter((p): p is string => p !== null);
+  if (positions.length >= 6) {
+    const counts = new Map<string, number>();
+    for (const p of positions) counts.set(p, (counts.get(p) ?? 0) + 1);
+    const maxRepeat = Math.max(...counts.values());
+    const repeatRatio = maxRepeat / positions.length;
+    if (repeatRatio >= 0.8) {
+      scores.push(0.6);
+    } else if (repeatRatio >= 0.6) {
+      scores.push(0.3);
+    } else {
+      scores.push(0);
+    }
+  }
+
+  // 5. External interruption detection (very long RT outliers)
   // Indicates the child was pulled away mid-trial (parent, sibling, environment).
   // Scoring scales with the proportion of interrupted trials.
   const interruptedCount = trials.filter(
@@ -73,6 +94,33 @@ export function calculateAnomalyScore(
 
 function mean(values: readonly number[]): number {
   return values.reduce((sum, v) => sum + v, 0) / values.length;
+}
+
+/**
+ * Extract a stable "answer position" key from a trial's gameData.
+ * Returns null if no recognized position field is present.
+ */
+function extractPositionKey(
+  gameData: Record<string, unknown>
+): string | null {
+  // sorting
+  if (typeof gameData.targetCategoryId === "string") {
+    return `cat:${gameData.targetCategoryId}`;
+  }
+  // visual-search
+  if (typeof gameData.itemId === "string") {
+    return `item:${gameData.itemId}`;
+  }
+  // memory-match
+  if (Array.isArray(gameData.tappedIndices)) {
+    return `pair:${(gameData.tappedIndices as number[]).join("-")}`;
+  }
+  // corsi-block — use first input block as the "starting position" signal
+  if (Array.isArray(gameData.inputSequence)) {
+    const seq = gameData.inputSequence as number[];
+    if (seq.length > 0) return `corsi:${seq[0]}`;
+  }
+  return null;
 }
 
 function calculateVariance(values: readonly number[]): number {

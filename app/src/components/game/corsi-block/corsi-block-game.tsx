@@ -10,7 +10,11 @@ type Props = {
   params: CorsiBlockParams;
   roundKey: number;
   hintStage: HintStage;
-  onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
+  onTrialResult: (
+    correct: boolean,
+    reactionTimeMs: number,
+    gameData?: Record<string, unknown>
+  ) => void;
   onRoundComplete: () => void;
 };
 
@@ -98,14 +102,23 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
 
       if (!isCorrectSoFar) {
         const rt = Date.now() - trialStart;
-        onTrialResult(false, rt);
+        onTrialResult(false, rt, {
+          targetSequence: layout.sequence,
+          inputSequence: newInput,
+          failedAt: expectedIndex,
+          trialIndex,
+        });
         setPhase("result");
         return;
       }
 
       if (newInput.length === layout.sequence.length) {
         const rt = Date.now() - trialStart;
-        onTrialResult(true, rt);
+        onTrialResult(true, rt, {
+          targetSequence: layout.sequence,
+          inputSequence: newInput,
+          trialIndex,
+        });
         setPhase("result");
       }
     },

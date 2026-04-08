@@ -285,11 +285,30 @@ describe("§K Anomaly Detection", () => {
     expect(calculateAnomalyScore(trials)).toBeGreaterThanOrEqual(0.4);
   });
 
-  it("K1 IMPLEMENTATION GAP: position-repeat and touch-dynamics still unimplemented (schema lacks data)", () => {
-    // GAP — pattern 4 (position repeat) and 6 (touch dynamics) still NOT implemented.
-    // Blocker: gameData is currently {} at trial level, and touch events are not captured.
-    // Requires schema extension before detection is feasible.
-    // Pattern 5 (external interrupt) now implemented via RT >30s threshold.
+  it("K1 position-repeat: same target chosen ≥80% of trials flagged", () => {
+    const trials = Array.from({ length: 10 }, () => ({
+      correct: false,
+      reactionTimeMs: 1500,
+      hintStageReached: 0 as const,
+      gameData: { targetCategoryId: "red" },
+    }));
+    expect(calculateAnomalyScore(trials)).toBeGreaterThanOrEqual(0.5);
+  });
+
+  it("K1 position-repeat: balanced choices not flagged", () => {
+    const trials = Array.from({ length: 10 }, (_, i) => ({
+      correct: true,
+      reactionTimeMs: 1500,
+      hintStageReached: 0 as const,
+      gameData: { targetCategoryId: i % 2 === 0 ? "red" : "blue" },
+    }));
+    expect(calculateAnomalyScore(trials)).toBeLessThan(0.3);
+  });
+
+  it("K1 IMPLEMENTATION GAP: touch-dynamics still unimplemented (no touch events captured)", () => {
+    // GAP — pattern 6 (touch dynamics: pressure, contact area, drag) NOT implemented.
+    // Blocker: pointer events are not captured at trial level.
+    // Patterns 1-5 (instant/variance/fatigue/position-repeat/external-interrupt) all implemented.
     expect(true).toBe(true);
   });
 
