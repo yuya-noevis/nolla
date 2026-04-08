@@ -3,6 +3,7 @@
  * Uses Supabase server client for server components.
  */
 import { createClient } from "@/lib/supabase/server";
+import { hashPin, verifyPin as verifyPinHash } from "@/lib/auth/pin";
 
 export async function getChild(parentId: string) {
   const supabase = await createClient();
@@ -77,10 +78,7 @@ export async function verifyPin(
     .single();
 
   if (error || !data?.pin_hash) return false;
-
-  // Simple hash comparison (in production, use bcrypt/scrypt)
-  const inputHash = await hashPin(inputPin);
-  return data.pin_hash === inputHash;
+  return verifyPinHash(inputPin, data.pin_hash);
 }
 
 export async function setPin(
@@ -110,11 +108,3 @@ export async function isPinSet(parentId: string): Promise<boolean> {
   return data?.pin_hash !== null && data?.pin_hash !== undefined;
 }
 
-// Simple hash for MVP (replace with bcrypt in production)
-async function hashPin(pin: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin + "nolla_salt_v1");
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}

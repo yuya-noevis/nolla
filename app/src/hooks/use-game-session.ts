@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type {
   GameType,
   DifficultyParams,
@@ -339,6 +339,35 @@ export function useGameSession(
       );
     }
   }, [iqBand, state]);
+
+  // L15: abandon handler. If the child closes the tab / switches away mid-
+  // session, fire a sendBeacon so `sessions.ended_at` still gets stamped.
+  // Skipped once the session has reached `completed` (normal endSession path
+  // already wrote ended_at via persistSessionEnd).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sendAbandon = () => {
+      const sid = sessionIdRef.current;
+      if (!sid) return;
+      if (phase === "completed") return;
+      try {
+        const payload = JSON.stringify({ sessionId: sid });
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon("/api/session/abandon", blob);
+      } catch {
+        // best-effort — no UI surface
+      }
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") sendAbandon();
+    };
+    window.addEventListener("beforeunload", sendAbandon);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("beforeunload", sendAbandon);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [phase]);
 
   const endSessionFn = useCallback((): SessionSummary | null => {
     if (!state) return null;
