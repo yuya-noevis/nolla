@@ -67,19 +67,28 @@
 - [ ] **Batch 8 Low x2** (Phase1)
 
 ### 残 Batch
-- [ ] **Batch 6: 画面遷移 §P/T/Q** (~50項目) — 次セッション
-- [ ] **Batch 7: a11y §R/X + GAP-K (異常検出3パターン)** — 次セッション
+- [x] **Batch 6: 画面遷移 §P/T/Q** (2026-04-08 完了) — 致命バグなし。新規発見:
+  - Q8/Q9 時系列ビュー未実装 (Phase1延期)
+  - T1 round-transition phase unused (デッドコード、要クリーンアップ)
+  - P1-P5/P13 は Playwright 検証で扱う
+- [x] **Batch 7: a11y §R/X + GAP-K** (2026-04-08 完了) — 致命バグなし。
+  - §R/§X 全項目クリア（CSS変数定義済、コントラスト 11.4:1、タッチターゲット 48-64px）
+  - GAP-K 異常検出 3/6パターン未実装は B案で Phase1延期確定
   - sessions/rounds/trials/nci_snapshots/children/motor_baselines/stars の全列書込み検証
   - 夜間復帰シナリオ (途中中断→再ログイン)
   - RLS がかかっていないフィールド洗い出し
 
-### Batch 3 後
+### Batch 全て完了 (2026-04-08)
 
-- [ ] **Batch 4: コードgrep §B/R/U** (~25)
-- [ ] **Batch 5: レンダリング §C-F** (~30)
-- [ ] **Batch 6: 画面遷移 §P/T/Q** (~50)
-- [ ] **Batch 7: a11y §R/X + GAP-K (異常検出3パターン)** (~18+3)
-- [ ] **Batch 8: RLS/セキュリティ §U** (~19)
+- [x] Batch 4 / 5 / 6 / 7 / 8 — 全て致命バグなし、Phase1延期項目のみ残
+
+### 新規追加 (Phase1 候補)
+
+- [ ] **Q8/Q9 NCI 時系列ビュー** (週/月/年/全期間切替・day1比較)
+- [ ] **T1 round-transition unused phase 削除** (Low cleanup)
+- [ ] **GAP-K 異常検出 3パターン追加** (位置繰返・外部割込・タッチダイナミクス)
+- [ ] **P13 リンク切れ Playwright 全画面巡回**
+- [ ] **P1-P5 オンボーディング画面検証** (S1-S5)
 
 ---
 
