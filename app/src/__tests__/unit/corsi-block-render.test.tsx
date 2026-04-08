@@ -8,13 +8,16 @@
  *         and produced overlapping renders even when the generator had
  *         enforced minimum spacing.
  */
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
-
-afterEach(() => cleanup());
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { render, screen, cleanup, fireEvent, act } from "@testing-library/react";
 import { CorsiBlockGame } from "@/components/game/corsi-block/corsi-block-game";
 import { generateCorsiLayout } from "@/lib/games/corsi-block/generate";
 import type { CorsiBlockParams } from "@/types/domain";
+
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 const AREA_WIDTH = 800;
 const AREA_HEIGHT = 500;
@@ -134,5 +137,47 @@ describe("CorsiBlockGame rendering — BUG-11 (no position clamp / no overlap)",
       expect(top).toBeGreaterThanOrEqual(0);
       expect(top).toBeLessThanOrEqual(100);
     }
+  });
+});
+
+describe("CorsiBlockGame multi-trial per round (BUG: 1-miss instant terminate)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  it("does NOT complete the round after the first reported trial — multi-trial per round", async () => {
+    const onTrialResult = vi.fn();
+    const onRoundComplete = vi.fn();
+
+    render(
+      <CorsiBlockGame
+        params={{ blocks: 4, seqLength: 2, displayMs: 200 }}
+        roundKey={1}
+        hintStage={0}
+        onTrialResult={onTrialResult}
+        onRoundComplete={onRoundComplete}
+      />
+    );
+
+    // Flush timers until the component reaches the input phase.
+    // sequence playback = 2 × (showTimer 300 + hideTimer 200) = 1000 ms.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1100);
+    });
+
+    const blocks = screen.getAllByLabelText(/^Block \d+$/);
+    // Tap every block once — at some point we'll hit a miss which
+    // triggers onTrialResult(false) and then the result→next-trial auto
+    // advance. Regardless of which block, after 800 ms the round must
+    // still be active (multi-trial), not completed.
+    await act(async () => {
+      fireEvent.click(blocks[0]);
+      await vi.advanceTimersByTimeAsync(900);
+    });
+
+    // The key regression check: a single trial MUST NOT complete the round.
+    // Pre-fix, first miss → onRoundComplete fired after 800 ms.
+    // Post-fix, we still have more trials to go (TRIALS_PER_ROUND = 5).
+    expect(onRoundComplete).not.toHaveBeenCalled();
   });
 });

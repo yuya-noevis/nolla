@@ -15,8 +15,22 @@ type Props = {
 
 type Phase = "watching" | "input" | "result";
 
+// Corsi course = multiple sequence attempts per round. A single sequence
+// attempt is one trial (one match or one miss). Previously the component
+// ended the entire round on the first miss — that gave children only one
+// shot per round and made the star rule look broken ("1 miss = 2★ via
+// instant termination"). Now we run N trials per round, regenerate the
+// sequence after each, and only call onRoundComplete when all N are done.
+const TRIALS_PER_ROUND = 5;
+
 export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
-  const layout = useMemo(() => generateCorsiLayout(params), [params, roundKey]);
+  // trialKey changes per-trial → forces sequence regeneration via useMemo dep.
+  const [trialKey, setTrialKey] = useState(0);
+  const [trialIndex, setTrialIndex] = useState(0);
+  const layout = useMemo(
+    () => generateCorsiLayout(params),
+    [params, roundKey, trialKey]
+  );
   const [phase, setPhase] = useState<Phase>("watching");
   const [activeBlock, setActiveBlock] = useState<number | null>(null);
   const [seqIndex, setSeqIndex] = useState(0);
@@ -49,14 +63,26 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
     };
   }, [phase, seqIndex, layout.sequence, params.displayMs]);
 
-  // ラウンドが進んだら状態をリセット
+  // Reset when round changes
   useEffect(() => {
+    setTrialIndex(0);
+    setTrialKey(0);
     setPhase("watching");
     setSeqIndex(0);
     setInputSequence([]);
     setActiveBlock(null);
     setTrialStart(Date.now());
   }, [roundKey]);
+
+  // Reset for next trial within the same round (but not when roundKey changes)
+  useEffect(() => {
+    if (trialKey === 0) return;
+    setPhase("watching");
+    setSeqIndex(0);
+    setInputSequence([]);
+    setActiveBlock(null);
+    setTrialStart(Date.now());
+  }, [trialKey]);
 
   const handleBlockTap = useCallback(
     (blockId: number) => {
@@ -88,13 +114,21 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
     [phase, inputSequence, layout.sequence, trialStart, onTrialResult]
   );
 
-  // Auto-complete round when result shown
+  // After each trial's result phase, advance to the next trial or
+  // complete the round once TRIALS_PER_ROUND trials have been played.
   useEffect(() => {
-    if (phase === "result") {
-      const timer = setTimeout(() => onRoundComplete(), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [phase, onRoundComplete]);
+    if (phase !== "result") return;
+    const timer = setTimeout(() => {
+      const nextTrialIndex = trialIndex + 1;
+      if (nextTrialIndex >= TRIALS_PER_ROUND) {
+        onRoundComplete();
+      } else {
+        setTrialIndex(nextTrialIndex);
+        setTrialKey((k) => k + 1);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [phase, trialIndex, onRoundComplete]);
 
   // Find the next expected block for hints
   const nextExpectedBlock =
@@ -110,19 +144,26 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
   const blockSizePctH = (layout.blockSize / AREA_HEIGHT) * 100;
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      {/*
-        BUG-10/11 fix: container locks aspect ratio to the generator
-        coordinate space (800×500 = 8/5) so % positions translate
-        proportionally on every screen size. Width is the smallest of
-        100% / 800px / (viewport-height × 1.6) so the box always fits in
-        landscape phones (812×375), iPads, and desktops without distortion.
-      */}
+    // BUG-10/11 fix round 2: use container query units (cqw / cqh) so the
+    // board sizes against the *actual* parent game area, not the browser
+    // viewport. The previous `100vh` reference ignored the GameFrame
+    // header/footer and clipped the top/bottom rows of blocks.
+    //
+    // containerType: 'size' on the wrapper makes cqw/cqh refer to *its*
+    // box. The inner board takes the largest rectangle that (a) fits the
+    // wrapper on both axes and (b) preserves the generator's 800:500
+    // aspect ratio.
+    <div
+      className="w-full h-full flex items-center justify-center"
+      style={{ containerType: "size" }}
+    >
       <div
         className="relative"
         style={{
-          width: "min(100%, 800px, calc(100vh * 1.6))",
+          width: `min(100cqw, calc(100cqh * ${AREA_WIDTH} / ${AREA_HEIGHT}))`,
           aspectRatio: `${AREA_WIDTH} / ${AREA_HEIGHT}`,
+          maxWidth: "800px",
+          maxHeight: "500px",
         }}
         data-testid="corsi-board"
       >

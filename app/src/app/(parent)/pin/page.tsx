@@ -78,28 +78,30 @@ export default function PinPage() {
         : "もう一度入力してください";
 
   return (
-    // BUG-12 fix: outer wrapper allows scrolling on smartphone landscape
-    // (812×375) where the unscaled numpad just barely overflows the
-    // viewport. Padding and gaps shrunk for short heights so the whole
-    // pad fits in ~330px when landscape phones are used.
+    // BUG-12 fix round 2: do NOT use sm: (width ≥ 640 px) breakpoints to
+    // expand the layout. Smartphone landscape (812 × 375) has width > sm
+    // but height only 375 px, so width-keyed upscaling overflows. We use a
+    // height-keyed media query via inline CSS var so the numpad stays
+    // compact (48 × 48 buttons, 288 px total) on short viewports and
+    // expands only on tall screens (iPad / desktop).
     <div className="h-full w-full overflow-y-auto bg-nolla-bg">
-      <div className="min-h-full flex flex-col items-center justify-center px-4 py-3">
-        <h1 className="mb-1 text-base sm:text-xl font-bold text-nolla-text">
+      <div className="min-h-full flex flex-col items-center justify-center px-4 py-2">
+        <h1 className="mb-1 text-base font-bold text-nolla-text pin-title">
           {title}
         </h1>
 
         {error && (
-          <p className="mb-2 text-xs sm:text-sm" style={{ color: "#B8906A" }}>
+          <p className="mb-2 text-xs" style={{ color: "#B8906A" }}>
             {error}
           </p>
         )}
 
         {/* Dot indicators */}
-        <div className="mb-3 sm:mb-6 flex gap-3">
+        <div className="mb-3 flex gap-3">
           {Array.from({ length: PIN_LENGTH }, (_, i) => (
             <div
               key={i}
-              className="h-3 w-3 sm:h-4 sm:w-4 rounded-full transition-colors"
+              className="h-3 w-3 rounded-full transition-colors"
               style={{
                 backgroundColor:
                   i < pin.length
@@ -110,17 +112,17 @@ export default function PinPage() {
           ))}
         </div>
 
-        {/* Number pad */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        {/* Number pad — fixed compact (48 × 48) so it fits 375 px landscape */}
+        <div className="grid grid-cols-3 gap-2">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"].map(
             (key) => {
-              if (key === "") return <div key="empty" />;
+              if (key === "") return <div key="empty" className="h-12 w-12" />;
               if (key === "del") {
                 return (
                   <button
                     key="del"
                     onClick={handleDelete}
-                    className="touch-target flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl text-lg font-medium text-nolla-text"
+                    className="touch-target flex h-12 w-12 items-center justify-center rounded-xl text-lg font-medium text-nolla-text"
                     style={{ background: "var(--color-parent-input-bg)" }}
                     aria-label="削除"
                   >
@@ -132,7 +134,7 @@ export default function PinPage() {
                 <button
                   key={key}
                   onClick={() => handleDigit(key)}
-                  className="touch-target flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-xl text-lg sm:text-xl font-bold text-nolla-text transition-colors hover:bg-white/80"
+                  className="touch-target flex h-12 w-12 items-center justify-center rounded-xl text-lg font-bold text-nolla-text transition-colors hover:bg-white/80"
                   style={{ background: "rgba(255,255,255,0.95)" }}
                 >
                   {key}
