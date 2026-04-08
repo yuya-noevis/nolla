@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { decryptStringArray } from "@/lib/crypto/pii";
 
 export async function getActiveChild() {
   const supabase = await createClient();
@@ -24,7 +25,13 @@ export async function getActiveChild() {
     .limit(1)
     .single();
 
-  return child;
+  if (!child) return null;
+
+  return {
+    ...child,
+    diagnosis: decryptStringArray(child.diagnosis ?? []),
+    ld_types: decryptStringArray(child.ld_types ?? []),
+  };
 }
 
 export async function getStarBalance(childId: string): Promise<number> {

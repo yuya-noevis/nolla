@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { encryptStringArray } from "@/lib/crypto/pii";
 import type { AssessmentData } from "./types";
 import {
   calculateInitialIqBand,
@@ -43,9 +44,9 @@ export async function completeAssessment(
     parent_id: parent.id,
     display_name: data.displayName,
     birth_date: data.birthDate || null,
-    diagnosis: data.diagnoses,
+    diagnosis: encryptStringArray(data.diagnoses),
     intellectual_level: data.intellectualLevel,
-    ld_types: data.ldTypes,
+    ld_types: encryptStringArray(data.ldTypes),
     speech_level: data.speechLevel,
     can_distinguish_colors: data.canDistinguishColors,
     can_distinguish_shapes: data.canDistinguishShapes,

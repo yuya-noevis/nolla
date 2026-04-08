@@ -4,6 +4,7 @@
  */
 import { createClient } from "@/lib/supabase/server";
 import { hashPin, verifyPin as verifyPinHash } from "@/lib/auth/pin";
+import { decryptStringArray } from "@/lib/crypto/pii";
 
 /**
  * Resolve the child for the given Supabase auth user id.
@@ -30,7 +31,14 @@ export async function getChild(authUserId: string) {
     .single();
 
   if (error) return null;
-  return data;
+
+  // Decrypt sensitive PII fields transparently. New rows are written via
+  // encryptStringArray; legacy plaintext rows pass through untouched.
+  return {
+    ...data,
+    diagnosis: decryptStringArray(data.diagnosis ?? []),
+    ld_types: decryptStringArray(data.ld_types ?? []),
+  };
 }
 
 export async function getTodaysSessions(childId: string) {

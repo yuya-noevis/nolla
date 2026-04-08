@@ -53,7 +53,7 @@
 3. [x] **PIN scrypt ハッシュ化** — `lib/auth/pin.ts` (node:crypto scrypt, per-user salt, legacy SHA-256 互換) + `queries.ts` 呼出置換 — 要 Yuya 実機確認 (PIN設定→`pin_hash` が `scrypt$...` 形式)
 
 **Low (設計意図あり、実装なし)**:
-4. 診断情報 (`children.diagnosis`, `ld_types`) が要配慮個人情報だが平文保存 — pgcrypto 等で暗号化予定
+4. [x] 診断情報暗号化 (2026-04-08) — `lib/crypto/pii.ts` AES-256-GCM、`getChild`/`getActiveChild` で透過 decrypt、`encryptStringArray` で書込時暗号化。env `NOLLA_PII_KEY` (64hex) を Vercel に設定すれば有効化、未設定時は graceful 平文。レガシー平文と共存可
 5. サービスロールキー無し → GDPR 完全削除 (auth.users削除) に管理API必要
 
 **注**: 1-3 は pre-launch 必須、4-5 は Phase1対応可
