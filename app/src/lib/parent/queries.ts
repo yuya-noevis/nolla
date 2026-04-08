@@ -5,12 +5,27 @@
 import { createClient } from "@/lib/supabase/server";
 import { hashPin, verifyPin as verifyPinHash } from "@/lib/auth/pin";
 
-export async function getChild(parentId: string) {
+/**
+ * Resolve the child for the given Supabase auth user id.
+ * Note: `children.parent_id` is a FK to `parents.id`, NOT to `auth.users.id`.
+ * We must hop through `parents.auth_id` first.
+ */
+export async function getChild(authUserId: string) {
   const supabase = await createClient();
+
+  const { data: parent, error: parentError } = await supabase
+    .from("parents")
+    .select("id")
+    .eq("auth_id", authUserId)
+    .single();
+
+  if (parentError || !parent) return null;
+
   const { data, error } = await supabase
     .from("children")
     .select("*")
-    .eq("parent_id", parentId)
+    .eq("parent_id", parent.id)
+    .order("created_at", { ascending: false })
     .limit(1)
     .single();
 
