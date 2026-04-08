@@ -8,6 +8,8 @@ import type { TrialResult } from "@/types/domain";
 
 const INSTANT_RT_THRESHOLD = 200; // ms — too fast to be genuine
 const RAPID_RT_RATIO = 0.5; // if >50% of trials are instant → anomaly
+const INTERRUPTION_RT_THRESHOLD = 30000; // ms — >30s suggests external interruption
+const INTERRUPTION_RATIO = 0.15; // if ≥15% of trials were interrupted → session quality compromised
 
 export function calculateAnomalyScore(
   trials: readonly TrialResult[]
@@ -47,6 +49,21 @@ export function calculateAnomalyScore(
     } else {
       scores.push(0);
     }
+  }
+
+  // 4. External interruption detection (very long RT outliers)
+  // Indicates the child was pulled away mid-trial (parent, sibling, environment).
+  // Scoring scales with the proportion of interrupted trials.
+  const interruptedCount = trials.filter(
+    (t) => t.reactionTimeMs > INTERRUPTION_RT_THRESHOLD
+  ).length;
+  const interruptedRatio = interruptedCount / trials.length;
+  if (interruptedRatio >= INTERRUPTION_RATIO) {
+    scores.push(0.5);
+  } else if (interruptedCount > 0) {
+    scores.push(Math.min(0.5, interruptedRatio * 2));
+  } else {
+    scores.push(0);
   }
 
   // Combine: take max signal

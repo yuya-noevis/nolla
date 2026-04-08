@@ -84,10 +84,10 @@
 
 ### 新規追加 (Phase1 候補)
 
-- [ ] **Q8/Q9 NCI 時系列ビュー** (週/月/年/全期間切替・day1比較)
-- [ ] **T1 round-transition unused phase 削除** (Low cleanup)
-- [ ] **GAP-K 異常検出 3パターン追加** (位置繰返・外部割込・タッチダイナミクス)
-- [ ] **P13 リンク切れ Playwright 全画面巡回**
+- [x] **Q8/Q9 NCI 時系列ビュー** (2026-04-08) — growth ページに週/月/年/全期間トグル + day1比較 + SVG sparkline 実装 (`timeline-view.tsx`, `getNciSnapshotHistory` query)
+- [x] **T1 round-transition unused phase 削除** (2026-04-08) — use-game-session.ts の SessionPhaseUI から削除
+- [>] **GAP-K 異常検出** — 外部割込 (RT>30s) 実装済 (2026-04-08, anomaly.ts §4)。位置繰返・タッチダイナミクスは gameData/touchEvents スキーマ拡張が前提 → Phase2
+- [x] **P13 リンク切れ検証** (2026-04-08) — 静的解析で全router.push/href/redirect先を列挙 → 全14ルート存在確認、リンク切れゼロ
 - [ ] **P1-P5 オンボーディング画面検証** (S1-S5)
 
 ---

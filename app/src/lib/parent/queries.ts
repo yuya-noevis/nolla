@@ -66,6 +66,18 @@ export async function getLatestNciSnapshot(childId: string) {
   return data;
 }
 
+export async function getNciSnapshotHistory(childId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("nci_snapshots")
+    .select("*")
+    .eq("child_id", childId)
+    .order("snapshot_date", { ascending: true });
+
+  if (error) return [];
+  return data ?? [];
+}
+
 export async function verifyPin(
   parentId: string,
   inputPin: string

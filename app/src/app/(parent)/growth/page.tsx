@@ -1,5 +1,10 @@
-import { getChild, getLatestNciSnapshot } from "@/lib/parent/queries";
+import {
+  getChild,
+  getLatestNciSnapshot,
+  getNciSnapshotHistory,
+} from "@/lib/parent/queries";
 import { createClient } from "@/lib/supabase/server";
+import { GrowthTimelineView } from "./timeline-view";
 
 const NCI_LABELS: Record<string, string> = {
   M: "記憶力",
@@ -7,18 +12,6 @@ const NCI_LABELS: Record<string, string> = {
   A: "注意力",
   S: "処理速度",
 };
-
-const TREND_CONFIG = {
-  up: { label: "伸びています", color: "var(--color-nolla-secondary)" },
-  stable: {
-    label: "安定しています",
-    color: "var(--color-nolla-reward)",
-  },
-  down: {
-    label: "じっくり取り組んでいます",
-    color: "var(--color-nolla-primary)",
-  },
-} as const;
 
 export default async function GrowthPage() {
   const supabase = await createClient();
@@ -36,6 +29,7 @@ export default async function GrowthPage() {
   }
 
   const snapshot = await getLatestNciSnapshot(child.id);
+  const history = await getNciSnapshotHistory(child.id);
 
   // Baseline not established
   if (!child.baseline_established) {
@@ -110,50 +104,12 @@ export default async function GrowthPage() {
     );
   }
 
-  // NCI data available
-  const axes = [
-    { key: "M", value: snapshot.nci_m, se: snapshot.nci_m_se },
-    { key: "F", value: snapshot.nci_f, se: snapshot.nci_f_se },
-    { key: "A", value: snapshot.nci_a, se: snapshot.nci_a_se },
-    { key: "S", value: snapshot.nci_s, se: snapshot.nci_s_se },
-  ] as const;
-
+  // NCI data available — show time-series view with period toggle and day1 comparison
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-bold text-nolla-text">成長の記録</h2>
-      <div className="space-y-3">
-        {axes.map((axis) => {
-          const displayScore = Math.round(axis.value / 10);
-          const trend = getTrend(axis.se);
-          const cfg = TREND_CONFIG[trend];
-
-          return (
-            <div key={axis.key} className="glass-overlay p-4">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-nolla-text">
-                  {NCI_LABELS[axis.key]}
-                </span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold text-nolla-primary">
-                    {displayScore}
-                  </span>
-                  <span className="text-sm" style={{ color: cfg.color }}>
-                    {cfg.label}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <GrowthTimelineView snapshots={history} />
     </div>
   );
 }
 
-function getTrend(se: number): "up" | "stable" | "down" {
-  // High SE = still measuring, show as stable
-  if (se > 30) return "stable";
-  // Low SE = precise measurement available
-  // For MVP, always show "stable" or "up" (never negative)
-  return "up";
-}

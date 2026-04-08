@@ -35,7 +35,6 @@ type SessionPhaseUI =
   | "motor-baseline"
   | "round-intro"
   | "playing"
-  | "round-transition"
   | "completed";
 
 type GameSessionHook = {

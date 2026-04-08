@@ -267,10 +267,29 @@ describe("§K Anomaly Detection", () => {
     expect(calculateAnomalyScore(trials)).toBeGreaterThan(0.3);
   });
 
-  it("K1 IMPLEMENTATION GAP: design specifies 6 patterns, code implements only 3 (instant/variance/fatigue)", () => {
-    // GAP — patterns 4 (position repeat), 5 (external interrupt), 6 (other) NOT implemented.
-    // This test exists to flag the gap. Marked GAP in checklist §K2-K7.
-    // Current behavior: only 3 axes evaluated.
+  it("K1 external interruption: trials with RT >30s flagged", () => {
+    const trials = [
+      ...Array.from({ length: 8 }, () => ({
+        correct: true,
+        reactionTimeMs: 1500,
+        hintStageReached: 0 as const,
+        gameData: {},
+      })),
+      ...Array.from({ length: 2 }, () => ({
+        correct: true,
+        reactionTimeMs: 45000, // interrupted
+        hintStageReached: 0 as const,
+        gameData: {},
+      })),
+    ];
+    expect(calculateAnomalyScore(trials)).toBeGreaterThanOrEqual(0.4);
+  });
+
+  it("K1 IMPLEMENTATION GAP: position-repeat and touch-dynamics still unimplemented (schema lacks data)", () => {
+    // GAP — pattern 4 (position repeat) and 6 (touch dynamics) still NOT implemented.
+    // Blocker: gameData is currently {} at trial level, and touch events are not captured.
+    // Requires schema extension before detection is feasible.
+    // Pattern 5 (external interrupt) now implemented via RT >30s threshold.
     expect(true).toBe(true);
   });
 
