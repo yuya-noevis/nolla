@@ -100,58 +100,86 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
   const nextExpectedBlock =
     phase === "input" ? layout.sequence[inputSequence.length] : null;
 
+  // Generator coordinate space (must match generate.ts AREA_WIDTH/HEIGHT)
+  const AREA_WIDTH = 800;
+  const AREA_HEIGHT = 500;
+  // Block size as a percent of the container — use the SAME percent for
+  // width and height because aspectRatio is locked to AREA_WIDTH/AREA_HEIGHT,
+  // so equal % of width and width produce equal physical pixels (square block).
+  const blockSizePctW = (layout.blockSize / AREA_WIDTH) * 100;
+  const blockSizePctH = (layout.blockSize / AREA_HEIGHT) * 100;
+
   return (
-    <div className="relative w-full h-full max-w-[800px] max-h-[500px] overflow-hidden">
-      {/* Phase indicator */}
-      <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-        {layout.sequence.map((_, i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 rounded-full ${
-              phase === "watching" && i <= seqIndex
-                ? "bg-white"
-                : phase === "input" && i < inputSequence.length
-                  ? "bg-[var(--color-feedback-correct)]"
-                  : "bg-white/30"
-            }`}
-          />
-        ))}
+    <div className="w-full h-full flex items-center justify-center">
+      {/*
+        BUG-10/11 fix: container locks aspect ratio to the generator
+        coordinate space (800×500 = 8/5) so % positions translate
+        proportionally on every screen size. Width is the smallest of
+        100% / 800px / (viewport-height × 1.6) so the box always fits in
+        landscape phones (812×375), iPads, and desktops without distortion.
+      */}
+      <div
+        className="relative"
+        style={{
+          width: "min(100%, 800px, calc(100vh * 1.6))",
+          aspectRatio: `${AREA_WIDTH} / ${AREA_HEIGHT}`,
+        }}
+        data-testid="corsi-board"
+      >
+        {/* Phase indicator */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {layout.sequence.map((_, i) => (
+            <div
+              key={i}
+              className={`w-3 h-3 rounded-full ${
+                phase === "watching" && i <= seqIndex
+                  ? "bg-white"
+                  : phase === "input" && i < inputSequence.length
+                    ? "bg-[var(--color-feedback-correct)]"
+                    : "bg-white/30"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Blocks */}
+        {layout.blocks.map((block) => {
+          const isActive = activeBlock === block.id;
+          const isHintTarget = hintStage >= 2 && block.id === nextExpectedBlock;
+          const isHintGlow = hintStage >= 3 && block.id === nextExpectedBlock;
+
+          return (
+            <button
+              key={block.id}
+              type="button"
+              onClick={() => handleBlockTap(block.id)}
+              disabled={phase !== "input"}
+              className={`absolute touch-target-child rounded-xl transition-all duration-200 ${
+                isActive ? "scale-110 brightness-150" : ""
+              } ${isHintTarget ? "animate-pulse-gentle" : ""} ${
+                isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""
+              }`}
+              style={{
+                left: `${(block.x / AREA_WIDTH) * 100}%`,
+                top: `${(block.y / AREA_HEIGHT) * 100}%`,
+                width: `${blockSizePctW}%`,
+                height: `${blockSizePctH}%`,
+                transform: "translate(-50%, -50%)",
+                background: isActive
+                  ? "var(--color-mc-glowstone)"
+                  : "linear-gradient(135deg, var(--color-mc-stone-light), var(--color-mc-stone))",
+                border: "3px solid var(--color-mc-dark-oak)",
+                boxShadow: isActive
+                  ? "0 0 20px rgba(218,165,32,0.6)"
+                  : "0 4px 0 var(--color-mc-dark-oak-light)",
+              }}
+              data-block-id={block.id}
+              data-block-size={layout.blockSize}
+              aria-label={`Block ${block.id}`}
+            />
+          );
+        })}
       </div>
-
-      {/* Blocks */}
-      {layout.blocks.map((block) => {
-        const isActive = activeBlock === block.id;
-        const isHintTarget = hintStage >= 2 && block.id === nextExpectedBlock;
-        const isHintGlow = hintStage >= 3 && block.id === nextExpectedBlock;
-
-        return (
-          <button
-            key={block.id}
-            type="button"
-            onClick={() => handleBlockTap(block.id)}
-            disabled={phase !== "input"}
-            className={`absolute touch-target-child rounded-xl transition-all duration-200 ${
-              isActive ? "scale-110 brightness-150" : ""
-            } ${isHintTarget ? "animate-pulse-gentle" : ""} ${
-              isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""
-            }`}
-            style={{
-              left: `${Math.min((block.x / 800) * 100, 85)}%`,
-              top: `${Math.min((block.y / 500) * 100, 80)}%`,
-              width: 64,
-              height: 64,
-              background: isActive
-                ? "var(--color-mc-glowstone)"
-                : "linear-gradient(135deg, var(--color-mc-stone-light), var(--color-mc-stone))",
-              border: "3px solid var(--color-mc-dark-oak)",
-              boxShadow: isActive
-                ? "0 0 20px rgba(218,165,32,0.6)"
-                : "0 4px 0 var(--color-mc-dark-oak-light)",
-            }}
-            aria-label={`Block ${block.id}`}
-          />
-        );
-      })}
     </div>
   );
 }
