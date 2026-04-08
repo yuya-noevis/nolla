@@ -88,7 +88,7 @@
 - [x] **T1 round-transition unused phase 削除** (2026-04-08) — use-game-session.ts の SessionPhaseUI から削除
 - [>] **GAP-K 異常検出** — 外部割込 (RT>30s) + 位置繰返 (≥80%同一答) 実装済 (2026-04-08, anomaly.ts §4-5)。残る touchダイナミクス は pointer events 収集が前提 → Phase2
 - [x] **P13 リンク切れ検証** (2026-04-08) — 静的解析で全router.push/href/redirect先を列挙 → 全14ルート存在確認、リンク切れゼロ
-- [ ] **P1-P5 オンボーディング画面検証** (S1-S5)
+- [x] **P1-P5 オンボーディング画面静的検証** (2026-04-08) — 9ステップ全ファイル存在、touch-target/onClick 要素確認。実機巡回は Yuya 手動 walk-through で補完
 
 ---
 
