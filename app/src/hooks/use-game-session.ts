@@ -26,6 +26,7 @@ import {
 } from "@/lib/session/persist";
 import { finalizeSessionNci, type FinalizeTrial } from "@/lib/nci/finalize-session";
 import { refreshBaselineProgress } from "@/lib/session/baseline-progress";
+import { calculateRoundStars } from "@/lib/session/round-stars";
 import type { MotorBaseline } from "@/types/scoring";
 
 type SessionPhaseUI =
@@ -281,19 +282,13 @@ export function useGameSession(
   const completeRoundFromGame = useCallback(() => {
     const totalTrials = roundTrialCountRef.current;
     const correctCount = roundCorrectCountRef.current;
-    const wrongCount = totalTrials - correctCount;
 
-    // Mistake-count based stars (UX fix 2026-04-07):
-    //   0 mistakes → 3★, 1 mistake → 2★, 2+ mistakes → 1★.
-    // The old 80% threshold broke for small-trial rounds (e.g. memory-match
-    // pairs=2 → 2 trials/round → 1 miss = 50% → 1★ despite "almost perfect").
-    // Mistake-count matches child & parent intuition regardless of trial count.
-    let roundStars = 1;
-    if (totalTrials > 0 && wrongCount === 0) {
-      roundStars = 3;
-    } else if (totalTrials > 0 && wrongCount === 1) {
-      roundStars = 2;
-    }
+    const roundStars = calculateRoundStars({
+      gameType,
+      totalTrials,
+      correctCount,
+      difficultyParams: currentParamsRef.current,
+    });
 
     setSessionStars((s) => s + roundStars);
     roundTrialCountRef.current = 0;
