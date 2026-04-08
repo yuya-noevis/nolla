@@ -8,6 +8,7 @@ import type {
 } from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
 import { generateVisualSearchScene } from "@/lib/games/visual-search/generate";
+import { visualSearchScenesPerRound } from "@/lib/session/trials-per-round";
 
 type Props = {
   params: VisualSearchParams;
@@ -21,14 +22,33 @@ const SCENE_WIDTH = 800;
 const SCENE_HEIGHT = 500;
 
 export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
-  const scene = useMemo(() => generateVisualSearchScene(params), [params, roundKey]);
+  // Multi-scene per round so low-difficulty rounds still deliver ≥ 6 finds.
+  // See lib/session/trials-per-round.ts for the formula and evidence.
+  const scenesPerRound = useMemo(
+    () => visualSearchScenesPerRound(params),
+    [params]
+  );
+  const [sceneIndex, setSceneIndex] = useState(0);
+  const [sceneKey, setSceneKey] = useState(0);
+  const scene = useMemo(
+    () => generateVisualSearchScene(params),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [params, roundKey, sceneKey]
+  );
   const [foundDiffs, setFoundDiffs] = useState<ReadonlyArray<string>>([]);
   const [trialStart, setTrialStart] = useState(Date.now());
 
+  // Reset scene cursor on new round.
+  useEffect(() => {
+    setSceneIndex(0);
+    setSceneKey(0);
+  }, [roundKey]);
+
+  // Reset found-diffs on new scene (round change or within-round advance).
   useEffect(() => {
     setFoundDiffs([]);
     setTrialStart(Date.now());
-  }, [roundKey]);
+  }, [scene]);
 
   const handleItemTap = useCallback(
     (itemId: string) => {
@@ -50,10 +70,18 @@ export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, o
 
   useEffect(() => {
     if (allFound) {
-      const timer = setTimeout(() => onRoundComplete(), 800);
+      const timer = setTimeout(() => {
+        const nextSceneIndex = sceneIndex + 1;
+        if (nextSceneIndex >= scenesPerRound) {
+          onRoundComplete();
+        } else {
+          setSceneIndex(nextSceneIndex);
+          setSceneKey((k) => k + 1);
+        }
+      }, 800);
       return () => clearTimeout(timer);
     }
-  }, [allFound, onRoundComplete]);
+  }, [allFound, onRoundComplete, sceneIndex, scenesPerRound]);
 
   return (
     <div className="flex flex-col items-center gap-2 w-full h-full px-4">

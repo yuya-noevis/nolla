@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type {
   GameType,
@@ -19,7 +19,6 @@ import { CardGrid } from "@/components/game/memory-match/card-grid";
 import { SortingGame } from "@/components/game/sorting/sorting-game";
 import { VisualSearchGame } from "@/components/game/visual-search/visual-search-game";
 import { CorsiBlockGame } from "@/components/game/corsi-block/corsi-block-game";
-import { generateMemoryMatchBoard } from "@/lib/games/memory-match/generate";
 import { useErrorless } from "@/hooks/use-errorless";
 import { useGameSession } from "@/hooks/use-game-session";
 
@@ -144,13 +143,8 @@ export function GameSession({
     }
   }, [session.phase, gameType, session.sessionStars, router]);
 
-  // Generate game content based on current params
-  const memoryBoard = useMemo(
-    () => gameType === "memory-match"
-      ? generateMemoryMatchBoard(session.currentParams as MemoryMatchParams)
-      : null,
-    [gameType, session.currentParams, session.roundNumber]
-  );
+  // Memory-match generates its own boards internally (multi-board per round
+  // per trials-per-round.ts), so no board generation needed at this layer.
 
   return (
     <GameFrame
@@ -170,12 +164,11 @@ export function GameSession({
         {/* Playing phase */}
         {session.phase === "playing" && (
           <>
-            {gameType === "memory-match" && memoryBoard && (
+            {gameType === "memory-match" && (
               <CardGrid
                 key={session.roundNumber}
-                board={memoryBoard}
-                cardSize={(session.currentParams as MemoryMatchParams).cardSize}
-                flipDelay={(session.currentParams as MemoryMatchParams).flipDelay}
+                params={session.currentParams as MemoryMatchParams}
+                roundKey={session.roundNumber}
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}

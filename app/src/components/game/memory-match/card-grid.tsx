@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import type { MemoryMatchBoard, MemoryMatchCard } from "@/types/domain";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import type {
+  MemoryMatchBoard,
+  MemoryMatchCard,
+  MemoryMatchParams,
+} from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
+import { generateMemoryMatchBoard } from "@/lib/games/memory-match/generate";
+import { memoryMatchBoardsPerRound } from "@/lib/session/trials-per-round";
 
 type CardState = "face-down" | "face-up" | "matched";
 
@@ -24,28 +30,56 @@ const IMAGE_GLYPH: Record<string, string> = {
 };
 
 type Props = {
-  board: MemoryMatchBoard;
-  cardSize: number;
-  flipDelay: number;
+  params: MemoryMatchParams;
+  roundKey: number;
   hintStage: HintStage;
   onTrialResult: (correct: boolean, reactionTimeMs: number) => void;
   onRoundComplete: () => void;
 };
 
 export function CardGrid({
-  board,
-  cardSize,
-  flipDelay,
+  params,
+  roundKey,
   hintStage,
   onTrialResult,
   onRoundComplete,
 }: Props) {
-  const [cardStates, setCardStates] = useState<ReadonlyArray<CardState>>(
+  const boardsPerRound = useMemo(
+    () => memoryMatchBoardsPerRound(params),
+    [params]
+  );
+  const [boardIndex, setBoardIndex] = useState(0);
+  // boardKey bumps whenever we regenerate the board within a round.
+  const [boardKey, setBoardKey] = useState(0);
+  const board: MemoryMatchBoard = useMemo(
+    () => generateMemoryMatchBoard(params),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [params, roundKey, boardKey]
+  );
+  const [cardStates, setCardStates] = useState<ReadonlyArray<CardState>>(() =>
     board.cards.map(() => "face-down")
   );
   const [flippedIndices, setFlippedIndices] = useState<ReadonlyArray<number>>([]);
   const [locked, setLocked] = useState(false);
   const trialStartRef = useRef<number>(Date.now());
+
+  // Reset everything when the round changes.
+  useEffect(() => {
+    setBoardIndex(0);
+    setBoardKey(0);
+    setFlippedIndices([]);
+    setLocked(false);
+    trialStartRef.current = Date.now();
+  }, [roundKey]);
+
+  // Reset card state whenever a new board is generated (either via round
+  // change or via boardKey bump within the same round).
+  useEffect(() => {
+    setCardStates(board.cards.map(() => "face-down"));
+    setFlippedIndices([]);
+    setLocked(false);
+    trialStartRef.current = Date.now();
+  }, [board]);
 
   // Find correct pair target for hint stages
   const correctPairIndex = flippedIndices.length === 1
@@ -92,10 +126,20 @@ export function CardGrid({
             onTrialResult(true, rt);
             trialStartRef.current = Date.now();
 
-            // Check if all pairs matched
+            // Check if all pairs on this board matched
             const allMatched = updatedStates.every((s) => s === "matched");
             if (allMatched) {
-              setTimeout(() => onRoundComplete(), 600);
+              setTimeout(() => {
+                const nextBoardIndex = boardIndex + 1;
+                if (nextBoardIndex >= boardsPerRound) {
+                  // All boards in the round cleared → end round.
+                  onRoundComplete();
+                } else {
+                  // Start the next board in the same round.
+                  setBoardIndex(nextBoardIndex);
+                  setBoardKey((k) => k + 1);
+                }
+              }, 600);
             }
           }, 500);
         } else {
@@ -110,18 +154,28 @@ export function CardGrid({
             setLocked(false);
             onTrialResult(false, rt);
             trialStartRef.current = Date.now();
-          }, flipDelay);
+          }, params.flipDelay);
         }
       }
     },
-    [locked, cardStates, flippedIndices, board.cards, flipDelay, onTrialResult, onRoundComplete]
+    [
+      locked,
+      cardStates,
+      flippedIndices,
+      board.cards,
+      params.flipDelay,
+      onTrialResult,
+      onRoundComplete,
+      boardIndex,
+      boardsPerRound,
+    ]
   );
 
   return (
     <div
       className="grid gap-2 place-items-center"
       style={{
-        gridTemplateColumns: `repeat(${board.gridCols}, ${cardSize}px)`,
+        gridTemplateColumns: `repeat(${board.gridCols}, ${params.cardSize}px)`,
       }}
     >
       {board.cards.map((card, index) => (
@@ -129,7 +183,7 @@ export function CardGrid({
           key={card.id}
           card={card}
           state={cardStates[index]}
-          size={cardSize}
+          size={params.cardSize}
           isHintTarget={hintStage >= 2 && index === correctPairIndex}
           isHintGlow={hintStage >= 3 && index === correctPairIndex}
           onTap={() => handleCardTap(index)}
@@ -157,41 +211,27 @@ function CardCell({ card, state, size, isHintTarget, isHintGlow, onTap }: CardCe
       onClick={onTap}
       disabled={state === "matched"}
       className={`relative rounded-lg transition-transform duration-200 ${
-        state === "matched" ? "opacity-40 scale-90" : "active:scale-95"
-      } ${isHintTarget ? "animate-pulse-gentle" : ""} ${
-        isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""
-      }`}
-      style={{ width: size, height: size }}
-      aria-label={isFaceUp ? card.imageKey : "Hidden card"}
+        isHintTarget ? "animate-pulse-gentle" : ""
+      } ${isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""}`}
+      style={{
+        width: size,
+        height: size,
+        background: isFaceUp
+          ? "var(--color-mc-oak-light)"
+          : "linear-gradient(135deg, var(--color-mc-stone-light), var(--color-mc-stone))",
+        border: "3px solid var(--color-mc-dark-oak)",
+        boxShadow: "0 4px 0 var(--color-mc-dark-oak-light)",
+      }}
+      aria-label={`Card ${card.id}`}
     >
-      {/* Card back */}
-      <div
-        className={`absolute inset-0 rounded-lg flex items-center justify-center transition-opacity duration-200 ${
-          isFaceUp ? "opacity-0" : "opacity-100"
-        }`}
-        style={{
-          background: "linear-gradient(135deg, var(--color-mc-oak-light), var(--color-mc-oak))",
-          border: "2px solid var(--color-mc-dark-oak)",
-        }}
-      >
-        <div className="w-6 h-6 rounded-sm" style={{ background: "var(--color-mc-glowstone)", opacity: 0.6 }} />
-      </div>
-
-      {/* Card face */}
-      <div
-        aria-hidden={!isFaceUp}
-        className={`absolute inset-0 rounded-lg flex items-center justify-center transition-opacity duration-200 ${
-          isFaceUp ? "opacity-100" : "opacity-0"
-        }`}
-        style={{
-          background: "rgba(255,255,255,0.95)",
-          border: "2px solid var(--color-mc-stone-light)",
-        }}
-      >
-        <span className="text-4xl select-none" style={{ lineHeight: 1 }}>
-          {IMAGE_GLYPH[card.imageKey] ?? card.imageKey}
-        </span>
-      </div>
+      {isFaceUp && (
+        <div
+          className="flex items-center justify-center w-full h-full"
+          style={{ fontSize: Math.floor(size * 0.6) }}
+        >
+          {IMAGE_GLYPH[card.imageKey] ?? card.imageKey.charAt(0)}
+        </div>
+      )}
     </button>
   );
 }

@@ -29,8 +29,17 @@ const sortP: SortingParams = {
 const vsP: VisualSearchParams = { sceneItems: 4, diffCount: 1, diffSubtlety: 20 };
 const corsiP: CorsiBlockParams = { blocks: 4, seqLength: 2, displayMs: 1200 };
 
-describe("calculateRoundStars — direct-response games", () => {
-  it("0 mistakes → 3★ (sorting)", () => {
+describe("calculateRoundStars — direct-response (unified trial-scaled rule)", () => {
+  // allow3 = floor(trials × 0.15), allow2 = floor(trials × 0.40)
+  //
+  //  trials  allow3  allow2  (0 miss / 1 miss / 2 miss / 3 miss / 4 miss)
+  //    4       0       1     (3★ / 2★ / 1★ / 1★ / 1★)
+  //    5       0       2     (3★ / 2★ / 2★ / 1★ / 1★)
+  //    8       1       3     (3★ / 3★ / 2★ / 2★ / 1★)
+  //   10       1       4     (3★ / 3★ / 2★ / 2★ / 2★)
+  //   20       3       8
+
+  it("trials=8, 0 mistakes → 3★ (sorting)", () => {
     expect(
       calculateRoundStars({
         gameType: "sorting",
@@ -41,7 +50,7 @@ describe("calculateRoundStars — direct-response games", () => {
     ).toBe(3);
   });
 
-  it("1 mistake → 2★ (visual-search)", () => {
+  it("trials=5, 1 mistake → 2★ (visual-search, floor(5×0.15)=0)", () => {
     expect(
       calculateRoundStars({
         gameType: "visual-search",
@@ -52,13 +61,57 @@ describe("calculateRoundStars — direct-response games", () => {
     ).toBe(2);
   });
 
-  it("2+ mistakes → 1★ (corsi-block)", () => {
+  it("trials=5, 2 mistakes → 2★ (corsi-block, within allow2=2)", () => {
     expect(
       calculateRoundStars({
         gameType: "corsi-block",
         totalTrials: 5,
         correctCount: 3,
         difficultyParams: corsiP,
+      })
+    ).toBe(2);
+  });
+
+  it("trials=5, 3 mistakes → 1★ (beyond allow2)", () => {
+    expect(
+      calculateRoundStars({
+        gameType: "corsi-block",
+        totalTrials: 5,
+        correctCount: 2,
+        difficultyParams: corsiP,
+      })
+    ).toBe(1);
+  });
+
+  it("trials=10, 1 mistake → 3★ (allow3=1)", () => {
+    expect(
+      calculateRoundStars({
+        gameType: "sorting",
+        totalTrials: 10,
+        correctCount: 9,
+        difficultyParams: sortP,
+      })
+    ).toBe(3);
+  });
+
+  it("trials=10, 4 mistakes → 2★ (allow2=4)", () => {
+    expect(
+      calculateRoundStars({
+        gameType: "sorting",
+        totalTrials: 10,
+        correctCount: 6,
+        difficultyParams: sortP,
+      })
+    ).toBe(2);
+  });
+
+  it("trials=10, 5 mistakes → 1★", () => {
+    expect(
+      calculateRoundStars({
+        gameType: "sorting",
+        totalTrials: 10,
+        correctCount: 5,
+        difficultyParams: sortP,
       })
     ).toBe(1);
   });
@@ -75,29 +128,47 @@ describe("calculateRoundStars — direct-response games", () => {
   });
 });
 
-describe("calculateRoundStars — memory-match efficiency rule", () => {
-  // Helper: build input for given pairs + misses
-  const mmInput = (pairs: number, misses: number) => ({
-    gameType: "memory-match" as const,
-    totalTrials: pairs + misses, // every pair attempt = 1 trial
-    correctCount: pairs, // each pair eventually matched
-    difficultyParams: mm(pairs),
-  });
+describe("calculateRoundStars — memory-match rule (multi-board aware)", () => {
+  // With boards_per_round = max(1, ceil(6/pairs)), a round plays multiple
+  // boards when pairs is small. All misses and matches aggregate across
+  // those boards. totalTrials = pairs × boards_per_round + misses.
+  const boardsOf = (pairs: number) => Math.max(1, Math.ceil(6 / pairs));
+  const mmInput = (pairs: number, misses: number) => {
+    const boards = boardsOf(pairs);
+    return {
+      gameType: "memory-match" as const,
+      totalTrials: pairs * boards + misses,
+      correctCount: pairs * boards,
+      difficultyParams: mm(pairs),
+    };
+  };
 
-  // Spec table per Yuya 2026-04-08 (max unlucky baseline + ID accommodation).
-  // pairs → max misses for 3★ / 2★
-  //   2 →  1 / 2     3 →  2 / 3     4 →  2 / 4     5 →  2 / 5
-  //   6 →  3 / 6     7 →  4 / 7     8 →  5 / 8    10 →  7 / 10
-  //  12 →  8 / 12   16 → 11 / 16   20 → 14 / 20   24 → 16 / 24
+  // Per-round spec table — derived from per-board Yuya-spec + boards_per_round.
+  //   3★ allow = boards × allow3_per_board(pairs)
+  //   2★ allow = boards × pairs  (up to 100 % extra trials)
+  //
+  //  pairs  boards  3★allow    2★allow
+  //    2      3      3 ( 3×1)   6
+  //    3      2      4 ( 2×2)   6
+  //    4      2      4 ( 2×2)   8
+  //    5      2      4 ( 2×2)  10
+  //    6      1      3          6
+  //    7      1      4 (⌊0.7·7⌋) 7
+  //    8      1      5 (⌊0.7·8⌋) 8
+  //   10      1      7 (⌊0.7·10⌋)10
+  //   12      1      8          12
+  //   16      1     11          16
+  //   20      1     14          20
+  //   24      1     16          24
   const cases: ReadonlyArray<{
     pairs: number;
     star3MaxMisses: number;
     star2MaxMisses: number;
   }> = [
-    { pairs: 2, star3MaxMisses: 1, star2MaxMisses: 2 },
-    { pairs: 3, star3MaxMisses: 2, star2MaxMisses: 3 },
-    { pairs: 4, star3MaxMisses: 2, star2MaxMisses: 4 },
-    { pairs: 5, star3MaxMisses: 2, star2MaxMisses: 5 },
+    { pairs: 2, star3MaxMisses: 3, star2MaxMisses: 6 },
+    { pairs: 3, star3MaxMisses: 4, star2MaxMisses: 6 },
+    { pairs: 4, star3MaxMisses: 4, star2MaxMisses: 8 },
+    { pairs: 5, star3MaxMisses: 4, star2MaxMisses: 10 },
     { pairs: 6, star3MaxMisses: 3, star2MaxMisses: 6 },
     { pairs: 7, star3MaxMisses: 4, star2MaxMisses: 7 },
     { pairs: 8, star3MaxMisses: 5, star2MaxMisses: 8 },

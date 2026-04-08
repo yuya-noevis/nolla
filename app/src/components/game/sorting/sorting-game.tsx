@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import type { SortingParams, SortingCriterion } from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
 import { generateSortingRound } from "@/lib/games/sorting/generate";
+import { sortingScenesPerRound } from "@/lib/session/trials-per-round";
 
 type Props = {
   params: SortingParams;
@@ -177,14 +178,34 @@ function ShapeSvg({
 }
 
 export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
-  const round = useMemo(() => generateSortingRound(params), [params, roundKey]);
+  // Multi-scene per round: at low items counts we play several scenes in
+  // one round so every round delivers ≥ 6 sort decisions. See
+  // lib/session/trials-per-round.ts for the formula and evidence.
+  const scenesPerRound = useMemo(
+    () => sortingScenesPerRound(params),
+    [params]
+  );
+  const [sceneIndex, setSceneIndex] = useState(0);
+  const [sceneKey, setSceneKey] = useState(0);
+  const round = useMemo(
+    () => generateSortingRound(params),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [params, roundKey, sceneKey]
+  );
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [trialStart, setTrialStart] = useState(Date.now());
 
+  // Reset scene cursor on new round.
+  useEffect(() => {
+    setSceneIndex(0);
+    setSceneKey(0);
+  }, [roundKey]);
+
+  // Reset item index on new scene (whether via round change or within-round advance).
   useEffect(() => {
     setCurrentItemIndex(0);
     setTrialStart(Date.now());
-  }, [roundKey]);
+  }, [round]);
 
   const currentItem = round.items[currentItemIndex];
 
@@ -209,10 +230,18 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
 
   useEffect(() => {
     if (!currentItem) {
-      const timer = setTimeout(() => onRoundComplete(), 800);
+      const timer = setTimeout(() => {
+        const nextSceneIndex = sceneIndex + 1;
+        if (nextSceneIndex >= scenesPerRound) {
+          onRoundComplete();
+        } else {
+          setSceneIndex(nextSceneIndex);
+          setSceneKey((k) => k + 1);
+        }
+      }, 800);
       return () => clearTimeout(timer);
     }
-  }, [currentItem, onRoundComplete]);
+  }, [currentItem, onRoundComplete, sceneIndex, scenesPerRound]);
 
   if (!currentItem) {
     return (

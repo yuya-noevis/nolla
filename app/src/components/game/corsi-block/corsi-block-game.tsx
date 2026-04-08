@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import type { CorsiBlockParams } from "@/types/domain";
 import type { HintStage } from "@/hooks/use-errorless";
 import { generateCorsiLayout } from "@/lib/games/corsi-block/generate";
+import { CORSI_TRIALS_PER_ROUND } from "@/lib/session/trials-per-round";
 
 type Props = {
   params: CorsiBlockParams;
@@ -15,13 +16,10 @@ type Props = {
 
 type Phase = "watching" | "input" | "result";
 
-// Corsi course = multiple sequence attempts per round. A single sequence
-// attempt is one trial (one match or one miss). Previously the component
-// ended the entire round on the first miss — that gave children only one
-// shot per round and made the star rule look broken ("1 miss = 2★ via
-// instant termination"). Now we run N trials per round, regenerate the
-// sequence after each, and only call onRoundComplete when all N are done.
-const TRIALS_PER_ROUND = 5;
+// Corsi multi-trial per round. The constant lives in
+// lib/session/trials-per-round.ts so trial counts are kept in one place
+// across all games (FitzGerald & Meyer 2005 adaptive Corsi standard).
+const TRIALS_PER_ROUND = CORSI_TRIALS_PER_ROUND;
 
 export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
   // trialKey changes per-trial → forces sequence regeneration via useMemo dep.
