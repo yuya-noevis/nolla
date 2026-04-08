@@ -27,7 +27,7 @@
     - [x] **L10 irt_b 計算** → commit dc9c66c で修正済 (要 Yuya 実機プレイ→DB確認)
     - [x] **L5 game_data 空** (2026-04-08) — 4ゲーム全てで gameData populate (sorting/visual-search/memory-match/corsi-block)。位置繰返検出も解禁
     - [x] **L15 途中終了ハンドリング** (2026-04-08 修正) — beforeunload + visibilitychange + /api/session/abandon + sendBeacon。要 Yuya 実機確認 (プレイ中にタブ閉じ→sessions.ended_at 確認)
-    - [ ] **L16-L18 オフラインキュー デッドコード** (Low優先, Phase1延期候補)
+    - [x] **L16-L18 オフラインキュー デッドコード削除** (2026-04-08) — `lib/offline/`, `use-offline.ts`, `offline-banner.tsx`, `offline-queue.test.ts` 全削除 (本番未使用)
 
 ### Subagent 結果統合済み (2026-04-08)
 
