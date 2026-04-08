@@ -6,8 +6,11 @@
 import { describe, it, expect } from "vitest";
 import {
   applyTrialsToTheta,
+  applySpeedTrialsToTheta,
   gameAxis,
   INITIAL_THETA,
+  isSpeedSuccess,
+  SPEED_THRESHOLD_RATIO,
   type FinalizeTrial,
 } from "@/lib/nci/finalize-session-pure";
 import type {
@@ -147,5 +150,88 @@ describe("applyTrialsToTheta", () => {
     expect(() =>
       applyTrialsToTheta("corsi-block", INITIAL_THETA, [trial(corsiParams)])
     ).not.toThrow();
+  });
+});
+
+describe("applySpeedTrialsToTheta (NCI-S axis)", () => {
+  const baselineMs = 600;
+
+  it("returns start unchanged when motor baseline is null", () => {
+    const trials: FinalizeTrial[] = [
+      { correct: true, reactionTimeMs: 500, difficultyParams: mmParams },
+    ];
+    const out = applySpeedTrialsToTheta(INITIAL_THETA, trials, null);
+    expect(out).toEqual(INITIAL_THETA);
+  });
+
+  it("returns start unchanged when motor baseline is below 200ms (junk)", () => {
+    const trials: FinalizeTrial[] = [
+      { correct: true, reactionTimeMs: 500, difficultyParams: mmParams },
+    ];
+    const out = applySpeedTrialsToTheta(INITIAL_THETA, trials, 100);
+    expect(out).toEqual(INITIAL_THETA);
+  });
+
+  it("consistently fast correct responses push θ_s upward", () => {
+    const trials: FinalizeTrial[] = Array.from({ length: 8 }, () => ({
+      correct: true,
+      reactionTimeMs: 500, // < 600 * 1.5 = 900
+      difficultyParams: mmParams,
+    }));
+    const out = applySpeedTrialsToTheta(INITIAL_THETA, trials, baselineMs);
+    expect(out.mu).toBeGreaterThan(INITIAL_THETA.mu);
+  });
+
+  it("consistently slow correct responses push θ_s downward", () => {
+    const trials: FinalizeTrial[] = Array.from({ length: 8 }, () => ({
+      correct: true,
+      reactionTimeMs: 2000, // > 900 threshold
+      difficultyParams: mmParams,
+    }));
+    const out = applySpeedTrialsToTheta(INITIAL_THETA, trials, baselineMs);
+    expect(out.mu).toBeLessThan(INITIAL_THETA.mu);
+  });
+
+  it("incorrect trials never count as speed successes regardless of RT", () => {
+    expect(
+      isSpeedSuccess(
+        { correct: false, reactionTimeMs: 100, difficultyParams: mmParams },
+        baselineMs
+      )
+    ).toBe(false);
+  });
+
+  it("trials missing RT are skipped (no theta change)", () => {
+    const trials: FinalizeTrial[] = [
+      { correct: true, difficultyParams: mmParams },
+    ];
+    const out = applySpeedTrialsToTheta(INITIAL_THETA, trials, baselineMs);
+    expect(out).toEqual(INITIAL_THETA);
+  });
+
+  it("sub-200ms RTs are excluded as anomalous", () => {
+    const trials: FinalizeTrial[] = [
+      { correct: true, reactionTimeMs: 50, difficultyParams: mmParams },
+    ];
+    const out = applySpeedTrialsToTheta(INITIAL_THETA, trials, baselineMs);
+    expect(out).toEqual(INITIAL_THETA);
+  });
+
+  it("threshold ratio is 1.5×", () => {
+    expect(SPEED_THRESHOLD_RATIO).toBe(1.5);
+    // RT exactly at threshold counts as success
+    expect(
+      isSpeedSuccess(
+        { correct: true, reactionTimeMs: 900, difficultyParams: mmParams },
+        600
+      )
+    ).toBe(true);
+    // 1ms over threshold fails
+    expect(
+      isSpeedSuccess(
+        { correct: true, reactionTimeMs: 901, difficultyParams: mmParams },
+        600
+      )
+    ).toBe(false);
   });
 });

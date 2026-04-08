@@ -244,6 +244,7 @@ export function useGameSession(
         ...nciTrialBufferRef.current,
         {
           correct: result.correct,
+          reactionTimeMs: result.reactionTimeMs,
           difficultyParams: playedParams,
         },
       ];

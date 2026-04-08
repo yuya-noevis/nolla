@@ -94,9 +94,7 @@
 
 ## バックログ (優先度付き、ブロッカー待ち)
 
-- [ ] **NCI-S 軸 (処理速度)** 設計 + 実装 (現在 thetaS は INITIAL_THETA のまま更新されない)
-  - 着手条件: Batch 3 完了後。全ゲーム横断の RT 軸が別途必要
-  - Why: NCI 4軸のうち 1 軸が空のまま親ダッシュボードで表示すると違和感
+- [x] **NCI-S 軸 (処理速度)** 実装 (2026-04-08) — `applySpeedTrialsToTheta` (motor baseline × 1.5 を閾値、b=0 中立、Bayes 更新)。`finalize-session.ts` で全ゲームから θ_s 更新、`getLatestMotorBaselineMs` 追加。テスト 8件追加 → 21/21 緑
 
 - [ ] **疲労曲線モデル化** (trials-per-round 設計の 100 点化)
   - 着手条件: 実運用データが蓄積してから (初回ベースライン 8 セッション以降)
