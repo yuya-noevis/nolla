@@ -145,6 +145,11 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   }
 
   return (
+    // Landscape phone (812×375) fit: do NOT use sm: (width ≥ 640 px)
+    // breakpoints to grow the layout — the phone crosses that breakpoint
+    // sideways but has only ~340 dvh once iOS Safari's URL bar is drawn.
+    // Everything is kept compact so header + building + footer fit in
+    // ~330 px vertically.
     <main
       className="h-dvh w-full flex flex-col relative transition-colors duration-500"
       style={{
@@ -152,12 +157,12 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       }}
     >
       {/* Header: Stars + Parent lock */}
-      <div className="flex items-center justify-between px-4 pt-2 shrink-0">
-        <div className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#DAA520">
+      <div className="flex items-center justify-between px-3 pt-1 shrink-0">
+        <div className="flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#DAA520">
             <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" />
           </svg>
-          <span className="text-lg font-bold text-white drop-shadow-sm">
+          <span className="text-base font-bold text-white drop-shadow-sm">
             {localStars}
           </span>
         </div>
@@ -165,7 +170,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         <button
           type="button"
           onClick={() => router.push("/pin")}
-          className="touch-target flex items-center justify-center w-12 h-12 rounded-full bg-white/10"
+          className="touch-target flex items-center justify-center w-10 h-10 rounded-full bg-white/10"
           aria-label="Parent menu"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2">
@@ -182,10 +187,10 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           <button
             type="button"
             onClick={goLeft}
-            className="touch-target absolute left-2 z-10 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full btn-mc"
+            className="touch-target absolute left-2 z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
             aria-label="Previous"
           >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
@@ -195,10 +200,10 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         <button
           type="button"
           onClick={() => handleBuildingTap(current)}
-          className="flex flex-col items-center gap-4 transition-transform duration-300 active:scale-95"
+          className="flex flex-col items-center gap-2 transition-transform duration-300 active:scale-95"
         >
           <BuildingVisual building={current} />
-          <span className="text-lg font-bold text-white drop-shadow-md">
+          <span className="text-base font-bold text-white drop-shadow-md">
             {current.name}
           </span>
         </button>
@@ -208,10 +213,10 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           <button
             type="button"
             onClick={goRight}
-            className="touch-target absolute right-2 z-10 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full btn-mc"
+            className="touch-target absolute right-2 z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
             aria-label="Next"
           >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
@@ -219,22 +224,22 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       </div>
 
       {/* Footer: Dots + Nav character + My Room */}
-      <div className="flex items-end justify-between px-4 pb-2 shrink-0">
+      <div className="flex items-center justify-between gap-2 px-3 pb-1 shrink-0">
         {/* My Room button */}
         <button
           type="button"
           onClick={() => router.push("/room")}
-          className="btn-mc px-3 py-2 text-xs sm:px-5 sm:py-3 sm:text-sm"
+          className="btn-mc px-3 py-1.5 text-xs shrink-0"
         >
           マイルーム
         </button>
 
         {/* Dot indicators */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 shrink-0">
           {buildings.map((_, i) => (
             <div
               key={i}
-              className={`w-3 h-3 rounded-full transition-opacity ${
+              className={`w-2.5 h-2.5 rounded-full transition-opacity ${
                 i === currentIndex
                   ? "bg-white/90"
                   : "bg-white/30"
@@ -244,8 +249,8 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         </div>
 
         {/* Navi character */}
-        <div className="navi-bubble px-3 py-1 max-w-36 sm:max-w-48">
-          <p className="text-xs sm:text-sm text-nolla-text">
+        <div className="navi-bubble px-2 py-1 max-w-36 shrink-0">
+          <p className="text-xs text-nolla-text truncate">
             {childName}、あそぼう！
           </p>
         </div>
@@ -255,37 +260,47 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 }
 
 function BuildingVisual({ building }: { building: Building }) {
-  // CSS-only building placeholder (images will be swapped in later)
+  // Compact-everywhere building visual. Landscape phone (812×375) has
+  // ~340 dvh once the Safari URL bar is drawn; the header + footer +
+  // building + name label must all fit vertically, which a previous
+  // sm:w-48 sm:h-56 variant (192×224) did not. Fixed at 120×140 so the
+  // full home screen is always visible without scrolling.
   return (
-    <div className="w-28 h-32 sm:w-48 sm:h-56 relative flex items-end justify-center">
+    <div className="relative flex items-end justify-center" style={{ width: 120, height: 140 }}>
       {/* Building body */}
-      <div className="w-24 h-28 sm:w-40 sm:h-44 rounded-t-2xl relative overflow-hidden"
+      <div
+        className="rounded-t-2xl relative overflow-hidden"
         style={{
+          width: 104,
+          height: 116,
           background: `linear-gradient(135deg, var(--color-mc-oak-light) 0%, var(--color-mc-oak) 100%)`,
           border: "3px solid var(--color-mc-dark-oak)",
-          boxShadow: "0 8px 0 var(--color-mc-dark-oak-light)",
+          boxShadow: "0 6px 0 var(--color-mc-dark-oak-light)",
         }}
       >
         {/* Windows */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex gap-3">
-          <div className="w-8 h-10 rounded-t-lg" style={{ background: "var(--color-mc-glass)" }} />
-          <div className="w-8 h-10 rounded-t-lg" style={{ background: "var(--color-mc-glass)" }} />
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="w-7 h-8 rounded-t-lg" style={{ background: "var(--color-mc-glass)" }} />
+          <div className="w-7 h-8 rounded-t-lg" style={{ background: "var(--color-mc-glass)" }} />
         </div>
         {/* Door */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-16 rounded-t-lg"
-          style={{ background: "var(--color-mc-dark-oak)" }}
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-t-lg"
+          style={{ width: 36, height: 48, background: "var(--color-mc-dark-oak)" }}
         />
         {/* Glowstone light */}
-        <div className="absolute top-2 right-3 w-4 h-4 rounded-sm"
+        <div
+          className="absolute top-2 right-2 w-3 h-3 rounded-sm"
           style={{ background: "var(--color-mc-glowstone)", boxShadow: "0 0 8px rgba(218,165,32,0.5)" }}
         />
       </div>
       {/* Roof */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0"
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0"
         style={{
-          borderLeft: "88px solid transparent",
-          borderRight: "88px solid transparent",
-          borderBottom: `48px solid var(--color-mc-stone)`,
+          borderLeft: "60px solid transparent",
+          borderRight: "60px solid transparent",
+          borderBottom: `36px solid var(--color-mc-stone)`,
         }}
       />
     </div>
