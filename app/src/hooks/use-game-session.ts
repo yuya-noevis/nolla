@@ -15,6 +15,7 @@ import {
 } from "@/lib/session/session-state";
 import { calculateMotorBaseline } from "@/lib/session/motor-baseline";
 import { shouldAdvanceCriterion } from "@/lib/staircase/criterion";
+import { clampParams } from "@/lib/staircase/clamp";
 import type { SortingParams, SortingCriterion } from "@/types/domain";
 import {
   persistSessionStart,
@@ -111,7 +112,10 @@ function loadLastParams(
   try {
     const raw = localStorage.getItem(LAST_PARAMS_KEY(childId, gameType));
     if (!raw) return null;
-    return JSON.parse(raw) as DifficultyParams;
+    // Clamp restored params to the *current* limits so values written
+    // under older clamp ranges (e.g. sorting items=15 before the
+    // 2026-04-08 cap of 10) are forced back into bounds on load.
+    return clampParams(gameType, JSON.parse(raw) as DifficultyParams);
   } catch {
     return null;
   }

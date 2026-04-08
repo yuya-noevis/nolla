@@ -77,3 +77,25 @@ export function clampCorsiBlock(params: CorsiBlockParams): CorsiBlockParams {
     displayMs: clampValue(params.displayMs, CORSI_BLOCK_LIMITS.displayMs.min, CORSI_BLOCK_LIMITS.displayMs.max),
   };
 }
+
+/**
+ * Normalize any difficulty params to the current clamp limits.
+ * Used when restoring from localStorage (loadLastParams), so that stale
+ * values written under older clamp ranges (e.g. items=15 before the
+ * 2026-04-08 cap of 10) are forced back into bounds on load.
+ */
+export function clampParams<T extends MemoryMatchParams | SortingParams | VisualSearchParams | CorsiBlockParams>(
+  gameType: "memory-match" | "sorting" | "visual-search" | "corsi-block",
+  params: T
+): T {
+  switch (gameType) {
+    case "memory-match":
+      return clampMemoryMatch(params as MemoryMatchParams) as T;
+    case "sorting":
+      return clampSorting(params as SortingParams) as T;
+    case "visual-search":
+      return clampVisualSearch(params as VisualSearchParams) as T;
+    case "corsi-block":
+      return clampCorsiBlock(params as CorsiBlockParams) as T;
+  }
+}
