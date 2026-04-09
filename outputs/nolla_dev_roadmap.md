@@ -49,13 +49,15 @@ Phase 3: データ + 磨き込み ............... NOT STARTED
 5. **ベースライン期間**: NCI非表示。ゲーム結果・成績表示はOK
 6. **パラメータ上限拡張**: 神経衰弱24ペア、視覚探索25アイテム/7違い。レベルMax=定型発達レベル
 
-### 次のアクション
-1. **1-C**: メイン画面（M1カルーセル、M3チュートリアル、M4ゲームフレーム）
-2. **1-D（残り）**: 4ゲームのUI実装（生成ロジック+Staircaseは完了済み）
+### 次のアクション（2026-04-10更新）
 
-**方針変更（2026-04-05）**: ビジュアルデザイン（建物画像・モック）は後回し。
-見た目はCSS/画像差し替えで後から簡単に変えられるが、操作方式・ゲームロジック・画面構造は後から変えるとコスト大。
-よって中身（ゲームメカニクス・UX・データ設計）を先に固める。
+Phase 1 コア実装は全項目DONE。監査P1〜P3完了。残る未決事項：
+
+1. **Phase 0-B-1 建物デザインスタイル最終決定**（Yuya判断待ち、停止中）
+2. **Phase 2 詳細化**（現在「NOT STARTED」。方向性定義が必要）
+3. **デザイン決定後**: 建物画像・キャラクター画像の差し替え
+
+**方針（2026-04-05から継続）**: 画像・建物デザインは差し替え可能なため、ロジック・画面構造を先に固める戦略で Phase 1 を完了した。
 
 ---
 
@@ -173,29 +175,29 @@ M1のデザインが固まった後、世界観を統一して全画面のモッ
 
 | # | タスク | 状態 | 備考 |
 |---|--------|------|------|
-| 1 | S1 スプラッシュ画面 | NOT STARTED | ロゴ+ナビキャラアニメ（3秒） |
-| 2 | S2 アカウント作成 | NOT STARTED | Supabase Auth連携 |
-| 3 | S3-a〜S3-d アセスメントフロー | NOT STARTED | 1画面1質問、プログレスバー |
-| 4 | S4 同意取得 | NOT STARTED | |
-| 5 | S5 端末引き渡し | NOT STARTED | 横向き図解 |
-| 6 | S6 音声認識ON/OFF | NOT STARTED | |
+| 1 | S1 スプラッシュ画面 | DONE | src/app/page.tsx、ロゴ+フェードイン3秒 |
+| 2 | S2 アカウント作成 | DONE | Supabase Auth連携（src/app/auth/） |
+| 3 | S3-a〜S3-d アセスメントフロー | DONE | onboarding/assessment/steps 9ステップ |
+| 4 | S4 同意取得 | DONE | step-consent.tsx |
+| 5 | S5 端末引き渡し | DONE | step-handover.tsx |
+| 6 | S6 音声認識ON/OFF | DONE | step-voice-setting.tsx |
 
 ### 1-C. メイン画面（M1, M3, M4）
 
 | # | タスク | 状態 | 備考 |
 |---|--------|------|------|
-| 1 | M1 ホーム画面（カルーセル） | NOT STARTED | 矢印+スワイプ両対応。建物はCSS/SVGで仮実装 |
-| 2 | M3 チュートリアル（文字なし） | NOT STARTED | 4段階プロンプティング削減法 |
-| 3 | M4 ゲームプレイ共通フレーム | NOT STARTED | ヘッダー/フッター/ナビキャラ |
+| 1 | M1 ホーム画面（カルーセル） | DONE | src/app/home/carousel.tsx、4建物カルーセル |
+| 2 | M3 チュートリアル（文字なし） | DONE | src/components/game/tutorial-overlay.tsx、4段階プロンプティング削減法 |
+| 3 | M4 ゲームプレイ共通フレーム | DONE | src/app/game/[gameType]/game-session.tsx |
 
 ### 1-D. 4ゲーム実装
 
 | # | タスク | 状態 | 備考 |
 |---|--------|------|------|
-| 1 | 神経衰弱（Memory Match） | NOT STARTED | 0-D-1/0-D-2準拠 |
-| 2 | 分類ソーティング（Sorting） | NOT STARTED | 前提能力チェック連動 |
-| 3 | 視覚探索（Visual Search） | NOT STARTED | SVG自動生成（Band A-C） |
-| 4 | Corsi Block | NOT STARTED | 不規則配置生成 |
+| 1 | 神経衰弱（Memory Match） | DONE | src/components/game/memory-match/ |
+| 2 | 分類ソーティング（Sorting） | DONE | src/components/game/sorting/ |
+| 3 | 視覚探索（Visual Search） | DONE | src/components/game/visual-search/ |
+| 4 | Corsi Block | DONE | src/components/game/corsi-block/ |
 | 5 | Staircaseエンジン（共通） | DONE | 0-D-2の共通ロジック。純粋関数。29テストpass。カバレッジ94%+ |
 | 6 | NCI計算エンジン（共通） | DONE | 0-D-5のIRT 2PL+ベイズ更新+DDM簡易版。25テストpass。カバレッジ100% |
 | 7 | TypeScript型定義 | DONE | domain.ts/user.ts/scoring.ts。0-D-3準拠。readonly付きドメイン型 |
@@ -228,7 +230,7 @@ M1のデザインが固まった後、世界観を統一して全画面のモッ
 |---|--------|------|------|
 | 1 | U1 休憩提案画面 | DONE | 夜空+月のビジュアル。アイコ���のみ2ボタン。提案型（強制ロックなし） |
 | 2 | オフライン対応 | DONE | use-offline.ts(フック)+queue.ts(イミュータブルキュー6テスト)+storage.ts(localStorage)+offline-banner.tsx |
-| 3 | ブランク復帰処理 | NOT STARTED | 14日以上で反転カウンタリセット |
+| 3 | ブランク復帰処理 | DONE | src/lib/session/blank-return.ts（14日以上で反転カウンタリセット） |
 | 4 | レスポンシブ対応 | DONE | iPhone横向き(max-height:500px)+大画面(min-width:1400px)+タッチターゲット維持 |
 | 5 | E2Eテスト | DONE | critical-flow.spec.ts(8テスト)+responsive.spec.ts(5テスト) Playwright iPad Landscape |
 | 6 | デプロイ準備 | DONE | PWA(manifest.json+sw.js+アイコン)+next.config.ts(セキュリティヘッダー)+.env.example+.gitignore+README.md |
@@ -316,4 +318,6 @@ M1のデザインが固まった後、世界観を統一して全画面のモッ
 | 2026-04-06 | UX改善 | motor baseline→ホーム画面ウォームアップに移動(1日1回/スタートボタン)、ソーティング文字なし化(色箱)、スター報酬統一(正解率ベース3/2/1)、神経衰弱スター公平化(探索コスト考慮)、ラウンド表示→ドットインジケーター(文字なし)、ナビキャラMVP非表示、スター累計localStorage保存、間違い探し左右両パネルタップ対応 |
 | 2026-04-07 | 難度調整・スコアリング・データ収集の重大バグ修正 | (1)Sorting/VisualSearch/Corsiが`DEFAULT_PARAMS`をハードコードし`currentParams`を完全無視→props経由化+ラウンド毎に再生成。(2)`completeRound`が`roundConsecutiveCorrect`(毎ラウンドリセット)を使用→累積`state.consecutiveCorrect`へ変更、UP/DOWN発火時のみリセット。(3)最終ラウンドのStaircaseが呼ばれていない→`endSession`で最終`completeRound`を実行。(4)`persistSessionStart/Round/Trial/End`関数が定義済みだが**どこからも呼ばれず全データSupabase保存ゼロ**→`useGameSession`から全wire完了。(5)セッション間パラメータ復元なし→localStorage `nolla_last_params_<childId>_<gameType>`で永続化。(6)神経衰弱初期`pairs:3→2`(Jade ND等の重度向け参照値、4枚スタート)、Corsi `seqLength:3→2`。(7)`setState`updater内副作用によるReactエラー修正。Playwright実機検証で`pairs:2→3`への自動上昇を確認。211テストpass、ビルド成功 |
 | 2026-04-07 | ドキュメント整理(別エージェント実施) | DEPRECATED 59ファイルを`outputs/_archive/`へ移動(git mv)、ACTIVE 26ファイルに統一YAMLヘッダ追加、`outputs/INDEX.md`新規作成(11カテゴリ+Phase 0必読4ファイル明示)、`CLAUDE.md`に参照ルール追加 |
+| 2026-04-10 | ロードマップ実装状態を最新化 | 表の1-B/1-C/1-D/1-G#3 を NOT STARTED→DONE に訂正。実装は2026-04-06時点で完了済みだが表のみ古かった。実コード(src/app/, src/components/game/, src/lib/session/blank-return.ts)で全項目実在確認 |
+| 2026-04-10 | 品質監査P1〜P3対応完了 | P1-1: npm audit fix(vite CVE解消)。P1-2: RLS `auth.uid()`→`(select auth.uid())`全16ポリシー書換(初期化プラン問題解消)。P2-1: FKカバリングインデックス13件追加。P2-2: update_updated_at関数 search_path固定。P3-1: Leaked Password Protection有効化(Dashboard)。P3-2: Auth DB接続をPercentage方式に変更(Dashboard)。Supabase advisor全クリーン(残INFOは新規index未使用のみ) |
 | 2026-04-07 | 設計ルール仕分け | `nolla_design_rules_asd_research.md`を`_archive/`へ移動(現運用と矛盾する旧厳格ルール多数)、`.claude/rules/common/nolla-mvp-design.md`の「絶対禁止事項」を「設計境界(必ず守る)+運用目安(状況で判断)」の2階層に再構成、白背景/6個以上情報/100%ゲージを緩和、蛍光色表現を「彩度の高い色は小面積・短時間アクセントに限定」に変更、`nolla_game_implementation_guide.md`も同様に再構成、INDEX.mdから旧ファイル削除 |
