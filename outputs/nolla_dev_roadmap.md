@@ -1,13 +1,13 @@
 ---
 STATUS: ACTIVE
-LAST_UPDATED: 2026-04-07
+LAST_UPDATED: 2026-04-10
 PURPOSE: 開発ロードマップ・進捗管理
 RELATED: nolla_mvp_design_spec_v3.md,nolla_ia_design_v3.md,nolla_nci_algorithm_design.md
 ---
 
 # Nolla MVP 開発ロードマップ
 
-**最終更新**: 2026-04-06
+**最終更新**: 2026-04-10
 **更新者**: Claude（開発リード）
 **参照仕様**: outputs/nolla_ia_design_v3.md, outputs/nolla_mvp_design_spec_v3.md
 **必読**: outputs/nolla_nci_algorithm_design.md（NCIスコアリングシステム）— データ設計・適応型難度調整・保護者画面の設計前に必ず読むこと
@@ -233,6 +233,32 @@ M1のデザインが固まった後、世界観を統一して全画面のモッ
 | 5 | E2Eテスト | DONE | critical-flow.spec.ts(8テスト)+responsive.spec.ts(5テスト) Playwright iPad Landscape |
 | 6 | デプロイ準備 | DONE | PWA(manifest.json+sw.js+アイコン)+next.config.ts(セキュリティヘッダー)+.env.example+.gitignore+README.md |
 
+### 1-H. AACミニ（発語なし向け、5-7日） [IN PROGRESS — ロジック層DONE]
+
+| # | タスク | 状態 | 備考 |
+|---|--------|------|------|
+| 1 | データ構造 | DONE（2026-04-10） | lib/aac/vocabulary.ts: 20語定義（たべもの8/きもち6/どうさ6）、型定義 |
+| 1b | 純粋関数層 | DONE（2026-04-10） | lib/aac/selection.ts（カテゴリ/ID検索）, lib/aac/tapHistory.ts（集計）。全テストpass |
+| 2 | UI: カード選択画面 | NOT STARTED | 3カテゴリタブ + 6-8個カード/タブ、タップで音声再生、視覚フィードバック（デザイン確定待ち） |
+| 3 | UI: ステージ管理 | NOT STARTED | Stage 1のみ実装（1シンボルタップ → 音声出力） |
+| 4 | 音声出力: Web Speech API | DONE（2026-04-10） | lib/aac/speech.ts: SpeechSynthesizer抽象+WebSpeechSynthesizer+Mock、20テストpass |
+| 5 | DBマイグレーション | DONE（2026-04-10） | 20260410000001_create_st_mini_tables.sql: aac_taps テーブル+RLS |
+| 6 | Repository層（Supabase I/O） | NOT STARTED | saveAacTap/getAacTapsByChild等。UI実装と同時に |
+| 7 | テスト + 実機検証 | NOT STARTED | Playwright E2E（カード選択フロー、音声再生） |
+
+### 1-I. 音声模倣ミニ（母音練習、3-5日） [IN PROGRESS — ロジック層DONE]
+
+| # | タスク | 状態 | 備考 |
+|---|--------|------|------|
+| 1 | データ構造 + 状態機械 | DONE（2026-04-10） | lib/vowel/stateMachine.ts: 5母音（あいうえお）ステートマシン、22テストpass |
+| 1b | 画像素材 | NOT STARTED | 静止画5パターン、AI生成→リファレンスサイト参照（デザイン確定待ち） |
+| 2 | UI: 母音選択 + 実行画面 | NOT STARTED | 母音ボタン表示、対応画像表示、親タップボタン |
+| 3 | 親タップ方式 | NOT STARTED | 音声認識なし。親がお手本再生 → 子どもが模倣 → 親がタップ判定 |
+| 4 | フィードバック | NOT STARTED | 正解: スター獲得アニメ。不正解: サイレント再提示 |
+| 5 | DBマイグレーション | DONE（2026-04-10） | 20260410000001_create_st_mini_tables.sql: vowel_attempts テーブル+RLS |
+| 6 | Repository層（Supabase I/O） | NOT STARTED | saveVowelAttempt等。UI実装と同時に |
+| 7 | テスト + 実機検証 | NOT STARTED | Playwright（親タップフロー、スター獲得確認） |
+
 ---
 
 ## Phase 2: コンテンツ + AI [NOT STARTED]
@@ -273,6 +299,9 @@ M1のデザインが固まった後、世界観を統一して全画面のモッ
 | 2026-04-06 | 1-A-3 Supabaseスキーマ完了 | 3マイグレーション（認証/ゲームプレイ/NCI・センサー・報酬）。12テーブル+RLS+CHECK制約+updated_atトリガー。0-D-3設計書完全準拠 |
 | 2026-04-06 | 1-D-5,6,7 完了: 型定義+Staircase+NCI | TypeScript型定義（domain/user/scoring）、Staircaseエンジン（可変ステップ+IQ帯��N+4ゲーム調整+クランプ）、NCI計算エンジン（IRT 2PL+ベイズ更新+DDM簡易版+b算出+4軸統合）。全97テストpass。カバレッジ95%+ |
 | 2026-04-06 | 1-A-4 認証フロー完了 | Supabase SSR 3クライアント（browser/server/middleware）、OAuth（Apple/Google）、email signup/signin、ミドルウェアでルート保護、コールバックRoute。ビルド成功 |
+| 2026-04-10 | ST Mini Phase 1追加決定 | AAC Mini（20語/3カテゴリ/Stage1）+母音模倣ミニ（あいうえお5音/親タップ方式）をPhase 2→Phase 1前倒し。「育つアプリ」としての保護者アピール。設計書v3・IA v3・AAC語彙データ作成 |
+| 2026-04-10 | 1-H/1-I ロジック層 DONE | lib/aac/（vocabulary/selection/tapHistory/speech）、lib/vowel/stateMachine、マイグレーション20260410000001（aac_taps/vowel_attempts+RLS）。全521テストpass。UI層はデザイン確定後 |
+| 2026-04-10 | staircase.test.ts 既存型エラー修正 | DifficultyParams union型の11箇所を (x as XxxParams).field パターンで修正。同ファイル内の既存パターンに統一。本体コード無変更、49/49テストpass、全521テスト回帰なし |
 | 2026-04-06 | Phase 1-A 全完了 | プロジェクト基盤5タスク全てDONE。次は1-B（初回起動フロー） |
 | 2026-04-06 | 1-D-8,9 完了: ゲーム生成+セッション管理 | 4ゲームコンテンツ生成（memory-match/sorting/visual-search/corsi-block）+セッション管理（状態マシン/異常検出/運動ベースライン）。全149テストpass。カバレッジ96%+ |
 | 2026-04-06 | 1-F 完了: 親向け画面P1-P5 | PIN認証(4桁/設定/照合)、今日の記録(プレイ時間/スター/ゲーム別)、成長の記録(ベースライン3段階UI)、AIサポート(プレースホルダー)、設定(プロフィール完了率10項目+サインアウト)。共通layout(タブバー4タブ)。queries.ts+profile-completion.ts。全187テストpass。ビルド成功 |
