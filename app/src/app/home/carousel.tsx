@@ -157,7 +157,14 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       }}
     >
       {/* Header: Stars + Parent lock */}
-      <div className="flex items-center justify-between px-3 pt-1 shrink-0">
+      <div
+        className="flex items-center justify-between px-3 pt-1 shrink-0"
+        style={{
+          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+          paddingTop: "max(0.25rem, env(safe-area-inset-top))",
+        }}
+      >
         <div className="flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#DAA520">
             <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" />
@@ -187,7 +194,8 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           <button
             type="button"
             onClick={goLeft}
-            className="touch-target absolute left-2 z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
+            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
+            style={{ left: "max(0.5rem, env(safe-area-inset-left))" }}
             aria-label="Previous"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
@@ -213,7 +221,8 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           <button
             type="button"
             onClick={goRight}
-            className="touch-target absolute right-2 z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
+            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
+            style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}
             aria-label="Next"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
@@ -224,7 +233,14 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       </div>
 
       {/* Footer: Dots + Nav character + My Room */}
-      <div className="flex items-center justify-between gap-2 px-3 pb-1 shrink-0">
+      <div
+        className="flex items-center justify-between gap-2 px-3 pb-1 shrink-0"
+        style={{
+          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+          paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
+        }}
+      >
         {/* My Room button */}
         <button
           type="button"
