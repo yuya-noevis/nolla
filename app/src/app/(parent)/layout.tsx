@@ -26,8 +26,13 @@ export default function ParentLayout({
     <div className="flex h-full flex-col bg-nolla-bg">
       {/* Header */}
       <header
-        className="flex items-center justify-between px-6 py-3"
-        style={{ background: "rgba(255,255,255,0.95)" }}
+        className="flex items-center justify-between py-3"
+        style={{
+          background: "rgba(255,255,255,0.95)",
+          paddingLeft: "max(1.5rem, env(safe-area-inset-left))",
+          paddingRight: "max(1.5rem, env(safe-area-inset-right))",
+          paddingTop: "max(0.75rem, env(safe-area-inset-top))",
+        }}
       >
         <h1 className="text-lg font-bold text-nolla-text">保護者メニュー</h1>
         <Link
@@ -39,14 +44,25 @@ export default function ParentLayout({
       </header>
 
       {/* Content */}
-      <main className="flex-1 overflow-y-auto px-6 py-4">{children}</main>
+      <main
+        className="flex-1 overflow-y-auto py-4"
+        style={{
+          paddingLeft: "max(1.5rem, env(safe-area-inset-left))",
+          paddingRight: "max(1.5rem, env(safe-area-inset-right))",
+        }}
+      >
+        {children}
+      </main>
 
       {/* Tab Bar */}
       <nav
-        className="flex border-t px-2 py-2"
+        className="flex border-t py-2"
         style={{
           background: "rgba(255,255,255,0.95)",
           borderColor: "var(--color-parent-card-border)",
+          paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.5rem, env(safe-area-inset-right))",
+          paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))",
         }}
       >
         {TABS.map((tab) => {
