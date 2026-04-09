@@ -104,7 +104,7 @@ describe("calculateNextDifficulty — memory-match", () => {
     const result = calculateNextDifficulty(
       "memory-match", baseParams, roundResult, baseState, "B2"
     );
-    expect(result.params.pairs).toBeGreaterThan(baseParams.pairs);
+    expect((result.params as MemoryMatchParams).pairs).toBeGreaterThan(baseParams.pairs);
     expect(result.state.lastDirection).toBe("up");
   });
 
@@ -119,7 +119,7 @@ describe("calculateNextDifficulty — memory-match", () => {
       "memory-match", baseParams, roundResult, baseState, "B2"
     );
     // DOWN: reverse priority — card_size first (priority 4 reversed)
-    expect(result.params.cardSize).toBeGreaterThan(baseParams.cardSize);
+    expect((result.params as MemoryMatchParams).cardSize).toBeGreaterThan(baseParams.cardSize);
     expect(result.state.lastDirection).toBe("down");
   });
 
@@ -190,7 +190,7 @@ describe("calculateNextDifficulty — memory-match", () => {
     const result = calculateNextDifficulty(
       "memory-match", maxParams, roundResult, baseState, "B2"
     );
-    expect(result.params.pairs).toBeLessThanOrEqual(24);
+    expect((result.params as MemoryMatchParams).pairs).toBeLessThanOrEqual(24);
   });
 
   it("clamps pairs to MIN 2", () => {
@@ -209,7 +209,7 @@ describe("calculateNextDifficulty — memory-match", () => {
     const result = calculateNextDifficulty(
       "memory-match", minParams, roundResult, baseState, "B2"
     );
-    expect(result.params.pairs).toBeGreaterThanOrEqual(2);
+    expect((result.params as MemoryMatchParams).pairs).toBeGreaterThanOrEqual(2);
   });
 });
 
@@ -240,7 +240,7 @@ describe("calculateNextDifficulty — sorting", () => {
     const result = calculateNextDifficulty(
       "sorting", baseParams, roundResult, baseState, "C1"
     );
-    expect(result.params.items).toBeGreaterThan(baseParams.items);
+    expect((result.params as SortingParams).items).toBeGreaterThan(baseParams.items);
   });
 });
 
@@ -270,7 +270,7 @@ describe("calculateNextDifficulty — visual-search", () => {
     const result = calculateNextDifficulty(
       "visual-search", baseParams, roundResult, baseState, "E1"
     );
-    expect(result.params.sceneItems).toBeGreaterThan(baseParams.sceneItems);
+    expect((result.params as VisualSearchParams).sceneItems).toBeGreaterThan(baseParams.sceneItems);
   });
 });
 
@@ -300,7 +300,7 @@ describe("calculateNextDifficulty — corsi-block", () => {
     const result = calculateNextDifficulty(
       "corsi-block", baseParams, roundResult, baseState, "E1"
     );
-    expect(result.params.seqLength).toBe(4);
+    expect((result.params as CorsiBlockParams).seqLength).toBe(4);
   });
 
   it("decreases seq_length by -1 on DOWN (reverse priority)", () => {
@@ -316,7 +316,7 @@ describe("calculateNextDifficulty — corsi-block", () => {
     const result = calculateNextDifficulty(
       "corsi-block", baseParams, roundResult, baseState, "E1"
     );
-    expect(result.params.displayMs).toBeGreaterThan(baseParams.displayMs);
+    expect((result.params as CorsiBlockParams).displayMs).toBeGreaterThan(baseParams.displayMs);
     expect(result.state.lastDirection).toBe("down");
   });
 
@@ -335,7 +335,7 @@ describe("calculateNextDifficulty — corsi-block", () => {
     const result = calculateNextDifficulty(
       "corsi-block", maxParams, roundResult, baseState, "E1"
     );
-    expect(result.params.seqLength).toBeLessThanOrEqual(9);
+    expect((result.params as CorsiBlockParams).seqLength).toBeLessThanOrEqual(9);
   });
 });
 
@@ -366,7 +366,7 @@ describe("calculateNextDifficulty — sorting (extended)", () => {
       "sorting", params, roundResult, baseState, "C1"
     );
     // items can't go above 15, so categories should increase
-    expect(result.params.categories).toBe(4);
+    expect((result.params as SortingParams).categories).toBe(4);
   });
 
   it("UP: advances switching when categories maxed", () => {
@@ -385,7 +385,7 @@ describe("calculateNextDifficulty — sorting (extended)", () => {
     const result = calculateNextDifficulty(
       "sorting", params, roundResult, baseState, "C1"
     );
-    expect(result.params.switching).toBe("between_rounds");
+    expect((result.params as SortingParams).switching).toBe("between_rounds");
   });
 
   it("DOWN: regresses switching first", () => {
@@ -404,7 +404,7 @@ describe("calculateNextDifficulty — sorting (extended)", () => {
     const result = calculateNextDifficulty(
       "sorting", params, roundResult, baseState, "C1"
     );
-    expect(result.params.switching).toBe("between_rounds");
+    expect((result.params as SortingParams).switching).toBe("between_rounds");
   });
 
   it("DOWN: decreases categories when switching is already none", () => {
@@ -423,7 +423,7 @@ describe("calculateNextDifficulty — sorting (extended)", () => {
     const result = calculateNextDifficulty(
       "sorting", params, roundResult, baseState, "C1"
     );
-    expect(result.params.categories).toBe(3);
+    expect((result.params as SortingParams).categories).toBe(3);
   });
 
   it("DOWN: decreases items when switching=none and categories=2", () => {
@@ -442,7 +442,7 @@ describe("calculateNextDifficulty — sorting (extended)", () => {
     const result = calculateNextDifficulty(
       "sorting", params, roundResult, baseState, "C1"
     );
-    expect(result.params.items).toBeLessThan(8);
+    expect((result.params as SortingParams).items).toBeLessThan(8);
   });
 });
 
@@ -471,7 +471,7 @@ describe("calculateNextDifficulty — visual-search (extended)", () => {
     const result = calculateNextDifficulty(
       "visual-search", params, roundResult, baseState, "E1"
     );
-    expect(result.params.diffSubtlety).toBeGreaterThan(30);
+    expect((result.params as VisualSearchParams).diffSubtlety).toBeGreaterThan(30);
   });
 
   it("UP: increases diff_count when sceneItems and subtlety maxed", () => {
@@ -489,7 +489,7 @@ describe("calculateNextDifficulty — visual-search (extended)", () => {
     const result = calculateNextDifficulty(
       "visual-search", params, roundResult, baseState, "E1"
     );
-    expect(result.params.diffCount).toBe(4);
+    expect((result.params as VisualSearchParams).diffCount).toBe(4);
   });
 
   it("DOWN: decreases diff_count first", () => {
@@ -507,7 +507,7 @@ describe("calculateNextDifficulty — visual-search (extended)", () => {
     const result = calculateNextDifficulty(
       "visual-search", params, roundResult, baseState, "E1"
     );
-    expect(result.params.diffCount).toBe(2);
+    expect((result.params as VisualSearchParams).diffCount).toBe(2);
   });
 
   it("DOWN: decreases subtlety when diff_count at min", () => {
@@ -525,7 +525,7 @@ describe("calculateNextDifficulty — visual-search (extended)", () => {
     const result = calculateNextDifficulty(
       "visual-search", params, roundResult, baseState, "E1"
     );
-    expect(result.params.diffSubtlety).toBeLessThan(50);
+    expect((result.params as VisualSearchParams).diffSubtlety).toBeLessThan(50);
   });
 
   it("DOWN: decreases sceneItems when all else at min", () => {
@@ -543,7 +543,7 @@ describe("calculateNextDifficulty — visual-search (extended)", () => {
     const result = calculateNextDifficulty(
       "visual-search", params, roundResult, baseState, "E1"
     );
-    expect(result.params.sceneItems).toBeLessThan(10);
+    expect((result.params as VisualSearchParams).sceneItems).toBeLessThan(10);
   });
 });
 
@@ -572,7 +572,7 @@ describe("calculateNextDifficulty — corsi-block (extended)", () => {
     const result = calculateNextDifficulty(
       "corsi-block", params, roundResult, baseState, "E1"
     );
-    expect(result.params.blocks).toBeGreaterThan(8);
+    expect((result.params as CorsiBlockParams).blocks).toBeGreaterThan(8);
   });
 
   it("UP: decreases displayMs when seqLength and blocks maxed", () => {
@@ -590,7 +590,7 @@ describe("calculateNextDifficulty — corsi-block (extended)", () => {
     const result = calculateNextDifficulty(
       "corsi-block", params, roundResult, baseState, "E1"
     );
-    expect(result.params.displayMs).toBeLessThan(1000);
+    expect((result.params as CorsiBlockParams).displayMs).toBeLessThan(1000);
   });
 
   it("DOWN: decreases blocks when displayMs maxed", () => {
@@ -608,7 +608,7 @@ describe("calculateNextDifficulty — corsi-block (extended)", () => {
     const result = calculateNextDifficulty(
       "corsi-block", params, roundResult, baseState, "E1"
     );
-    expect(result.params.blocks).toBeLessThan(8);
+    expect((result.params as CorsiBlockParams).blocks).toBeLessThan(8);
   });
 
   it("DOWN: decreases seqLength when blocks and displayMs at limits", () => {
@@ -626,7 +626,7 @@ describe("calculateNextDifficulty — corsi-block (extended)", () => {
     const result = calculateNextDifficulty(
       "corsi-block", params, roundResult, baseState, "E1"
     );
-    expect(result.params.seqLength).toBe(4);
+    expect((result.params as CorsiBlockParams).seqLength).toBe(4);
   });
 });
 
@@ -656,7 +656,7 @@ describe("calculateNextDifficulty — memory-match (extended)", () => {
     const result = calculateNextDifficulty(
       "memory-match", params, roundResult, baseState, "B2"
     );
-    expect(result.params.similarity).toBeGreaterThan(50);
+    expect((result.params as MemoryMatchParams).similarity).toBeGreaterThan(50);
   });
 
   it("UP: decreases flipDelay when pairs and similarity maxed", () => {
@@ -675,7 +675,7 @@ describe("calculateNextDifficulty — memory-match (extended)", () => {
     const result = calculateNextDifficulty(
       "memory-match", params, roundResult, baseState, "B2"
     );
-    expect(result.params.flipDelay).toBeLessThan(1500);
+    expect((result.params as MemoryMatchParams).flipDelay).toBeLessThan(1500);
   });
 
   it("UP: decreases cardSize when all else maxed", () => {
@@ -694,7 +694,7 @@ describe("calculateNextDifficulty — memory-match (extended)", () => {
     const result = calculateNextDifficulty(
       "memory-match", params, roundResult, baseState, "B2"
     );
-    expect(result.params.cardSize).toBeLessThan(80);
+    expect((result.params as MemoryMatchParams).cardSize).toBeLessThan(80);
   });
 
   it("DOWN: increases flipDelay when cardSize maxed", () => {
@@ -713,7 +713,7 @@ describe("calculateNextDifficulty — memory-match (extended)", () => {
     const result = calculateNextDifficulty(
       "memory-match", params, roundResult, baseState, "B2"
     );
-    expect(result.params.flipDelay).toBeGreaterThan(1200);
+    expect((result.params as MemoryMatchParams).flipDelay).toBeGreaterThan(1200);
   });
 
   it("DOWN: decreases similarity when cardSize and flipDelay maxed", () => {
@@ -732,7 +732,7 @@ describe("calculateNextDifficulty — memory-match (extended)", () => {
     const result = calculateNextDifficulty(
       "memory-match", params, roundResult, baseState, "B2"
     );
-    expect(result.params.similarity).toBeLessThan(50);
+    expect((result.params as MemoryMatchParams).similarity).toBeLessThan(50);
   });
 
   it("DOWN: decreases pairs when all auxiliary params at limit", () => {
@@ -751,7 +751,7 @@ describe("calculateNextDifficulty — memory-match (extended)", () => {
     const result = calculateNextDifficulty(
       "memory-match", params, roundResult, baseState, "B2"
     );
-    expect(result.params.pairs).toBeLessThan(10);
+    expect((result.params as MemoryMatchParams).pairs).toBeLessThan(10);
   });
 });
 
