@@ -39,7 +39,15 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#4A7BA7" />
       </head>
-      <body className="h-dvh w-dvw overflow-hidden">
+      <body
+        className="h-dvh w-dvw overflow-hidden"
+        style={{
+          paddingLeft: "env(safe-area-inset-left)",
+          paddingRight: "env(safe-area-inset-right)",
+          paddingTop: "env(safe-area-inset-top)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
+      >
         {/* Portrait rotation prompt (mobile only) */}
         <div className="landscape-only fixed inset-0 z-50 flex-col items-center justify-center gap-6 bg-nolla-bg">
           <svg

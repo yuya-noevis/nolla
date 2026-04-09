@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getActiveChild, getStarBalance } from "@/lib/child/queries";
+import { InstallHint } from "@/components/install-hint";
 import { HomeCarousel } from "./carousel";
 
 export default async function HomePage() {
@@ -19,10 +20,13 @@ export default async function HomePage() {
   const starBalance = await getStarBalance(child.id);
 
   return (
-    <HomeCarousel
-      childName={child.display_name}
-      gamesEnabled={gamesEnabled}
-      starBalance={starBalance}
-    />
+    <>
+      <HomeCarousel
+        childName={child.display_name}
+        gamesEnabled={gamesEnabled}
+        starBalance={starBalance}
+      />
+      <InstallHint />
+    </>
   );
 }
