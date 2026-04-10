@@ -35,115 +35,86 @@ type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
 /**
- * Canvas warp transition — exact copy of mockup logic.
- * Key: canvas.width/height = fixed 1194x834 (no devicePixelRatio scaling).
- * CSS sizes it to 100%. This matches the mockup exactly.
+ * Launch warp animation by injecting Canvas directly into the DOM.
+ * Bypasses React lifecycle entirely (no useEffect, no Strict Mode double-run).
+ * Identical approach to wt.html which is proven to work on iOS Safari.
  */
-function WarpTransition({ onComplete }: { onComplete: () => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+function launchWarpAnimation(targetUrl: string): void {
+  // Create full-screen overlay
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:#000;";
+  document.body.appendChild(overlay);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const canvas = document.createElement("canvas");
+  canvas.width = 1194;
+  canvas.height = 834;
+  canvas.style.cssText = "width:100%;height:100%;display:block;";
+  overlay.appendChild(canvas);
 
-    // Fixed coordinate space — same as mockup. NO devicePixelRatio scaling.
-    const W = 1194;
-    const H = 834;
-    canvas.width = W;
-    canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    window.location.href = targetUrl;
+    return;
+  }
 
-    const cx = W / 2;
-    const cy = H / 2;
-    const stars: { angle: number; dist: number; speed: number; size: number; bright: number }[] = [];
-    for (let i = 0; i < 200; i++) {
-      stars.push({
-        angle: Math.random() * Math.PI * 2,
-        dist: Math.random() * 5,
-        speed: 2 + Math.random() * 6,
-        size: 0.5 + Math.random() * 1.5,
-        bright: 0.5 + Math.random() * 0.5,
-      });
+  const W = 1194, H = 834;
+  const cx = W / 2, cy = H / 2;
+  const stars: { angle: number; dist: number; speed: number; size: number; bright: number }[] = [];
+  for (let i = 0; i < 200; i++) {
+    stars.push({
+      angle: Math.random() * Math.PI * 2,
+      dist: Math.random() * 5,
+      speed: 2 + Math.random() * 6,
+      size: 0.5 + Math.random() * 1.5,
+      bright: 0.5 + Math.random() * 0.5,
+    });
+  }
+
+  let frame = 0;
+  let navigated = false;
+
+  function draw() {
+    ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx!.fillRect(0, 0, W, H);
+
+    const speedFrame = Math.min(frame, 70);
+    for (const s of stars) {
+      s.dist += s.speed * (1 + speedFrame / 20);
+      const x = cx + Math.cos(s.angle) * s.dist;
+      const y = cy + Math.sin(s.angle) * s.dist;
+      if (x < -10 || x > W + 10 || y < -10 || y > H + 10) {
+        s.dist = Math.random() * 3;
+        continue;
+      }
+      const tailLen = Math.min(s.dist * 0.3, 40);
+      const tx = x - Math.cos(s.angle) * tailLen;
+      const ty = y - Math.sin(s.angle) * tailLen;
+      const grad = ctx!.createLinearGradient(tx, ty, x, y);
+      grad.addColorStop(0, "transparent");
+      grad.addColorStop(1, `rgba(255,255,255,${s.bright})`);
+      ctx!.beginPath();
+      ctx!.moveTo(tx, ty);
+      ctx!.lineTo(x, y);
+      ctx!.strokeStyle = grad;
+      ctx!.lineWidth = s.size;
+      ctx!.stroke();
+      ctx!.beginPath();
+      ctx!.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
+      ctx!.fillStyle = `rgba(255,255,255,${s.bright})`;
+      ctx!.fill();
     }
 
-    let frame = 0;
-    let raf = 0;
-    let stopped = false;
-    let navigated = false;
-
-    function draw() {
-      if (stopped) return;
-      ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
-      ctx!.fillRect(0, 0, W, H);
-
-      // Cap frame counter at 70 for speed calculation (prevents overflow)
-      const speedFrame = Math.min(frame, 70);
-
-      for (const s of stars) {
-        s.dist += s.speed * (1 + speedFrame / 20);
-        const x = cx + Math.cos(s.angle) * s.dist;
-        const y = cy + Math.sin(s.angle) * s.dist;
-
-        if (x < -10 || x > W + 10 || y < -10 || y > H + 10) {
-          s.dist = Math.random() * 3;
-          continue;
-        }
-
-        const tailLen = Math.min(s.dist * 0.3, 40);
-        const tx = x - Math.cos(s.angle) * tailLen;
-        const ty = y - Math.sin(s.angle) * tailLen;
-
-        const grad = ctx!.createLinearGradient(tx, ty, x, y);
-        grad.addColorStop(0, "transparent");
-        grad.addColorStop(1, `rgba(255, 255, 255, ${s.bright})`);
-
-        ctx!.beginPath();
-        ctx!.moveTo(tx, ty);
-        ctx!.lineTo(x, y);
-        ctx!.strokeStyle = grad;
-        ctx!.lineWidth = s.size;
-        ctx!.stroke();
-
-        ctx!.beginPath();
-        ctx!.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(255, 255, 255, ${s.bright})`;
-        ctx!.fill();
-      }
-
-      frame++;
-
-      // Trigger navigation at frame 70, but KEEP ANIMATING
-      // Stars continue streaking until the browser replaces this page
-      if (frame === 70 && !navigated) {
-        navigated = true;
-        onCompleteRef.current();
-      }
-
-      // ALWAYS request next frame — animation runs until page unloads
-      raf = requestAnimationFrame(draw);
+    frame++;
+    if (frame === 70 && !navigated) {
+      navigated = true;
+      window.location.href = targetUrl;
     }
+    requestAnimationFrame(draw);
+  }
 
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, W, H);
-    raf = requestAnimationFrame(draw);
-
-    return () => {
-      stopped = true;
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  return (
-    <main className="h-dvh w-full relative" style={{ background: "#000" }}>
-      <canvas
-        ref={canvasRef}
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "block" }}
-      />
-    </main>
-  );
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+  requestAnimationFrame(draw);
 }
 
 export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
@@ -152,7 +123,6 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [warmupPhase, setWarmupPhase] = useState<WarmupPhase>("checking");
   const [localStars, setLocalStars] = useState(starBalance);
-  const [warpTarget, setWarpTarget] = useState<string | null>(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -190,18 +160,10 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
     setCurrentIndex((i) => (i < planets.length - 1 ? i + 1 : 0));
   }, [planets.length]);
 
-  const warpTargetRef = useRef<string | null>(null);
-
   const handlePlanetTap = useCallback((planet: Planet) => {
     try { localStorage.setItem(LAST_PLANET_KEY, planet.gameType); } catch { /* */ }
-    const target = `/game/${planet.gameType}`;
-    warpTargetRef.current = target;
-    setWarpTarget(target);
-  }, []);
-
-  const handleWarpComplete = useCallback(() => {
-    const target = warpTargetRef.current;
-    if (target) window.location.href = target;
+    // Launch warp directly into the DOM — no React component, no useEffect
+    launchWarpAnimation(`/game/${planet.gameType}`);
   }, []);
 
   const current = planets[currentIndex];
@@ -233,11 +195,6 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         </div>
       </main>
     );
-  }
-
-  // Warp transition (Canvas)
-  if (warpTarget) {
-    return <WarpTransition onComplete={handleWarpComplete} />;
   }
 
   return (
