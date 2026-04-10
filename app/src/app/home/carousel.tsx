@@ -37,6 +37,8 @@ const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 /** Canvas-based warp transition matching mockup spec */
 function WarpTransition({ onComplete }: { onComplete: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -64,8 +66,11 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
     let frame = 0;
     const totalFrames = 70;
     let raf: number;
+    let finished = false;
 
     function draw() {
+      if (finished) return;
+
       ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
       ctx!.fillRect(0, 0, w, h);
 
@@ -104,7 +109,9 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
       if (frame < totalFrames) {
         raf = requestAnimationFrame(draw);
       } else {
-        onComplete();
+        finished = true;
+        // Small delay to ensure canvas renders final frame before navigation
+        setTimeout(() => onCompleteRef.current(), 50);
       }
     }
 
@@ -112,8 +119,11 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
     ctx.fillRect(0, 0, w, h);
     raf = requestAnimationFrame(draw);
 
-    return () => cancelAnimationFrame(raf);
-  }, [onComplete]);
+    return () => {
+      finished = true;
+      cancelAnimationFrame(raf);
+    };
+  }, []);
 
   return (
     <main className="h-dvh w-full relative" style={{ background: "#000" }}>
@@ -257,17 +267,35 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => router.push("/pin")}
-          className="touch-target flex items-center justify-center w-9 h-9"
-          aria-label="Parent menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.push("/aac")}
+            className="btn-mc px-2 py-1.5 text-lg"
+            aria-label="AAC Mini"
+          >
+            💬
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/vowel")}
+            className="btn-mc px-2 py-1.5 text-lg"
+            aria-label="Vowel Mini"
+          >
+            🎤
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/pin")}
+            className="touch-target flex items-center justify-center w-9 h-9"
+            aria-label="Parent menu"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Center: Planet area */}
@@ -278,24 +306,21 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
             type="button"
             onClick={goLeft}
             className="absolute z-10 transition-all duration-200 hover:scale-110 active:scale-95"
-            style={{ left: "max(1rem, env(safe-area-inset-left))", width: 80, height: 80 }}
+            style={{ left: "max(1rem, env(safe-area-inset-left))", width: 160, height: 160 }}
             aria-label="Previous"
           >
             <img src="/arrow_left.png" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
           </button>
         )}
 
-        {/* Tappable planet center */}
+        {/* Tappable planet center (full area tap target, no label) */}
         <button
           type="button"
           onClick={() => handlePlanetTap(current)}
-          className="flex flex-col items-center transition-transform duration-300 active:scale-95"
+          className="absolute inset-0 z-0"
           style={{ cursor: "pointer" }}
-        >
-          <span className="text-lg font-bold text-white drop-shadow-lg mt-40">
-            {current.name}
-          </span>
-        </button>
+          aria-label={current.name}
+        />
 
         {/* Right arrow — image button */}
         {planets.length > 1 && (
@@ -303,7 +328,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
             type="button"
             onClick={goRight}
             className="absolute z-10 transition-all duration-200 hover:scale-110 active:scale-95"
-            style={{ right: "max(1rem, env(safe-area-inset-right))", width: 80, height: 80 }}
+            style={{ right: "max(1rem, env(safe-area-inset-right))", width: 160, height: 160 }}
             aria-label="Next"
           >
             <img src="/arrow_right.png" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
@@ -320,7 +345,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))",
         }}
       >
-        {/* Left: My Room + Mini games */}
+        {/* Left: My Room */}
         <div className="flex gap-2 shrink-0">
           <button
             type="button"
@@ -328,22 +353,6 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
             className="btn-mc px-3 py-1.5 text-xs"
           >
             マイルーム
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/aac")}
-            className="btn-mc px-2 py-1.5 text-lg"
-            aria-label="AAC Mini"
-          >
-            💬
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/vowel")}
-            className="btn-mc px-2 py-1.5 text-lg"
-            aria-label="Vowel Mini"
-          >
-            🎤
           </button>
         </div>
 

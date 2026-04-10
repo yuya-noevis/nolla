@@ -23,7 +23,7 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
         type="button"
         onClick={onBack}
         className="transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ width: 56, height: 56 }}
+        style={{ width: 80, height: 80 }}
         aria-label="Back"
       >
         <img

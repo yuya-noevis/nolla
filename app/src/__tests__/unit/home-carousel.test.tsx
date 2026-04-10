@@ -24,6 +24,15 @@ beforeEach(() => {
   );
 });
 
+/** Get the currently visible planet by finding the background img with opacity 1 */
+function getVisiblePlanetSrc(container: HTMLElement): string | null {
+  const imgs = container.querySelectorAll<HTMLImageElement>("main > img");
+  for (const img of imgs) {
+    if (img.style.opacity === "1") return img.src;
+  }
+  return null;
+}
+
 describe("HomeCarousel arrow navigation", () => {
   const gamesEnabled = {
     memory_match: true,
@@ -33,7 +42,7 @@ describe("HomeCarousel arrow navigation", () => {
   };
 
   it("left/right arrows actually change the displayed building (no dep-array re-lock)", () => {
-    render(
+    const { container } = render(
       <HomeCarousel
         childName="テスト"
         gamesEnabled={gamesEnabled}
@@ -41,40 +50,26 @@ describe("HomeCarousel arrow navigation", () => {
       />
     );
 
-    // Initial building shown (name is visible text)
-    const initialName = screen
-      .getByText(/あそぼう/)
-      .closest("main")!
-      .querySelector("button > span")?.textContent;
-    expect(initialName).toBeTruthy();
+    // Initial planet shown (detected via background image opacity)
+    const initialPlanet = getVisiblePlanetSrc(container);
+    expect(initialPlanet).toBeTruthy();
 
     // Click right arrow
     const next = screen.getByRole("button", { name: "Next" });
     fireEvent.click(next);
-    const afterNextName = screen
-      .getByText(/あそぼう/)
-      .closest("main")!
-      .querySelector("button > span")?.textContent;
-    expect(afterNextName).toBeTruthy();
-    expect(afterNextName).not.toBe(initialName);
+    const afterNextPlanet = getVisiblePlanetSrc(container);
+    expect(afterNextPlanet).toBeTruthy();
+    expect(afterNextPlanet).not.toBe(initialPlanet);
 
-    // Click right arrow again — must keep advancing (would fail if dep-array
-    // bug re-snapped currentIndex back to a fixed building)
+    // Click right arrow again — must keep advancing
     fireEvent.click(next);
-    const afterSecondName = screen
-      .getByText(/あそぼう/)
-      .closest("main")!
-      .querySelector("button > span")?.textContent;
-    expect(afterSecondName).not.toBe(afterNextName);
+    const afterSecondPlanet = getVisiblePlanetSrc(container);
+    expect(afterSecondPlanet).not.toBe(afterNextPlanet);
 
     // Left arrow rewinds
     const prev = screen.getByRole("button", { name: "Previous" });
     fireEvent.click(prev);
-    const afterPrevName = screen
-      .getByText(/あそぼう/)
-      .closest("main")!
-      .querySelector("button > span")?.textContent;
-    expect(afterPrevName).toBe(afterNextName);
+    const afterPrevPlanet = getVisiblePlanetSrc(container);
+    expect(afterPrevPlanet).toBe(afterNextPlanet);
   });
-
 });

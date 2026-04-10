@@ -89,31 +89,29 @@ function RewardContent() {
       {phase === 3 && (
         <div className="flex flex-col items-center gap-8">
           {/* Final star display */}
-          <div
-            className="text-4xl font-bold"
-            style={{ color: "var(--color-nolla-reward)" }}
-          >
-            ★ +{stars}
+          <div className="flex items-center gap-3 text-4xl font-bold" style={{ color: "var(--color-nolla-reward)" }}>
+            <img src="/star_reward.png" alt="" className="w-12 h-12 object-contain" draggable={false} />
+            +{stars}
           </div>
 
-          {/* Two icon-only buttons */}
+          {/* Two icon-only buttons with mockup assets */}
           <div className="flex gap-8">
             {/* Play again */}
             <button
               onClick={() => router.push(`/game/${gameType}`)}
-              className="btn-mc touch-target-child flex h-20 w-20 items-center justify-center rounded-2xl text-3xl"
+              className="touch-target-child transition-transform duration-200 hover:scale-110 active:scale-95"
               aria-label="もう1回"
             >
-              ▶
+              <img src="/btn_replay.png" alt="" className="w-20 h-20 object-contain" draggable={false} />
             </button>
 
             {/* Go home */}
             <button
               onClick={() => router.push("/home")}
-              className="btn-mc touch-target-child flex h-20 w-20 items-center justify-center rounded-2xl text-3xl"
+              className="touch-target-child transition-transform duration-200 hover:scale-110 active:scale-95"
               aria-label="ホームへ"
             >
-              🏠
+              <img src="/btn_myroom.png" alt="" className="w-20 h-20 object-contain" draggable={false} />
             </button>
           </div>
         </div>
