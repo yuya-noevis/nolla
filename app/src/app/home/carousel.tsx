@@ -351,100 +351,28 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 }
 
 function PlanetVisual({ planet }: { planet: Planet }) {
-  const size = 140;
-  const sphereSize = 120;
-
+  // Image includes planet + galaxy background, displayed full-bleed
+  // The image is 16:9-ish with the planet centered, so we show it
+  // at a size that makes the planet prominent in the carousel.
   return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
-      {/* Atmosphere ring (outer glow) */}
+    <div className="relative flex items-center justify-center" style={{ width: 200, height: 160 }}>
+      {/* Atmosphere glow behind the image */}
       <div
         className="absolute rounded-full animate-atmosphere"
         style={{
-          width: sphereSize + 24,
-          height: sphereSize + 24,
+          width: 160,
+          height: 160,
           background: planet.atmosphereColor,
-          filter: "blur(8px)",
+          filter: "blur(16px)",
         }}
       />
 
-      {/* Planet sphere */}
-      <div
-        className="rounded-full relative overflow-hidden"
-        style={{
-          width: sphereSize,
-          height: sphereSize,
-          background: `radial-gradient(circle at 35% 35%, ${planet.groundColor} 0%, ${planet.skyGradient[1]} 60%, ${planet.skyGradient[0]} 100%)`,
-          boxShadow: `
-            inset -8px -8px 20px rgba(0,0,0,0.4),
-            inset 4px 4px 12px rgba(255,255,255,0.1),
-            0 0 20px ${planet.atmosphereColor},
-            0 0 40px ${planet.atmosphereColor}
-          `,
-          border: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        {/* Rim light (top-left highlight) */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: "40%",
-            height: "40%",
-            top: "8%",
-            left: "8%",
-            background: "radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Small accent glow spots */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 6,
-            height: 6,
-            top: "25%",
-            left: "60%",
-            background: planet.accentGlow,
-            boxShadow: `0 0 8px ${planet.accentGlow}`,
-          }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 4,
-            height: 4,
-            top: "55%",
-            left: "30%",
-            background: planet.accentGlow,
-            boxShadow: `0 0 6px ${planet.accentGlow}`,
-            opacity: 0.7,
-          }}
-        />
-
-        {/* Equator cloud wisps */}
-        <div
-          className="absolute"
-          style={{
-            width: "70%",
-            height: "12%",
-            top: "46%",
-            left: "15%",
-            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
-            borderRadius: "50%",
-          }}
-        />
-      </div>
-
-      {/* Small satellite rock */}
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: 8,
-          height: 8,
-          top: "10%",
-          right: "5%",
-          background: `radial-gradient(circle at 30% 30%, ${planet.skyGradient[1]}, ${planet.skyGradient[0]})`,
-          boxShadow: "0 0 4px rgba(255,255,255,0.1)",
-        }}
+      {/* Planet image */}
+      <img
+        src={planet.image}
+        alt={planet.name}
+        className="relative w-full h-full object-contain drop-shadow-2xl"
+        draggable={false}
       />
     </div>
   );
