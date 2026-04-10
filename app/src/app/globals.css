@@ -249,6 +249,52 @@ body {
   animation: warp-zoom 1.2s ease-in forwards;
 }
 
+/* ============================================
+   Reward Page Animations (matching r1_reward.html mockup)
+   ============================================ */
+@keyframes twinkle {
+  0% { opacity: 0.2; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes reward-star-appear {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(-30deg); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(5deg); }
+  70% { transform: translate(-50%, -50%) scale(0.95) rotate(-2deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+@keyframes reward-glow {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes reward-burst {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3); }
+}
+
+@keyframes reward-fall {
+  0% { opacity: 0.7; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(600px) rotate(360deg); }
+}
+
+@keyframes reward-count-in {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes reward-dot-pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+@keyframes reward-buttons-in {
+  0% { opacity: 0; transform: translateX(-50%) translateY(30px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 /* Atmosphere ring glow around planets */
 @keyframes atmosphere-pulse {
   0%, 100% { opacity: 0.6; filter: blur(8px); }

@@ -194,8 +194,8 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   const handleWarpComplete = useCallback(() => {
     const target = warpTargetRef.current;
-    if (target) router.push(target);
-  }, [router]);
+    if (target) window.location.href = target;
+  }, []);
 
   const current = planets[currentIndex];
 

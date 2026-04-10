@@ -1,18 +1,21 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, Suspense } from "react";
 
+/**
+ * Reward page — exact replica of mockup r1_reward.html.
+ * Background: linear-gradient(180deg, #1A40A0 → #4838A0 → #8050A0)
+ * Elements appear in timed sequence via CSS animations.
+ * Navigation uses window.location.href (same as mockup).
+ */
 function RewardContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const gameType = searchParams.get("game") ?? "memory-match";
   const stars = parseInt(searchParams.get("stars") ?? "0", 10);
+  const screenRef = useRef<HTMLDivElement>(null);
 
-  const [phase, setPhase] = useState<1 | 2 | 3>(1);
-  const [displayStars, setDisplayStars] = useState(0);
-
-  // Save earned stars to localStorage
+  // Save earned stars
   useEffect(() => {
     if (stars > 0) {
       const current = parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10);
@@ -20,102 +23,188 @@ function RewardContent() {
     }
   }, [stars]);
 
-  // Phase 1: star count-up animation
+  // Vibrate
   useEffect(() => {
-    if (phase !== 1) return;
-
-    // Vibrate on supported devices
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate(15);
     }
+  }, []);
 
-    // Count up animation
-    const step = Math.max(1, Math.floor(stars / 15));
-    const interval = setInterval(() => {
-      setDisplayStars((prev) => {
-        const next = prev + step;
-        if (next >= stars) {
-          clearInterval(interval);
-          return stars;
-        }
-        return next;
-      });
-    }, 100);
+  // Burst particles at 800ms (matching mockup timing)
+  useEffect(() => {
+    const screen = screenRef.current;
+    if (!screen) return;
 
-    // Move to phase 3 after 1.5s (skip phase 2 for MVP)
-    const timer = setTimeout(() => {
-      setPhase(3);
-    }, 1500);
+    const burstTimer = setTimeout(() => {
+      const rect = screen.getBoundingClientRect();
+      const cx = rect.width * 0.5;
+      const cy = rect.height * 0.42;
+
+      for (let i = 0; i < 16; i++) {
+        const p = document.createElement("div");
+        const angle = (Math.PI * 2 / 16) * i;
+        const dist = 80 + Math.random() * 80;
+        const size = 4 + Math.random() * 8;
+        const color = Math.random() > 0.4 ? "#FFD700" : "#FFFFFF";
+        p.style.cssText = `
+          position: absolute; border-radius: 50%; pointer-events: none; z-index: 8;
+          left: ${cx}px; top: ${cy}px;
+          width: ${size}px; height: ${size}px;
+          background: ${color};
+          --tx: ${Math.cos(angle) * dist}px;
+          --ty: ${Math.sin(angle) * dist}px;
+          animation: reward-burst 1s ${Math.random() * 0.15}s ease-out forwards;
+        `;
+        screen.appendChild(p);
+        setTimeout(() => p.remove(), 1200);
+      }
+    }, 800);
+
+    // Falling mini stars at 600ms
+    const fallTimer = setTimeout(() => {
+      for (let i = 0; i < 8; i++) {
+        const s = document.createElement("div");
+        const size = 16 + Math.random() * 28;
+        s.style.cssText = `
+          position: absolute; pointer-events: none; z-index: 5; opacity: 0;
+          width: ${size}px; height: ${size}px;
+          left: ${Math.random() * 90 + 5}%;
+          top: ${-50 - Math.random() * 100}px;
+          background: url('/star_reward.png') center/contain no-repeat;
+          animation: reward-fall ${2 + Math.random() * 2}s ${Math.random() * 1.5}s ease-in forwards;
+        `;
+        screen.appendChild(s);
+      }
+    }, 600);
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timer);
+      clearTimeout(burstTimer);
+      clearTimeout(fallTimer);
     };
-  }, [phase, stars]);
+  }, []);
+
+  const existingStars = Math.max(0, parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10) - stars);
 
   return (
-    <div className="flex h-full flex-col items-center justify-center bg-nolla-bg">
-      {/* Phase 1 & 2: Star animation */}
-      {phase <= 2 && (
-        <div className="flex flex-col items-center gap-4">
-          {/* Stars flying animation */}
-          <div className="relative">
-            {Array.from({ length: Math.min(stars, 5) }, (_, i) => (
-              <span
-                key={i}
-                className="animate-star absolute text-3xl"
-                style={{
-                  left: `${(i - 2) * 40}px`,
-                  animationDelay: `${i * 100}ms`,
-                  color: "var(--color-nolla-reward)",
-                }}
-              >
-                ★
-              </span>
-            ))}
-          </div>
+    <div
+      ref={screenRef}
+      className="relative w-full h-full overflow-hidden"
+      style={{
+        background: "linear-gradient(180deg, #1A40A0 0%, #4838A0 50%, #8050A0 100%)",
+      }}
+    >
+      {/* Stars background */}
+      {Array.from({ length: 35 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width: 1 + Math.random() * 2,
+            height: 1 + Math.random() * 2,
+            background: "white",
+            top: `${(i * 31 + 7) % 100}%`,
+            left: `${(i * 43 + 11) % 100}%`,
+            opacity: 0.2 + (i % 3) * 0.15,
+            animation: `twinkle ${2 + (i % 4)}s ${(i * 0.3) % 3}s ease-in-out infinite alternate`,
+          }}
+        />
+      ))}
 
-          {/* Star count */}
-          <div
-            className="mt-16 text-5xl font-bold"
-            style={{ color: "var(--color-nolla-reward)" }}
-          >
-            +{displayStars}
-          </div>
+      {/* Star glow */}
+      <div
+        className="absolute z-[9]"
+        style={{
+          top: "42%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 360,
+          height: 360,
+          background: "radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, transparent 70%)",
+          borderRadius: "50%",
+          opacity: 0,
+          animation: "reward-glow 1s 0.8s ease-out forwards",
+        }}
+      />
+
+      {/* Main reward star */}
+      <div
+        className="absolute z-10"
+        style={{
+          top: "42%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 220,
+          height: 220,
+          opacity: 0,
+          animation: "reward-star-appear 1.2s 0.3s ease-out forwards",
+        }}
+      >
+        <img src="/star_reward.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} draggable={false} />
+      </div>
+
+      {/* Star count (appears at 1.8s) */}
+      <div
+        className="absolute z-[15] flex items-center gap-1.5"
+        style={{
+          top: "60%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          opacity: 0,
+          animation: "reward-count-in 0.5s 1.8s ease-out forwards",
+        }}
+      >
+        <img src="/star_reward.png" alt="" style={{ width: 32, height: 32, objectFit: "contain" }} draggable={false} />
+        <div className="flex gap-1 flex-wrap" style={{ maxWidth: 160 }}>
+          {Array.from({ length: Math.min(existingStars, 12) }).map((_, i) => (
+            <div
+              key={`old-${i}`}
+              className="rounded-full"
+              style={{ width: 8, height: 8, background: "#FFD700", opacity: 0.5 }}
+            />
+          ))}
+          {Array.from({ length: Math.min(stars, 5) }).map((_, i) => (
+            <div
+              key={`new-${i}`}
+              className="rounded-full"
+              style={{
+                width: 8,
+                height: 8,
+                background: "#FFD700",
+                opacity: 1,
+                animation: `reward-dot-pop 0.3s ${2.2 + i * 0.1}s ease-out both`,
+              }}
+            />
+          ))}
         </div>
-      )}
+      </div>
 
-      {/* Phase 3: Choice buttons */}
-      {phase === 3 && (
-        <div className="flex flex-col items-center gap-8">
-          {/* Final star display */}
-          <div className="flex items-center gap-3 text-4xl font-bold" style={{ color: "var(--color-nolla-reward)" }}>
-            <img src="/star_reward.png" alt="" className="w-12 h-12 object-contain" draggable={false} />
-            +{stars}
-          </div>
-
-          {/* Two icon-only buttons with mockup assets */}
-          <div className="flex gap-8">
-            {/* Play again */}
-            <button
-              onClick={() => router.push(`/game/${gameType}`)}
-              className="touch-target-child transition-transform duration-200 hover:scale-110 active:scale-95"
-              aria-label="もう1回"
-            >
-              <img src="/btn_replay.png" alt="" className="w-20 h-20 object-contain" draggable={false} />
-            </button>
-
-            {/* Go home */}
-            <button
-              onClick={() => router.push("/home")}
-              className="touch-target-child transition-transform duration-200 hover:scale-110 active:scale-95"
-              aria-label="ホームへ"
-            >
-              <img src="/btn_myroom.png" alt="" className="w-20 h-20 object-contain" draggable={false} />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Buttons (appear at 2.2s) */}
+      <div
+        className="absolute z-20 flex"
+        style={{
+          bottom: 80,
+          left: "50%",
+          transform: "translateX(-50%)",
+          gap: 80,
+          opacity: 0,
+          animation: "reward-buttons-in 0.6s 2.2s ease-out forwards",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => { window.location.href = `/game/${gameType}`; }}
+          className="active:scale-95 transition-transform"
+          style={{ width: 140, height: 140, background: "url('/btn_replay.png') center/contain no-repeat", border: "none", cursor: "pointer" }}
+          aria-label="もう1回"
+        />
+        <button
+          type="button"
+          onClick={() => { window.location.href = "/home"; }}
+          className="active:scale-95 transition-transform"
+          style={{ width: 140, height: 140, background: "url('/btn_myroom.png') center/contain no-repeat", border: "none", cursor: "pointer" }}
+          aria-label="ホームへ"
+        />
+      </div>
     </div>
   );
 }
