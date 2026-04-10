@@ -130,7 +130,7 @@ export function GameSession({
         } else {
           session.advanceRound();
         }
-      }, 1200);
+      }, 200);
       return () => clearTimeout(timer);
     }
   }, [session.phase]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -157,7 +157,7 @@ export function GameSession({
       sessionStars={session.sessionStars}
       hintActive={hintStage >= 3}
     >
-      <div className="h-full w-full">
+      <div className="h-full w-full flex items-center justify-center">
         {/* Motor baseline phase */}
         {session.phase === "motor-baseline" && (
           <MotorBaselineMeasurement
@@ -211,34 +211,7 @@ export function GameSession({
           </>
         )}
 
-        {/* Round intro (shown before each round starts) — absolutely centered */}
-        {session.phase === "round-intro" && (
-          <div className="absolute inset-0 flex items-center justify-center z-20">
-            <div className="flex gap-4">
-              {Array.from({ length: 3 }, (_, i) => {
-                const currentRound = hasPlayedRef.current ? session.roundNumber + 1 : session.roundNumber;
-                const isDone = i < currentRound - 1;
-                const isCurrent = i === currentRound - 1;
-                return (
-                  <div
-                    key={i}
-                    className={`w-6 h-6 rounded-full transition-all ${
-                      isCurrent ? "scale-125" : ""
-                    }`}
-                    style={{
-                      background: isDone
-                        ? "var(--color-feedback-correct)"
-                        : isCurrent
-                          ? "var(--color-mc-glowstone)"
-                          : "rgba(255,255,255,0.3)",
-                      boxShadow: isCurrent ? "0 0 16px rgba(218,165,32,0.6)" : "none",
-                    }}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {/* Round intro: skip instantly, no visual indicator */}
       </div>
 
       {showFeedback && (

@@ -18,23 +18,23 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
         paddingRight: "max(20px, env(safe-area-inset-right))",
       }}
     >
-      {/* Back button — responsive: 64px on small screens, 100px on iPad+ */}
+      {/* Back button — fixed 100px, inline style only (no Tailwind override) */}
       <button
         type="button"
         onClick={onBack}
-        className="transition-all duration-200 hover:scale-110 active:scale-95 w-16 h-16 min-[600px]:w-[100px] min-[600px]:h-[100px]"
+        className="transition-all duration-200 hover:scale-110 active:scale-95"
+        style={{ width: 100, height: 100, minWidth: 100, minHeight: 100 }}
         aria-label="Back"
       >
         <img
           src="/arrow_left.png"
           alt=""
-          className="w-full h-full object-contain"
-          style={{ opacity: 0.75 }}
+          style={{ width: "100%", height: "100%", objectFit: "contain", opacity: 0.75 }}
           draggable={false}
         />
       </button>
 
-      {/* Progress dots */}
+      {/* Progress dots — compact, top-aligned */}
       <div
         className="flex gap-[10px] items-center px-4 py-2 rounded-2xl"
         style={{ background: "rgba(0,0,0,0.2)" }}

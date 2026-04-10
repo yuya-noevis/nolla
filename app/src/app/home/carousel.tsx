@@ -34,76 +34,76 @@ function saveMotorBaselineFromHome(medianRt: number): void {
 type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
-/** Canvas warp transition with absolute safety: 1.2s timer guarantees navigation */
+/**
+ * Canvas warp transition — exact copy of mockup logic.
+ * Key: canvas.width/height = fixed 1194x834 (no devicePixelRatio scaling).
+ * CSS sizes it to 100%. This matches the mockup exactly.
+ */
 function WarpTransition({ onComplete }: { onComplete: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const navigatedRef = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
-  // Absolute safety net: navigate after 1.2s no matter what
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!navigatedRef.current) {
-        navigatedRef.current = true;
-        onComplete();
-      }
-    }, 700);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Canvas animation (best-effort, does not control navigation)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
+    // Fixed coordinate space — same as mockup. NO devicePixelRatio scaling.
+    const W = 1194;
+    const H = 834;
+    canvas.width = W;
+    canvas.height = H;
 
-    const cx = w / 2;
-    const cy = h / 2;
-    const stars = Array.from({ length: 200 }, () => ({
-      angle: Math.random() * Math.PI * 2,
-      dist: Math.random() * 5,
-      speed: 2 + Math.random() * 6,
-      size: 0.5 + Math.random() * 1.5,
-      bright: 0.5 + Math.random() * 0.5,
-    }));
+    const cx = W / 2;
+    const cy = H / 2;
+    const stars: { angle: number; dist: number; speed: number; size: number; bright: number }[] = [];
+    for (let i = 0; i < 200; i++) {
+      stars.push({
+        angle: Math.random() * Math.PI * 2,
+        dist: Math.random() * 5,
+        speed: 2 + Math.random() * 6,
+        size: 0.5 + Math.random() * 1.5,
+        bright: 0.5 + Math.random() * 0.5,
+      });
+    }
 
     let frame = 0;
+    const totalFrames = 70;
     let raf = 0;
-    let stopped = false;
+    let done = false;
 
     function draw() {
-      if (stopped) return;
+      if (done) return;
       ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
-      ctx!.fillRect(0, 0, w, h);
+      ctx!.fillRect(0, 0, W, H);
 
       for (const s of stars) {
         s.dist += s.speed * (1 + frame / 20);
         const x = cx + Math.cos(s.angle) * s.dist;
         const y = cy + Math.sin(s.angle) * s.dist;
-        if (x < -10 || x > w + 10 || y < -10 || y > h + 10) {
+
+        if (x < -10 || x > W + 10 || y < -10 || y > H + 10) {
           s.dist = Math.random() * 3;
           continue;
         }
+
         const tailLen = Math.min(s.dist * 0.3, 40);
         const tx = x - Math.cos(s.angle) * tailLen;
         const ty = y - Math.sin(s.angle) * tailLen;
+
         const grad = ctx!.createLinearGradient(tx, ty, x, y);
         grad.addColorStop(0, "transparent");
         grad.addColorStop(1, `rgba(255, 255, 255, ${s.bright})`);
+
         ctx!.beginPath();
         ctx!.moveTo(tx, ty);
         ctx!.lineTo(x, y);
         ctx!.strokeStyle = grad;
         ctx!.lineWidth = s.size;
         ctx!.stroke();
+
         ctx!.beginPath();
         ctx!.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
         ctx!.fillStyle = `rgba(255, 255, 255, ${s.bright})`;
@@ -111,18 +111,20 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
       }
 
       frame++;
-      if (frame < 40) {
+      if (frame < totalFrames) {
         raf = requestAnimationFrame(draw);
+      } else {
+        done = true;
+        onCompleteRef.current();
       }
-      // Animation end does NOT trigger navigation — the timer does
     }
 
     ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillRect(0, 0, W, H);
     raf = requestAnimationFrame(draw);
 
     return () => {
-      stopped = true;
+      done = true;
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -131,8 +133,7 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
     <main className="h-dvh w-full relative" style={{ background: "#000" }}>
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ display: "block" }}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "block" }}
       />
     </main>
   );
