@@ -12,18 +12,17 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
     <header
       className="flex items-center justify-between shrink-0 relative z-20"
       style={{
-        padding: "8px 16px",
+        padding: "8px 20px",
         paddingTop: "max(8px, env(safe-area-inset-top))",
-        paddingLeft: "max(16px, env(safe-area-inset-left))",
-        paddingRight: "max(16px, env(safe-area-inset-right))",
+        paddingLeft: "max(20px, env(safe-area-inset-left))",
+        paddingRight: "max(20px, env(safe-area-inset-right))",
       }}
     >
-      {/* Back button — arrow image */}
+      {/* Back button — responsive: 64px on small screens, 100px on iPad+ */}
       <button
         type="button"
         onClick={onBack}
-        className="transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ width: 160, height: 160 }}
+        className="transition-all duration-200 hover:scale-110 active:scale-95 w-16 h-16 min-[600px]:w-[100px] min-[600px]:h-[100px]"
         aria-label="Back"
       >
         <img
@@ -45,8 +44,8 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
             key={i}
             className="rounded-full transition-all duration-300"
             style={{
-              width: 16,
-              height: 16,
+              width: 14,
+              height: 14,
               background: i < roundNumber ? "#5DBB5D" : "transparent",
               border: i < roundNumber
                 ? "2px solid #5DBB5D"

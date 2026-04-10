@@ -211,30 +211,32 @@ export function GameSession({
           </>
         )}
 
-        {/* Round intro (shown before each round starts) */}
+        {/* Round intro (shown before each round starts) — absolutely centered */}
         {session.phase === "round-intro" && (
-          <div className="flex gap-4">
-            {Array.from({ length: 3 }, (_, i) => {
-              const currentRound = hasPlayedRef.current ? session.roundNumber + 1 : session.roundNumber;
-              const isDone = i < currentRound - 1;
-              const isCurrent = i === currentRound - 1;
-              return (
-                <div
-                  key={i}
-                  className={`w-6 h-6 rounded-full transition-all ${
-                    isCurrent ? "scale-125" : ""
-                  }`}
-                  style={{
-                    background: isDone
-                      ? "var(--color-feedback-correct)"
-                      : isCurrent
-                        ? "var(--color-mc-glowstone)"
-                        : "rgba(255,255,255,0.3)",
-                    boxShadow: isCurrent ? "0 0 16px rgba(218,165,32,0.6)" : "none",
-                  }}
-                />
-              );
-            })}
+          <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="flex gap-4">
+              {Array.from({ length: 3 }, (_, i) => {
+                const currentRound = hasPlayedRef.current ? session.roundNumber + 1 : session.roundNumber;
+                const isDone = i < currentRound - 1;
+                const isCurrent = i === currentRound - 1;
+                return (
+                  <div
+                    key={i}
+                    className={`w-6 h-6 rounded-full transition-all ${
+                      isCurrent ? "scale-125" : ""
+                    }`}
+                    style={{
+                      background: isDone
+                        ? "var(--color-feedback-correct)"
+                        : isCurrent
+                          ? "var(--color-mc-glowstone)"
+                          : "rgba(255,255,255,0.3)",
+                      boxShadow: isCurrent ? "0 0 16px rgba(218,165,32,0.6)" : "none",
+                    }}
+                  />
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

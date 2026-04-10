@@ -68,8 +68,8 @@ export function GameFrame({
 
       <GameHeader sessionStars={sessionStars} onBack={handleBack} roundNumber={roundNumber} totalRounds={totalRounds} />
 
-      {/* Game area — fill all remaining space, centered */}
-      <div className="flex-1 relative z-10 min-h-0 flex items-center justify-center">
+      {/* Game area — fill all remaining space, centered, no overflow */}
+      <div className="flex-1 relative z-10 min-h-0 flex items-center justify-center overflow-hidden">
         {children}
       </div>
 

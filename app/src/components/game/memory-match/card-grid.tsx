@@ -183,15 +183,16 @@ export function CardGrid({
     ]
   );
 
-  // Card dimensions matching mockup: 140x182 (portrait ratio)
+  // Card dimensions: mockup ratio 140:182 ≈ 0.77
+  // Scale down for smaller screens to prevent overflow
   const cardW = 140;
   const cardH = 182;
 
   return (
     <div
-      className="grid gap-4 place-items-center"
+      className="grid gap-3 place-items-center"
       style={{
-        gridTemplateColumns: `repeat(${board.gridCols}, ${cardW}px)`,
+        gridTemplateColumns: `repeat(${board.gridCols}, min(${cardW}px, calc((100vh - 200px) / ${board.gridRows} * 0.77)))`,
       }}
     >
       {board.cards.map((card, index) => (
@@ -233,8 +234,8 @@ function CardCell({ card, state, width, height, isHintTarget, isHintGlow, onTap 
         isHintTarget ? "animate-pulse-gentle" : ""
       } ${isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""}`}
       style={{
-        width,
-        height,
+        width: "100%",
+        aspectRatio: "140 / 182",
         perspective: 800,
       }}
       aria-label={`Card ${card.id}`}

@@ -46,7 +46,7 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
         navigatedRef.current = true;
         onComplete();
       }
-    }, 1200);
+    }, 700);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -111,7 +111,7 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
       }
 
       frame++;
-      if (frame < 70) {
+      if (frame < 40) {
         raf = requestAnimationFrame(draw);
       }
       // Animation end does NOT trigger navigation — the timer does

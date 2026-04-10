@@ -92,8 +92,8 @@ export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, o
   }, [allFound, onRoundComplete, sceneIndex, scenesPerRound]);
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full h-full px-4">
-      <div className="flex gap-2 w-full flex-1 min-h-0">
+    <div className="flex flex-col items-center gap-2 w-full h-full px-4 max-h-full">
+      <div className="flex gap-3 w-full flex-1 min-h-0 max-h-full">
         <SceneView
           items={scene.items}
           differences={[]}
