@@ -12,18 +12,18 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
     <header
       className="flex items-center justify-between shrink-0 relative z-20"
       style={{
-        padding: "8px 20px",
-        paddingTop: "max(8px, env(safe-area-inset-top))",
+        padding: "4px 20px",
+        paddingTop: "max(4px, env(safe-area-inset-top))",
         paddingLeft: "max(20px, env(safe-area-inset-left))",
         paddingRight: "max(20px, env(safe-area-inset-right))",
       }}
     >
-      {/* Back button — fixed 100px, inline style only (no Tailwind override) */}
+      {/* Back button — fixed 80px, inline style only (no Tailwind override) */}
       <button
         type="button"
         onClick={onBack}
         className="transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ width: 100, height: 100, minWidth: 100, minHeight: 100 }}
+        style={{ width: 80, height: 80, minWidth: 80, minHeight: 80 }}
         aria-label="Back"
       >
         <img

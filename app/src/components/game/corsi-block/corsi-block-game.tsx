@@ -178,17 +178,17 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
         }}
         data-testid="corsi-board"
       >
-        {/* Phase indicator */}
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+        {/* Phase indicator — small, top-right corner */}
+        <div className="absolute top-1 right-2 flex gap-1">
           {layout.sequence.map((_, i) => (
             <div
               key={i}
-              className={`w-3 h-3 rounded-full ${
+              className={`w-2 h-2 rounded-full ${
                 phase === "watching" && i <= seqIndex
                   ? "bg-white"
                   : phase === "input" && i < inputSequence.length
                     ? "bg-[var(--color-feedback-correct)]"
-                    : "bg-white/30"
+                    : "bg-white/20"
               }`}
             />
           ))}
