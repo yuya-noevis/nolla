@@ -291,13 +291,31 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
         }}
       >
-        <button
-          type="button"
-          onClick={() => router.push("/room")}
-          className="btn-mc px-3 py-1.5 text-xs shrink-0"
-        >
-          マイルーム
-        </button>
+        <div className="flex gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => router.push("/room")}
+            className="btn-mc px-3 py-1.5 text-xs"
+          >
+            マイルーム
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/aac")}
+            className="btn-mc px-2 py-1.5 text-lg"
+            aria-label="AAC Mini"
+          >
+            💬
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/vowel")}
+            className="btn-mc px-2 py-1.5 text-lg"
+            aria-label="Vowel Mini"
+          >
+            🎤
+          </button>
+        </div>
 
         <div
           className="flex gap-2 px-3 py-1.5 rounded-full shrink-0"
