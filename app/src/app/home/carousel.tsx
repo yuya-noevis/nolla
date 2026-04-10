@@ -34,103 +34,35 @@ function saveMotorBaselineFromHome(medianRt: number): void {
 type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
-/** Canvas-based warp transition matching mockup spec */
+/** CSS-based warp transition — no Canvas, no freeze risk */
 function WarpTransition({ onComplete }: { onComplete: () => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const calledRef = useRef(false);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    const cx = w / 2;
-    const cy = h / 2;
-
-    const stars = Array.from({ length: 200 }, () => ({
-      angle: Math.random() * Math.PI * 2,
-      dist: Math.random() * 5,
-      speed: 2 + Math.random() * 6,
-      size: 0.5 + Math.random() * 1.5,
-      bright: 0.5 + Math.random() * 0.5,
-    }));
-
-    let frame = 0;
-    const totalFrames = 70;
-    let raf: number;
-    let finished = false;
-
-    function draw() {
-      if (finished) return;
-
-      ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
-      ctx!.fillRect(0, 0, w, h);
-
-      for (const s of stars) {
-        s.dist += s.speed * (1 + frame / 20);
-        const x = cx + Math.cos(s.angle) * s.dist;
-        const y = cy + Math.sin(s.angle) * s.dist;
-
-        if (x < -10 || x > w + 10 || y < -10 || y > h + 10) {
-          s.dist = Math.random() * 3;
-          continue;
-        }
-
-        const tailLen = Math.min(s.dist * 0.3, 40);
-        const tx = x - Math.cos(s.angle) * tailLen;
-        const ty = y - Math.sin(s.angle) * tailLen;
-
-        const grad = ctx!.createLinearGradient(tx, ty, x, y);
-        grad.addColorStop(0, "transparent");
-        grad.addColorStop(1, `rgba(255, 255, 255, ${s.bright})`);
-
-        ctx!.beginPath();
-        ctx!.moveTo(tx, ty);
-        ctx!.lineTo(x, y);
-        ctx!.strokeStyle = grad;
-        ctx!.lineWidth = s.size;
-        ctx!.stroke();
-
-        ctx!.beginPath();
-        ctx!.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(255, 255, 255, ${s.bright})`;
-        ctx!.fill();
+    const timer = setTimeout(() => {
+      if (!calledRef.current) {
+        calledRef.current = true;
+        onCompleteRef.current();
       }
-
-      frame++;
-      if (frame < totalFrames) {
-        raf = requestAnimationFrame(draw);
-      } else {
-        finished = true;
-        // Small delay to ensure canvas renders final frame before navigation
-        setTimeout(() => onCompleteRef.current(), 50);
-      }
-    }
-
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, w, h);
-    raf = requestAnimationFrame(draw);
-
-    return () => {
-      finished = true;
-      cancelAnimationFrame(raf);
-    };
+    }, 1200);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <main className="h-dvh w-full relative" style={{ background: "#000" }}>
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ display: "block" }}
+    <main className="h-dvh w-full relative overflow-hidden" style={{ background: "#000" }}>
+      {/* Radial star streaks via CSS */}
+      <div className="absolute inset-0 warp-stars" />
+      {/* Center glow */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          width: 120,
+          height: 120,
+          background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(100,200,255,0.3) 40%, transparent 70%)",
+          animation: "warp-glow 1.2s ease-in forwards",
+        }}
       />
     </main>
   );

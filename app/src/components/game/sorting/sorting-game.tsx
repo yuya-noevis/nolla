@@ -280,38 +280,45 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
     }
   };
 
-  return (
-    <div className="flex flex-col items-center gap-8">
-      {/* Current item */}
-      <SortingVisual criterion={round.criterion} attributes={currentItem.attributes} size={96} />
+  const catCount = round.categories.length;
 
-      {/* Category boxes */}
-      <div className="flex gap-6 flex-wrap justify-center">
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center gap-4 px-4">
+      {/* Current item — large and prominent */}
+      <SortingVisual criterion={round.criterion} attributes={currentItem.attributes} size={120} />
+
+      {/* Category boxes — responsive, fill width */}
+      <div
+        className="flex justify-center items-center w-full max-w-3xl"
+        style={{ gap: catCount <= 3 ? "2rem" : "1rem" }}
+      >
         {round.categories.map((cat) => {
           const isHintTarget = hintStage >= 2 && cat.id === correctCategory?.id;
           const isHintGlow = hintStage >= 3 && cat.id === correctCategory?.id;
+          const boxSize = catCount <= 3 ? 160 : 130;
+          const innerSize = catCount <= 3 ? 110 : 90;
 
           return (
             <button
               key={cat.id}
               type="button"
               onClick={() => handleCategoryTap(cat.id)}
-              className={`touch-target-child rounded-2xl flex items-center justify-center transition-all p-2 ${
+              className={`touch-target-child rounded-2xl flex items-center justify-center transition-all shrink-0 ${
                 isHintTarget ? "animate-pulse-gentle" : ""
               } ${isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""}`}
               style={{
                 background: "rgba(255,255,255,0.15)",
                 border: "3px solid var(--color-mc-dark-oak)",
                 boxShadow: "0 4px 0 var(--color-mc-dark-oak-light)",
-                width: 124,
-                height: 124,
+                width: boxSize,
+                height: boxSize,
               }}
               aria-label={cat.label}
             >
               <SortingVisual
                 criterion={round.criterion}
                 attributes={categoryAttrs(cat.matchValue)}
-                size={88}
+                size={innerSize}
               />
             </button>
           );
@@ -319,11 +326,11 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
       </div>
 
       {/* Progress */}
-      <div className="flex gap-1.5">
+      <div className="flex gap-2">
         {round.items.map((_, i) => (
           <div
             key={i}
-            className={`w-2.5 h-2.5 rounded-full ${
+            className={`w-3 h-3 rounded-full ${
               i < currentItemIndex
                 ? "bg-[var(--color-feedback-correct)]"
                 : i === currentItemIndex

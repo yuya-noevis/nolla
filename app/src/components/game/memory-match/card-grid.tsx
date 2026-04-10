@@ -183,11 +183,14 @@ export function CardGrid({
     ]
   );
 
+  // Ensure cards are at least 80px for accessibility
+  const cardSize = Math.max(params.cardSize, 80);
+
   return (
     <div
-      className="grid gap-2 place-items-center"
+      className="grid gap-3 place-items-center"
       style={{
-        gridTemplateColumns: `repeat(${board.gridCols}, ${params.cardSize}px)`,
+        gridTemplateColumns: `repeat(${board.gridCols}, ${cardSize}px)`,
       }}
     >
       {board.cards.map((card, index) => (
@@ -195,7 +198,7 @@ export function CardGrid({
           key={card.id}
           card={card}
           state={cardStates[index]}
-          size={params.cardSize}
+          size={cardSize}
           isHintTarget={hintStage >= 2 && index === correctPairIndex}
           isHintGlow={hintStage >= 3 && index === correctPairIndex}
           onTap={() => handleCardTap(index)}

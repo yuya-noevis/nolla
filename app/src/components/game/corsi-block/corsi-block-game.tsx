@@ -148,11 +148,11 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
   // Generator coordinate space (must match generate.ts AREA_WIDTH/HEIGHT)
   const AREA_WIDTH = 800;
   const AREA_HEIGHT = 500;
-  // Block size as a percent of the container — use the SAME percent for
-  // width and height because aspectRatio is locked to AREA_WIDTH/AREA_HEIGHT,
-  // so equal % of width and width produce equal physical pixels (square block).
-  const blockSizePctW = (layout.blockSize / AREA_WIDTH) * 100;
-  const blockSizePctH = (layout.blockSize / AREA_HEIGHT) * 100;
+  // Block size — larger for accessibility. Use rectangular shape (wider than tall).
+  const blockW = Math.max(layout.blockSize, 90);
+  const blockH = Math.max(layout.blockSize, 90);
+  const blockSizePctW = (blockW / AREA_WIDTH) * 100;
+  const blockSizePctH = (blockH / AREA_HEIGHT) * 100;
 
   return (
     // BUG-10/11 fix round 2: use container query units (cqw / cqh) so the
@@ -173,8 +173,8 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
         style={{
           width: `min(100cqw, calc(100cqh * ${AREA_WIDTH} / ${AREA_HEIGHT}))`,
           aspectRatio: `${AREA_WIDTH} / ${AREA_HEIGHT}`,
-          maxWidth: "800px",
-          maxHeight: "500px",
+          maxWidth: "100%",
+          maxHeight: "100%",
         }}
         data-testid="corsi-board"
       >
@@ -206,7 +206,7 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
               type="button"
               onClick={() => handleBlockTap(block.id)}
               disabled={phase !== "input"}
-              className={`absolute touch-target-child rounded-xl transition-all duration-200 ${
+              className={`absolute touch-target-child rounded-2xl transition-all duration-200 ${
                 isActive ? "scale-110 brightness-150" : ""
               } ${isHintTarget ? "animate-pulse-gentle" : ""} ${
                 isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""

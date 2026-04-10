@@ -141,9 +141,9 @@ type SceneViewProps = {
 };
 
 const SIZE_PX: Record<string, number> = {
-  small: 28,
-  medium: 40,
-  large: 56,
+  small: 40,
+  medium: 56,
+  large: 72,
 };
 
 // Apply a difference to an item, returning the rendered version (modified scene).

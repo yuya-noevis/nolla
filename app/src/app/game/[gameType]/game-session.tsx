@@ -157,7 +157,7 @@ export function GameSession({
       sessionStars={session.sessionStars}
       hintActive={hintStage >= 3}
     >
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full w-full flex items-center justify-center p-2">
         {/* Motor baseline phase */}
         {session.phase === "motor-baseline" && (
           <MotorBaselineMeasurement
