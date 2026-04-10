@@ -18,12 +18,12 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
         paddingRight: "max(20px, env(safe-area-inset-right))",
       }}
     >
-      {/* Back button — fixed 80px, inline style only (no Tailwind override) */}
+      {/* Back button — 160px matching mockup exactly */}
       <button
         type="button"
         onClick={onBack}
         className="transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ width: 80, height: 80, minWidth: 80, minHeight: 80 }}
+        style={{ width: 160, height: 160, minWidth: 160, minHeight: 160 }}
         aria-label="Back"
       >
         <img
