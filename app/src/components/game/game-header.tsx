@@ -18,23 +18,21 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
         paddingRight: "max(20px, env(safe-area-inset-right))",
       }}
     >
-      {/* Back button — 160px matching mockup exactly */}
+      {/* Back button — large inline SVG arrow (no external image dependency) */}
       <button
         type="button"
         onClick={onBack}
         className="transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ width: 160, height: 160, minWidth: 160, minHeight: 160 }}
+        style={{ width: 120, height: 120, minWidth: 120, minHeight: 120 }}
         aria-label="Back"
       >
-        <img
-          src="/arrow_left.png"
-          alt=""
-          style={{ width: "100%", height: "100%", objectFit: "contain", opacity: 0.75 }}
-          draggable={false}
-        />
+        <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%", opacity: 0.85 }}>
+          <circle cx="50" cy="50" r="45" fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+          <path d="M58 30 L38 50 L58 70" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
 
-      {/* Progress dots — compact, top-aligned */}
+      {/* Progress dots */}
       <div
         className="flex gap-[10px] items-center px-4 py-2 rounded-2xl"
         style={{ background: "rgba(0,0,0,0.2)" }}

@@ -39,7 +39,7 @@ const LAST_PLANET_KEY = "nolla_last_planet_game_type";
  * Bypasses React lifecycle entirely (no useEffect, no Strict Mode double-run).
  * Identical approach to wt.html which is proven to work on iOS Safari.
  */
-function launchWarpAnimation(targetUrl: string): void {
+function launchWarpAnimation(): void {
   // Create full-screen overlay
   const overlay = document.createElement("div");
   overlay.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:#000;";
@@ -52,10 +52,7 @@ function launchWarpAnimation(targetUrl: string): void {
   overlay.appendChild(canvas);
 
   const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    window.location.href = targetUrl;
-    return;
-  }
+  if (!ctx) return;
 
   const W = 1194, H = 834;
   const cx = W / 2, cy = H / 2;
@@ -71,7 +68,6 @@ function launchWarpAnimation(targetUrl: string): void {
   }
 
   let frame = 0;
-  let navigated = false;
 
   function draw() {
     ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
@@ -105,10 +101,7 @@ function launchWarpAnimation(targetUrl: string): void {
     }
 
     frame++;
-    if (frame === 70 && !navigated) {
-      navigated = true;
-      window.location.href = targetUrl;
-    }
+    // Pure animation — no navigation. Runs until page unloads.
     requestAnimationFrame(draw);
   }
 
@@ -162,8 +155,12 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   const handlePlanetTap = useCallback((planet: Planet) => {
     try { localStorage.setItem(LAST_PLANET_KEY, planet.gameType); } catch { /* */ }
-    // Launch warp directly into the DOM — no React component, no useEffect
-    launchWarpAnimation(`/game/${planet.gameType}`);
+    const target = `/game/${planet.gameType}`;
+    // Start warp animation (visual only, does NOT navigate)
+    launchWarpAnimation();
+    // Navigate after 1.2s via setTimeout from click handler context
+    // (iOS Safari blocks window.location.href from inside rAF)
+    setTimeout(() => { window.location.href = target; }, 1200);
   }, []);
 
   const current = planets[currentIndex];
