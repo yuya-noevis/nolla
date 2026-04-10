@@ -1208,52 +1208,66 @@ Canvaで作成。テキストのみ。
 
 ---
 
-## 投稿⑭「寝かしつけた後、スマホで"怒りすぎた"って検索する夜」
+## 投稿⑭「寝かしつけた後、ひとり反省会の夜」
 
 ### 枚1（タイトルカード）
 
 ```
 4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, soft warm background (dark navy blue and soft yellow gradient, nighttime feel). Cute deformed chibi style, hand-drawn feel.
 
-The mother (messy short hair, round glasses) sitting alone in a dimly lit living room, holding her phone. The phone screen casts a soft glow on her face. She looks thoughtful but not sad — more reflective. Above her, compact Japanese title: "寝かしつけた後、スマホで「怒りすぎた」って検索する夜" in round gothic font, no more than 60% of the image width. The title can wrap to 2 lines.
+The mother (messy short hair, round glasses, oversized hoodie, socks) sitting alone on a sofa in a dimly lit living room at night, holding an ice cream bar in one hand, with a small wry smile and a slightly tired expression. A warm table lamp glows beside her. Above her, compact Japanese title: "寝かしつけた後、ひとり反省会の夜" in round gothic font, no more than 55% of the image width.
 
 Generous margins from all edges (at least 15%). No narration box, no white bar, no frame title. The image contains only the Japanese title above and nothing else — no other text, no other letters, no onomatopoeia, no labels.
 ```
 
-### 枚2（寝かしつけ完了）
+### 枚2（シーン1：寝かしつけ完了）
 
 ```
 4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
 
 Simple loose line art, thick outlines, flat pastel colors, dark soft background with warm tones. Cute deformed chibi style, hand-drawn feel.
 
-Indoor bedroom scene, dimly lit with a small nightlight. The son is sleeping peacefully in his futon, hugging his green alien plush toy. His face is completely relaxed and innocent.
+Indoor bedroom scene, dimly lit with a small nightlight. The son (spiky hair, oversized striped t-shirt) is sleeping peacefully in his futon, hugging his green one-eyed alien plush toy. His face is completely relaxed and innocent.
 
-The mother is sitting beside him on the floor, looking down at his sleeping face. She has a gentle, quiet expression — a mix of tenderness and tiredness. One hand is softly resting near his pillow. Warm, quiet nighttime atmosphere.
+The mother (messy short hair, round glasses, oversized hoodie, socks) is sitting beside him on the floor, looking down at his sleeping face with a gentle, tender but tired expression. One hand softly rests near his pillow. Warm, quiet nighttime atmosphere — a moment of peace after a long day.
 ```
 
-### 枚3（スマホ検索）
+### 枚3（シーン2：リビングで怒ったシーンを回想・苦笑い）
 
 ```
 4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
 
 Simple loose line art, thick outlines, flat pastel colors, dark soft background. Cute deformed chibi style, hand-drawn feel.
 
-Indoor living room, nighttime. The mother is sitting on the sofa alone, legs curled up, holding her phone close to her face. The phone screen casts a soft blue-white glow on her face. Her expression is a small frown of reflection — not crying, not devastated, just quietly thinking.
+Indoor living room, nighttime. The mother is sitting on the sofa alone, holding a mug of tea, staring off into the middle distance. She has a wry awkward smile with a visible sweat drop on her forehead, eyes slightly wide — the classic "recalling an embarrassing memory" expression.
 
-A cup of tea sits on the side table, slightly steaming. The room is cozy and quiet. The atmosphere is intimate and relatable, not depressing.
+Above her head, a soft cloud-shaped thought bubble shows a flashback scene: daytime version of herself with an angry red face, mouth wide open yelling, arms raised, standing over the startled little son (who is clutching his green alien plush toy, wide-eyed). The thought bubble is clearly a memory/flashback. The contrast between the quiet nighttime present and the chaotic flashback is the comedy.
 ```
 
-### 枚4（オチ：ほっこり）
+### 枚4（シーン3：冷静になって少し落ち込む）
 
 ```
-4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, dark soft warm background. Cute deformed chibi style, hand-drawn feel.
+4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, dark soft background. Cute deformed chibi style, hand-drawn feel.
 
-Indoor kitchen, nighttime. The mother is standing in front of the open refrigerator, the fridge light illuminating her face. She is pulling out an ice cream bar with a small, relieved smile. Her posture is more relaxed now — shoulders down, a hint of a grin.
+Indoor living room, same nighttime sofa. The wry smile is gone. The mother is now slumped forward slightly, elbows on her knees, hands clasped loosely, looking down at the floor. Her eyes are half-closed and downturned, her mouth is a small flat line. She is not crying — just quietly reflecting with a gentle, slightly sad expression. The tea mug sits on the side table.
 
-She has a round speech bubble containing only: "…明日はもうちょっとだけ、優しくなれますように"
+Above her head, a cloud-shaped THOUGHT bubble (not a speech bubble — the cloud-shaped kind with small trailing circles rising from her head to indicate inner thoughts) containing only: "怒りすぎたな…"
 
-The fridge light and her small smile make the scene warm and hopeful, not sad. A small moment of self-care.
+The thought bubble must clearly be a thought (cloud shape with trailing small bubbles connecting to her head), NOT a speech bubble with a pointed tail from her mouth. The atmosphere is quiet, introspective but not depressing — the universal "I was too harsh today" moment every parent has.
+
+The image contains only the mother's Japanese thought bubble above and nothing else — no other text, no other letters, no onomatopoeia, no narration box, no frame title.
+```
+
+### 枚5（シーン4：冷蔵庫前でアイス・気合い）
+
+```
+4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, dark warm background. Cute deformed chibi style, hand-drawn feel.
+
+Indoor kitchen, nighttime. The mother is standing in front of the open refrigerator, the fridge light illuminating her face with a warm glow. She is holding an ice cream bar that she just took out, already half-unwrapped. Her expression has shifted — a small determined smile, eyes a bit brighter, shoulders lifted slightly. A tiny fist pump gesture with her free hand. She looks refreshed, like she's just given herself permission to reset.
+
+She has a round speech bubble containing only: "明日はもうちょっとだけ、優しくなれますように"
+
+The fridge light and her small hopeful smile make the scene warm and uplifting, not sad. A small moment of self-care and resolve.
 
 The image contains only the mother's Japanese speech bubble above and nothing else — no other text, no other letters, no onomatopoeia, no narration box, no frame title.
 ```
@@ -1294,66 +1308,66 @@ Canvaで作成。テキストのみ。
 
 ---
 
-## 投稿⑮「"いってきます"の儀式、毎朝3分」
+## 投稿⑮「"いってきます"の儀式」
 
 ### 枚1（タイトルカード）
 
 ```
 4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, soft warm background (light orange and cream gradient, morning feel). Cute deformed chibi style, hand-drawn feel.
 
-A small boy (spiky hair, oversized striped t-shirt, shoes on) standing at a front door entrance (genkan), carefully touching the doorknob with one hand. His green one-eyed alien plush toy is sitting on the shoe shelf beside him. The mother (messy short hair, round glasses, shoes on) stands behind him, checking her watch with a patient but resigned expression. Above them, compact Japanese title: "「いってきます」の儀式、毎朝3分" in round gothic font, no more than 50% of the image width.
+A small boy (spiky hair, oversized striped t-shirt, shoes on) standing at a front door entrance (genkan), carefully touching the doorknob with one hand. His green one-eyed alien plush toy is sitting on the shoe shelf beside him. The mother (messy short hair, round glasses, shoes on) stands behind him, checking her watch with a patient but resigned expression. Above them, compact Japanese title: "「いってきます」の儀式" in round gothic font, no more than 50% of the image width.
 
 Generous margins from all edges (at least 15%). No narration box, no white bar, no frame title. The image contains only the Japanese title above and nothing else — no other text, no other letters, no onomatopoeia, no labels.
 ```
 
-### 枚2（儀式スタート：靴を揃える）
-
-```
-4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
-
-Simple loose line art, thick outlines, flat pastel colors, white/light warm background. Cute deformed chibi style, hand-drawn feel.
-
-Indoor genkan (Japanese entrance area). The son (spiky hair, oversized striped t-shirt) is crouching down, carefully aligning his shoes on the floor with extreme precision. He is adjusting the angle of one shoe with his fingertip, his face completely serious and focused. Both shoes must be perfectly parallel.
-
-The mother is standing behind him in the hallway, already wearing her shoes, holding a bag, watching him with a calm, patient smile. The green alien plush toy is sitting on the shoe shelf. Morning sunlight comes through the door.
-```
-
-### 枚3（儀式つづき：ドアノブ確認）
-
-```
-4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
-
-Simple loose line art, thick outlines, flat pastel colors, white/light warm background. Cute deformed chibi style, hand-drawn feel.
-
-Indoor genkan. The son is now standing, reaching up to touch the doorknob. He touches it, releases, touches it again, releases, touches it a third time. His expression is calm and focused, like performing an important ritual.
-
-The mother is leaning against the hallway wall, arms crossed, eyes closed, with a peaceful waiting expression. She clearly knows this step well and is just patiently waiting. The green alien plush toy is still on the shoe shelf.
-```
-
-### 枚4（やり直し発生）
-
-```
-4:5 vertical kawaii illustration with zero text. No letters, no words, no speech bubbles, no onomatopoeia, no labels anywhere. Do not render any characters, symbols, or writing of any kind on the image.
-
-Simple loose line art, thick outlines, flat pastel colors, white/light background. Cute deformed chibi style, hand-drawn feel.
-
-Indoor genkan. The son has gone back to the shoes and is crouching down again to re-align them from scratch. He is re-doing the entire ritual from step one. His face is determined.
-
-The mother is standing with her bag, looking at the ceiling with a resigned but warm half-smile, one hand on her hip. A small sweat drop on her forehead. She knows this means the full 3-minute sequence is restarting. Not frustrated — just experienced.
-```
-
-### 枚5（オチ：クスッ）
+### 枚2（儀式①：服の着心地が納得いくまで直す）
 
 ```
 4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, white/light warm background. Cute deformed chibi style, hand-drawn feel.
 
-Outdoor scene, just outside the front door. The son has finally stepped outside and is walking ahead calmly, holding his green alien plush toy, looking content. Both mother and son are wearing shoes.
+Indoor child's bedroom, morning. The son (spiky hair, wearing his oversized striped t-shirt and shorts) is standing in the middle of the room, looking down at his t-shirt with an intensely focused serious expression. He is pulling at the hem of his shirt, then tugging at the neckline, then smoothing a wrinkle on the sleeve — trying to make it feel "just right" on his body. His green one-eyed alien plush toy sits on the bed watching him.
 
-The mother is closing the door behind her, looking at her watch. She has a tired but amused smile. She has a round speech bubble containing only: "…3分。今日は早いほう"
+The mother (messy short hair, round glasses, oversized hoodie, socks) is standing in the doorway holding his school bag, watching with a patient warm smile. Morning sunlight through the window.
 
-Morning sunlight, warm wholesome atmosphere. The comedy is in her acceptance.
+In the top-left corner of the image, inside a small rounded rectangle label with a pastel yellow background, compact Japanese text: "儀式①　服の着心地がしっくりくるまで" in round gothic font. The label is small (no more than 45% of image width) and placed cleanly in the corner like a caption, NOT as a narration box across the top. The label is the only text in the image — no other letters, no speech bubbles, no onomatopoeia, no narration box, no frame title.
+```
 
-The image contains only the mother's Japanese speech bubble above and nothing else — no other text, no other letters, no onomatopoeia, no narration box, no frame title.
+### 枚3（儀式②：カバンの中身の配置が納得いくまで並べ直す）
+
+```
+4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, white/light warm background. Cute deformed chibi style, hand-drawn feel.
+
+Indoor living room, morning. The son is sitting on the floor, his school bag open beside him, and he has taken all his belongings out and lined them up on the floor — a water bottle, a handkerchief, a small notebook, a pencil case, and his green alien plush toy. He is carefully adjusting the angle of the pencil case with his fingertip, his face deeply serious and focused. Some items are already placed back into the bag but he is rearranging them with intense concentration, seeking a "just right" arrangement.
+
+The mother is sitting on the sofa behind him, one elbow on the armrest, chin in hand, watching with a calm patient smile. A clock is visible on the wall.
+
+In the top-left corner of the image, inside a small rounded rectangle label with a pastel yellow background, compact Japanese text: "儀式②　カバンの中身がしっくりくるまで" in round gothic font. The label is small (no more than 45% of image width) and placed cleanly in the corner like a caption. The label is the only text in the image — no other letters, no speech bubbles, no onomatopoeia, no narration box, no frame title.
+```
+
+### 枚4（儀式③：ドアを閉めた音が納得いくまで閉め直す）
+
+```
+4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, white/light warm background. Cute deformed chibi style, hand-drawn feel.
+
+Outdoor scene, just outside the front door of a Japanese house. The son (spiky hair, oversized striped t-shirt, shoes on, his green alien plush toy tucked under one arm) is standing at the threshold with his hand on the door handle, intensely focused on the act of closing the door. His ear is slightly tilted toward the door, listening carefully to the sound it makes as it shuts. Small visual motion lines near the door show it has just been closed — and will be opened and re-closed again.
+
+Behind him, on the pavement, the mother stands holding her bag, watching with a warm patient but slightly amused expression, head tilted. Morning sunlight.
+
+In the top-left corner of the image, inside a small rounded rectangle label with a pastel yellow background, compact Japanese text: "儀式③　ドアの閉まる音がしっくりくるまで" in round gothic font. The label is small (no more than 50% of image width) and placed cleanly in the corner like a caption. The label is the only text in the image — no other letters, no speech bubbles, no onomatopoeia, no narration box, no frame title.
+```
+
+### 枚5（オチ：20分経過・ふりだしに戻る）
+
+```
+4:5 vertical kawaii illustration. Simple loose line art, thick outlines, flat pastel colors, white/light warm background. Cute deformed chibi style, hand-drawn feel.
+
+Indoor child's bedroom, same room as scene 1. The son is back in the bedroom — he has returned from the front door all the way to the beginning. He is standing in the middle of the room again, pulling at the hem of his t-shirt with the same intense focus, restarting ritual ① from scratch. The door's sound was not "right," so he had to reset everything. His green alien plush toy is tucked under his arm. Calm, focused, completely undisturbed.
+
+The mother is standing in the doorway, still holding his school bag, but now slumped slightly, staring at her wristwatch with a mildly fed-up exhausted expression — small sweat drop on forehead, half-closed tired eyes, resigned downturned mouth. Not angry, just "oh no, again" level of done. A large wall clock in the background visibly shows 20 minutes have passed.
+
+In the top-left corner, inside a small rounded rectangle label with a pastel pink background, compact Japanese text: "20分経過…" in round gothic font. In the bottom area of the image, a second small rounded rectangle label with pastel pink background contains: "納得がいくまで続きます" in round gothic font. Both labels are small (no more than 50% of image width each) and placed cleanly as captions.
+
+The only text in the image is these two Japanese caption labels — no speech bubbles, no other letters, no onomatopoeia, no narration box, no frame title.
 ```
 
 ### 枚6（Tips — テキスト画像）
@@ -1586,11 +1600,11 @@ Canvaで作成。テキストのみ。
 ### 投稿⑬キャプション
 
 ```
-ショッピングモールのエスカレーター。
-動く床の前で、息子の足が完全に止まった。
+電気のスイッチ、パチッ、パチッ、パチッ。
+部屋が明るくなったり暗くなったり、終わらない。
 
-抱っこ作戦→体が棒になって失敗。
-結局、階段を探す旅が始まりました。
+止めようとすると悲しむし、
+そっと見守ってたら30分経ってた夜。
 
 「わかる…！」って方、いいねで教えてください 🙋
 最後のページにちょっとしたヒントあります。
@@ -1601,11 +1615,11 @@ Canvaで作成。テキストのみ。
 ### 投稿⑭キャプション
 
 ```
-寝かしつけた後、スマホを開く。
-検索窓に「子ども 怒りすぎた」って打ってる自分がいる。
+寝かしつけた後、静かなリビングでひとり反省会。
+「今日、ちょっと怒りすぎたな…」
 
-寝顔を見たら「ごめんね」ってなって、
-冷蔵庫からアイス出して、明日に備える夜。
+アイスを食べて、小さくガッツポーズ。
+明日はもうちょっとだけ、優しくなれますように。
 
 同じ経験のある方、コメントで聞かせてください 💬
 最後のページ、今回は自分へのヒントです。
@@ -1616,11 +1630,11 @@ Canvaで作成。テキストのみ。
 ### 投稿⑮キャプション
 
 ```
-「いってきます」の前に、毎朝の儀式がある。
+「いってきます」までが、長い。
 
-靴を揃えて、ドアノブを3回触って、
-ぬいぐるみにバイバイ。ひとつ飛ばすとやり直し。
-今日は3分で済んだので早いほう。
+服の着心地、カバンの中身、ドアを閉めた音——
+ぜんぶ"しっくりくる"まで、何度でもやり直し。
+気がついたら20分経ってた朝。
 
 「わかる…！」って方、いいねで教えてください 🙋
 最後のページにちょっとしたヒントあります。

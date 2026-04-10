@@ -2,86 +2,76 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1194, height=834">
-<title>Nolla - P1 PIN Authentication</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla P1 - PIN</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-/* Dark overlay for child-proof feel */
-.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.15); z-index: 1; }
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #F5F5F5; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Quicksand', sans-serif; }
+  .screen { position: relative; width: 1194px; height: 834px; overflow: hidden; background: #F5F5F5; display: flex; align-items: center; justify-content: center; }
 
-.center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .pin-card {
+    display: flex; flex-direction: column; align-items: center; gap: 32px;
+  }
+  .pin-title { font-size: 20px; font-weight: 700; color: #333; }
 
-.pin-card { width: 380px; background: rgba(255,255,255,0.97); border: 3px solid rgba(210,185,150,0.4); border-radius: 28px; padding: 40px 36px; box-shadow: 0 12px 40px rgba(0,0,0,0.12); text-align: center; }
+  .pin-dots { display: flex; gap: 20px; }
+  .pin-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 3px solid #4A7BA7;
+    transition: background 0.2s;
+  }
+  .pin-dot.filled { background: #4A7BA7; }
 
-.lock-icon { margin-bottom: 16px; }
-.pin-title { font-size: 18px; font-weight: 700; color: #555; margin-bottom: 8px; }
-.pin-sub { font-size: 13px; color: #999; margin-bottom: 28px; }
+  .keypad {
+    display: grid; grid-template-columns: repeat(3, 80px); gap: 16px;
+  }
+  .key {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: white; border: 2px solid #E0E0E0;
+    font-size: 28px; font-weight: 700; color: #333;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+    font-family: inherit;
+  }
+  .key:hover { background: #F0F0F0; }
+  .key:active { transform: scale(0.95); background: #E8E8E8; }
+  .key.empty { border: none; background: transparent; cursor: default; }
+  .key.delete { font-size: 16px; color: #888; border: none; background: transparent; }
 
-/* PIN dots */
-.pin-dots { display: flex; justify-content: center; gap: 16px; margin-bottom: 32px; }
-.pin-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(210,185,150,0.5); }
-.pin-dot.filled { background: #4A7BA7; border-color: #4A7BA7; }
-
-/* Numpad */
-.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 260px; margin: 0 auto; }
-.num-btn { width: 72px; height: 56px; border: 2px solid rgba(210,185,150,0.4); border-radius: 14px; background: rgba(245,240,232,0.6); font-size: 24px; font-weight: 700; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; }
-.num-btn:hover { background: rgba(245,240,232,1); }
-.num-btn.empty { border: none; background: transparent; }
-.num-btn.delete { font-size: 16px; }
-
-/* Face ID / biometric option */
-.biometric-option { font-size: 13px; color: #4A7BA7; cursor: pointer; margin-top: 4px; }
-
-/* Cancel link */
-.cancel { font-size: 14px; color: #999; cursor: pointer; }
+  .btn-back {
+    position: absolute; top: 20px; left: 24px;
+    width: 80px; height: 80px;
+    background: url('arrow_left.png') center/contain no-repeat;
+    cursor: pointer; opacity: 0.5; transition: opacity 0.2s;
+  }
+  .btn-back:hover { opacity: 0.8; }
 </style>
 </head>
 <body>
-  <img class="bg" src="assets/parent_bg.png" alt="">
-  <div class="overlay"></div>
-
-  <div class="center">
-    <div class="pin-card">
-      <div class="lock-icon">
-        <svg width="48" height="48" viewBox="0 0 48 48">
-          <rect x="10" y="22" width="28" height="20" rx="4" fill="#4A7BA7"/>
-          <path d="M16 22V16C16 11.6 19.6 8 24 8C28.4 8 32 11.6 32 16V22" stroke="#4A7BA7" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <circle cx="24" cy="33" r="3" fill="white"/>
-        </svg>
-      </div>
-      <div class="pin-title">保護者エリア</div>
-      <div class="pin-sub">PINコードを入力してください</div>
-
-      <div class="pin-dots">
-        <div class="pin-dot filled"></div>
-        <div class="pin-dot filled"></div>
-        <div class="pin-dot"></div>
-        <div class="pin-dot"></div>
-      </div>
-
-      <div class="numpad">
-        <div class="num-btn">1</div>
-        <div class="num-btn">2</div>
-        <div class="num-btn">3</div>
-        <div class="num-btn">4</div>
-        <div class="num-btn">5</div>
-        <div class="num-btn">6</div>
-        <div class="num-btn">7</div>
-        <div class="num-btn">8</div>
-        <div class="num-btn">9</div>
-        <div class="num-btn empty"></div>
-        <div class="num-btn">0</div>
-        <div class="num-btn delete">
-          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M20 4H9L2 12L9 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" fill="none" stroke="#999" stroke-width="2"/><path d="M17 8L13 12M13 8L17 12" stroke="#999" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-      </div>
-
-      <div class="biometric-option">Face IDで認証</div>
+<div class="screen">
+  <div class="btn-back" onclick="location.href='m1_galaxy_carousel.html'"></div>
+  <div class="pin-card">
+    <div class="pin-title">保護者用PINを入力</div>
+    <div class="pin-dots" id="dots">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
     </div>
-
-    <div class="cancel">キャンセル</div>
+    <div class="keypad" id="keypad"></div>
   </div>
+</div>
+<script>
+  let pin = '';
+  const dots = document.querySelectorAll('.pin-dot');
+  const keypad = document.getElementById('keypad');
+  const nums = [1,2,3,4,5,6,7,8,9,null,0,'del'];
+  nums.forEach(n => {
+    const k = document.createElement('button');
+    if (n === null) { k.className = 'key empty'; }
+    else if (n === 'del') { k.className = 'key delete'; k.textContent = '←'; k.onclick = () => { pin = pin.slice(0,-1); updateDots(); }; }
+    else { k.className = 'key'; k.textContent = n; k.onclick = () => { if (pin.length < 4) { pin += n; updateDots(); if (pin.length === 4) setTimeout(() => location.href = 'p2_dashboard.html', 300); } }; }
+    keypad.appendChild(k);
+  });
+  function updateDots() { dots.forEach((d, i) => d.classList.toggle('filled', i < pin.length)); }
+</script>
 </body>
 </html>

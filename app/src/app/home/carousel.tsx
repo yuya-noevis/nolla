@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getEnabledBuildings, type Building } from "@/lib/buildings";
+import { getEnabledPlanets, type Planet } from "@/lib/planets";
 import { MotorBaselineMeasurement } from "@/components/game/motor-baseline";
 import { calculateMotorBaseline } from "@/lib/session/motor-baseline";
 
@@ -33,36 +33,31 @@ function saveMotorBaselineFromHome(medianRt: number): void {
 
 type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 
-const LAST_BUILDING_KEY = "nolla_last_building_game_type";
+const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
 export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const router = useRouter();
-  const buildings = getEnabledBuildings(gamesEnabled);
+  const planets = getEnabledPlanets(gamesEnabled);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [warmupPhase, setWarmupPhase] = useState<WarmupPhase>("checking");
   const [localStars, setLocalStars] = useState(starBalance);
+  const [isWarping, setIsWarping] = useState(false);
 
-  // Mount-only: load stars + restore last-played building index.
-  // IMPORTANT: buildings is recomputed on every render, so do NOT put it
-  // in the dep array — that would refire this effect on every render and
-  // snap the carousel back to the last-played building, making the
-  // left/right arrows look broken (they trigger a re-render which
-  // re-runs this effect which resets currentIndex).
+  // Mount-only: load stars + restore last-played planet index.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const saved = parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10);
     if (saved > 0) setLocalStars(saved);
 
-    const lastGame = localStorage.getItem(LAST_BUILDING_KEY);
+    const lastGame = localStorage.getItem(LAST_PLANET_KEY);
     if (lastGame) {
-      const idx = buildings.findIndex((b) => b.gameType === lastGame);
+      const idx = planets.findIndex((p) => p.gameType === lastGame);
       if (idx >= 0) setCurrentIndex(idx);
     }
   }, []);
 
   // Check if baseline needed on mount
   useEffect(() => {
-    // Allow manual reset via ?reset=1
     if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("reset")) {
       localStorage.removeItem("nolla_motor_baseline");
       window.history.replaceState({}, "", window.location.pathname);
@@ -81,30 +76,34 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   }, []);
 
   const goLeft = useCallback(() => {
-    setCurrentIndex((i) => (i > 0 ? i - 1 : buildings.length - 1));
-  }, [buildings.length]);
+    setCurrentIndex((i) => (i > 0 ? i - 1 : planets.length - 1));
+  }, [planets.length]);
 
   const goRight = useCallback(() => {
-    setCurrentIndex((i) => (i < buildings.length - 1 ? i + 1 : 0));
-  }, [buildings.length]);
+    setCurrentIndex((i) => (i < planets.length - 1 ? i + 1 : 0));
+  }, [planets.length]);
 
-  const handleBuildingTap = useCallback(
-    (building: Building) => {
+  const handlePlanetTap = useCallback(
+    (planet: Planet) => {
       try {
-        localStorage.setItem(LAST_BUILDING_KEY, building.gameType);
+        localStorage.setItem(LAST_PLANET_KEY, planet.gameType);
       } catch {
         // ignore quota / private mode
       }
-      router.push(`/game/${building.gameType}`);
+      // Warp transition
+      setIsWarping(true);
+      setTimeout(() => {
+        router.push(`/game/${planet.gameType}`);
+      }, 1200);
     },
     [router]
   );
 
-  const current = buildings[currentIndex];
+  const current = planets[currentIndex];
 
   // Show warmup overlay
   if (warmupPhase === "checking") {
-    return <main className="h-dvh w-full bg-nolla-bg" />;
+    return <main className="h-dvh w-full" style={{ background: "#0B0B30" }} />;
   }
 
   if (warmupPhase === "ready" || warmupPhase === "measuring") {
@@ -112,7 +111,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
       <main
         className="h-dvh w-full flex flex-col items-center justify-center"
         style={{
-          background: `linear-gradient(180deg, ${current.skyGradient[0]} 0%, ${current.skyGradient[1]} 60%, ${current.groundColor} 100%)`,
+          background: `radial-gradient(ellipse at 50% 40%, ${current.skyGradient[1]} 0%, ${current.skyGradient[0]} 70%, #0A0A2E 100%)`,
         }}
       >
         {warmupPhase === "ready" && (
@@ -121,13 +120,12 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
             onClick={handleWarmupStart}
             className="flex flex-col items-center gap-6"
           >
-            {/* Big play button */}
             <div
               className="w-32 h-32 rounded-full flex items-center justify-center active:scale-95 transition-transform"
               style={{
-                background: "linear-gradient(135deg, var(--color-mc-glowstone), #C8962D)",
-                boxShadow: "0 8px 0 var(--color-mc-dark-oak-light), 0 0 40px rgba(218,165,32,0.3)",
-                border: "4px solid var(--color-mc-dark-oak)",
+                background: "radial-gradient(circle, rgba(0,212,255,0.3), rgba(0,212,255,0.05))",
+                boxShadow: "0 0 40px rgba(0,212,255,0.3), inset 0 0 20px rgba(0,212,255,0.1)",
+                border: "2px solid rgba(0,212,255,0.4)",
               }}
             >
               <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
@@ -144,29 +142,93 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
     );
   }
 
+  // Warp transition overlay
+  if (isWarping) {
+    return (
+      <main className="h-dvh w-full relative overflow-hidden" style={{ background: "#000000" }}>
+        {/* Radial star streaks */}
+        {Array.from({ length: 60 }).map((_, i) => {
+          const angle = (i / 60) * 360;
+          const delay = Math.random() * 400;
+          const length = 40 + Math.random() * 60;
+          return (
+            <div
+              key={i}
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: `${length}px`,
+                height: "1.5px",
+                background: `linear-gradient(90deg, transparent 0%, ${i % 3 === 0 ? "#00D4FF" : "#FFFFFF"} 50%, transparent 100%)`,
+                transform: `rotate(${angle}deg) translateX(0)`,
+                transformOrigin: "0 50%",
+                animation: `warp-stars 1200ms ease-in ${delay}ms forwards`,
+                opacity: 0,
+              }}
+            />
+          );
+        })}
+        {/* Center flash */}
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            width: 8,
+            height: 8,
+            background: "#FFFFFF",
+            boxShadow: "0 0 60px 20px rgba(0,212,255,0.5)",
+          }}
+        />
+      </main>
+    );
+  }
+
   return (
-    // Landscape phone (812×375) fit: do NOT use sm: (width ≥ 640 px)
-    // breakpoints to grow the layout — the phone crosses that breakpoint
-    // sideways but has only ~340 dvh once iOS Safari's URL bar is drawn.
-    // Everything is kept compact so header + building + footer fit in
-    // ~330 px vertically.
     <main
-      className="h-dvh w-full flex flex-col relative transition-colors duration-500"
+      className="h-dvh w-full flex flex-col relative transition-all duration-500"
       style={{
-        background: `linear-gradient(180deg, ${current.skyGradient[0]} 0%, ${current.skyGradient[1]} 60%, ${current.groundColor} 100%)`,
+        background: `radial-gradient(ellipse at 50% 40%, ${current.skyGradient[1]} 0%, ${current.skyGradient[0]} 70%, #0A0A2E 100%)`,
       }}
     >
+      {/* Nebula cloud layer */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at 25% 30%, ${current.nebulaColor}40 0%, transparent 50%),
+                       radial-gradient(ellipse at 75% 70%, rgba(0,212,255,0.08) 0%, transparent 40%)`,
+        }}
+      />
+
+      {/* Star field (static decorative dots) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: i < 5 ? 3 : i < 15 ? 2 : 1,
+              height: i < 5 ? 3 : i < 15 ? 2 : 1,
+              background: i < 3 ? "rgba(0,212,255,0.6)" : "rgba(255,255,255,0.5)",
+              left: `${(i * 37 + 13) % 100}%`,
+              top: `${(i * 53 + 7) % 85}%`,
+              boxShadow: i < 3 ? "0 0 4px rgba(0,212,255,0.4)" : "none",
+            }}
+          />
+        ))}
+      </div>
+
       {/* Header: Stars + Parent lock */}
       <div
-        className="flex items-center justify-between px-3 pt-1 shrink-0"
+        className="flex items-center justify-between px-3 pt-1 shrink-0 relative z-10"
         style={{
           paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
           paddingRight: "max(0.75rem, env(safe-area-inset-right))",
           paddingTop: "max(0.25rem, env(safe-area-inset-top))",
         }}
       >
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#DAA520">
+        <div
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-sm"
+          style={{ background: "rgba(0,0,0,0.2)" }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFD700">
             <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" />
           </svg>
           <span className="text-base font-bold text-white drop-shadow-sm">
@@ -177,64 +239,73 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         <button
           type="button"
           onClick={() => router.push("/pin")}
-          className="touch-target flex items-center justify-center w-10 h-10 rounded-full bg-white/10"
+          className="touch-target flex items-center justify-center w-10 h-10 rounded-full"
+          style={{ background: "rgba(255,255,255,0.08)" }}
           aria-label="Parent menu"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2">
             <rect x="3" y="11" width="18" height="11" rx="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         </button>
       </div>
 
-      {/* Main: Building carousel */}
-      <div className="flex-1 flex items-center justify-center relative">
+      {/* Main: Planet carousel */}
+      <div className="flex-1 flex items-center justify-center relative z-10">
         {/* Left arrow */}
-        {buildings.length > 1 && (
+        {planets.length > 1 && (
           <button
             type="button"
             onClick={goLeft}
-            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
-            style={{ left: "max(0.5rem, env(safe-area-inset-left))" }}
+            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full"
+            style={{
+              left: "max(0.5rem, env(safe-area-inset-left))",
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}
             aria-label="Previous"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
         )}
 
-        {/* Building */}
+        {/* Planet */}
         <button
           type="button"
-          onClick={() => handleBuildingTap(current)}
-          className="flex flex-col items-center gap-2 transition-transform duration-300 active:scale-95"
+          onClick={() => handlePlanetTap(current)}
+          className="flex flex-col items-center gap-3 transition-transform duration-300 active:scale-95"
         >
-          <BuildingVisual building={current} />
+          <PlanetVisual planet={current} />
           <span className="text-base font-bold text-white drop-shadow-md">
             {current.name}
           </span>
         </button>
 
         {/* Right arrow */}
-        {buildings.length > 1 && (
+        {planets.length > 1 && (
           <button
             type="button"
             onClick={goRight}
-            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full btn-mc"
-            style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}
+            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full"
+            style={{
+              right: "max(0.5rem, env(safe-area-inset-right))",
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.15)",
+            }}
             aria-label="Next"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round">
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>
         )}
       </div>
 
-      {/* Footer: Dots + Nav character + My Room */}
+      {/* Footer: Dots + Nav bubble + My Room */}
       <div
-        className="flex items-center justify-between gap-2 px-3 pb-1 shrink-0"
+        className="flex items-center justify-between gap-2 px-3 pb-1 shrink-0 relative z-10"
         style={{
           paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
           paddingRight: "max(0.75rem, env(safe-area-inset-right))",
@@ -251,22 +322,26 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
         </button>
 
         {/* Dot indicators */}
-        <div className="flex gap-1.5 shrink-0">
-          {buildings.map((_, i) => (
+        <div
+          className="flex gap-2 px-3 py-1.5 rounded-full shrink-0"
+          style={{ background: "rgba(0,0,0,0.2)" }}
+        >
+          {planets.map((_, i) => (
             <div
               key={i}
-              className={`w-2.5 h-2.5 rounded-full transition-opacity ${
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 i === currentIndex
-                  ? "bg-white/90"
-                  : "bg-white/30"
+                  ? "bg-white scale-110"
+                  : "bg-white/25"
               }`}
+              style={i === currentIndex ? { boxShadow: "0 0 6px rgba(255,255,255,0.5)" } : undefined}
             />
           ))}
         </div>
 
         {/* Navi character */}
         <div className="navi-bubble px-2 py-1 max-w-36 shrink-0">
-          <p className="text-xs text-nolla-text truncate">
+          <p className="text-xs truncate">
             {childName}、あそぼう！
           </p>
         </div>
@@ -275,48 +350,100 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   );
 }
 
-function BuildingVisual({ building }: { building: Building }) {
-  // Compact-everywhere building visual. Landscape phone (812×375) has
-  // ~340 dvh once the Safari URL bar is drawn; the header + footer +
-  // building + name label must all fit vertically, which a previous
-  // sm:w-48 sm:h-56 variant (192×224) did not. Fixed at 120×140 so the
-  // full home screen is always visible without scrolling.
+function PlanetVisual({ planet }: { planet: Planet }) {
+  const size = 140;
+  const sphereSize = 120;
+
   return (
-    <div className="relative flex items-end justify-center" style={{ width: 120, height: 140 }}>
-      {/* Building body */}
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      {/* Atmosphere ring (outer glow) */}
       <div
-        className="rounded-t-2xl relative overflow-hidden"
+        className="absolute rounded-full animate-atmosphere"
         style={{
-          width: 104,
-          height: 116,
-          background: `linear-gradient(135deg, var(--color-mc-oak-light) 0%, var(--color-mc-oak) 100%)`,
-          border: "3px solid var(--color-mc-dark-oak)",
-          boxShadow: "0 6px 0 var(--color-mc-dark-oak-light)",
+          width: sphereSize + 24,
+          height: sphereSize + 24,
+          background: planet.atmosphereColor,
+          filter: "blur(8px)",
+        }}
+      />
+
+      {/* Planet sphere */}
+      <div
+        className="rounded-full relative overflow-hidden"
+        style={{
+          width: sphereSize,
+          height: sphereSize,
+          background: `radial-gradient(circle at 35% 35%, ${planet.groundColor} 0%, ${planet.skyGradient[1]} 60%, ${planet.skyGradient[0]} 100%)`,
+          boxShadow: `
+            inset -8px -8px 20px rgba(0,0,0,0.4),
+            inset 4px 4px 12px rgba(255,255,255,0.1),
+            0 0 20px ${planet.atmosphereColor},
+            0 0 40px ${planet.atmosphereColor}
+          `,
+          border: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        {/* Windows */}
-        <div className="absolute top-5 left-1/2 -translate-x-1/2 flex gap-2">
-          <div className="w-7 h-8 rounded-t-lg" style={{ background: "var(--color-mc-glass)" }} />
-          <div className="w-7 h-8 rounded-t-lg" style={{ background: "var(--color-mc-glass)" }} />
-        </div>
-        {/* Door */}
+        {/* Rim light (top-left highlight) */}
         <div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 rounded-t-lg"
-          style={{ width: 36, height: 48, background: "var(--color-mc-dark-oak)" }}
+          className="absolute rounded-full"
+          style={{
+            width: "40%",
+            height: "40%",
+            top: "8%",
+            left: "8%",
+            background: "radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)",
+          }}
         />
-        {/* Glowstone light */}
+
+        {/* Small accent glow spots */}
         <div
-          className="absolute top-2 right-2 w-3 h-3 rounded-sm"
-          style={{ background: "var(--color-mc-glowstone)", boxShadow: "0 0 8px rgba(218,165,32,0.5)" }}
+          className="absolute rounded-full"
+          style={{
+            width: 6,
+            height: 6,
+            top: "25%",
+            left: "60%",
+            background: planet.accentGlow,
+            boxShadow: `0 0 8px ${planet.accentGlow}`,
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 4,
+            height: 4,
+            top: "55%",
+            left: "30%",
+            background: planet.accentGlow,
+            boxShadow: `0 0 6px ${planet.accentGlow}`,
+            opacity: 0.7,
+          }}
+        />
+
+        {/* Equator cloud wisps */}
+        <div
+          className="absolute"
+          style={{
+            width: "70%",
+            height: "12%",
+            top: "46%",
+            left: "15%",
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
+            borderRadius: "50%",
+          }}
         />
       </div>
-      {/* Roof */}
+
+      {/* Small satellite rock */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0"
+        className="absolute rounded-full"
         style={{
-          borderLeft: "60px solid transparent",
-          borderRight: "60px solid transparent",
-          borderBottom: `36px solid var(--color-mc-stone)`,
+          width: 8,
+          height: 8,
+          top: "10%",
+          right: "5%",
+          background: `radial-gradient(circle at 30% 30%, ${planet.skyGradient[1]}, ${planet.skyGradient[0]})`,
+          boxShadow: "0 0 4px rgba(255,255,255,0.1)",
         }}
       />
     </div>

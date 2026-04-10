@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla M4 - Visual Search</title>
+<style>
+  :root {
+    --sky-top: #1868C0;
+    --sky-mid: #4888D0;
+    --sky-bottom: #7878C0;
+    --star-gold: #FFD700;
+    --match-glow: #5DBB5D;
+    --ui-backdrop: rgba(0, 0, 0, 0.2);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+  .screen { position: relative; width: 1194px; height: 834px; overflow: hidden; background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%); }
+  .stars-layer { position: absolute; top: 0; left: 0; width: 100%; height: 60%; pointer-events: none; }
+  .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s ease-in-out infinite alternate; }
+  @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
+
+  .ui-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px; z-index: 50; }
+  .btn-home { width: 160px; height: 160px; background: url('arrow_left.png') center/contain no-repeat; cursor: pointer; opacity: 0.75; transition: opacity 0.2s, transform 0.2s; }
+  .btn-home:hover { opacity: 1; transform: scale(1.1); }
+  .progress { display: flex; gap: 10px; align-items: center; padding: 10px 16px; background: var(--ui-backdrop); border-radius: 14px; }
+  .progress-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
+  .progress-dot.done { background: var(--match-glow); border-color: var(--match-glow); }
+
+  /* Visual search: two panels side by side */
+  .game-area {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; gap: 40px; z-index: 10;
+  }
+
+  .panel {
+    width: 480px; height: 480px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 24px;
+    border: 2px solid rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel-item {
+    position: absolute;
+    font-size: 36px;
+    transition: transform 0.2s;
+  }
+
+  .panel-item.different {
+    cursor: pointer;
+  }
+  .panel-item.different:hover { transform: scale(1.2); }
+
+  .panel-item.found {
+    animation: foundPop 0.5s ease-out;
+  }
+  @keyframes foundPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+  }
+
+  .found-ring {
+    position: absolute;
+    border: 3px solid var(--match-glow);
+    border-radius: 50%;
+    width: 50px; height: 50px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 20;
+    animation: ringIn 0.5s ease-out;
+    box-shadow: 0 0 12px rgba(93, 187, 93, 0.5);
+  }
+  @keyframes ringIn {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  .divider {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 4px; height: 60%; background: rgba(255,255,255,0.1); border-radius: 2px;
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="stars-layer" id="stars-layer"></div>
+  <div class="divider"></div>
+
+  <div class="game-area">
+    <div class="panel" id="panel-left"></div>
+    <div class="panel" id="panel-right"></div>
+  </div>
+
+  <div class="ui-top">
+    <div class="btn-home" onclick="goHome()"></div>
+    <div class="progress">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const starsLayer = document.getElementById('stars-layer');
+  for (let i = 0; i < 25; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+    starsLayer.appendChild(s);
+  }
+
+  // Scene items (shared between panels)
+  const SCENE = [
+    { emoji: '🌳', x: 60, y: 80 },
+    { emoji: '🏠', x: 200, y: 120 },
+    { emoji: '🌸', x: 350, y: 60 },
+    { emoji: '☁️', x: 100, y: 30 },
+    { emoji: '🦊', x: 280, y: 300 },
+    { emoji: '🍎', x: 150, y: 250 },
+    { emoji: '🌻', x: 380, y: 200 },
+    { emoji: '🪨', x: 50, y: 350 },
+    { emoji: '🐛', x: 320, y: 400 },
+  ];
+
+  // Differences: items that differ between panels
+  const DIFFS = [
+    { left: '🦊', right: '🐰', x: 280, y: 300 },
+    { left: '🍎', right: '🍊', x: 150, y: 250 },
+    { left: '🌻', right: '🌷', x: 380, y: 200 },
+  ];
+
+  const diffPositions = DIFFS.map(d => `${d.x}-${d.y}`);
+  let foundCount = 0;
+
+  function buildPanel(panelId, side) {
+    const panel = document.getElementById(panelId);
+    SCENE.forEach(item => {
+      const key = `${item.x}-${item.y}`;
+      const diff = DIFFS.find(d => `${d.x}-${d.y}` === key);
+
+      const el = document.createElement('div');
+      el.className = 'panel-item';
+
+      if (diff) {
+        el.textContent = side === 'left' ? diff.left : diff.right;
+        el.className += ' different';
+        el.style.cssText = `left:${item.x}px;top:${item.y}px;`;
+        el.addEventListener('click', () => {
+          if (el.classList.contains('found')) return;
+          el.classList.add('found');
+          foundCount++;
+          // Mark both sides
+          const ring = document.createElement('div');
+          ring.className = 'found-ring';
+          ring.style.cssText = `left:${item.x + 18}px;top:${item.y + 18}px;`;
+          panel.appendChild(ring);
+
+          // Mark other panel too
+          const otherPanel = document.getElementById(side === 'left' ? 'panel-right' : 'panel-left');
+          const otherItems = otherPanel.querySelectorAll('.different');
+          otherItems.forEach(oi => {
+            if (parseInt(oi.style.left) === item.x && parseInt(oi.style.top) === item.y) {
+              oi.classList.add('found');
+              const ring2 = document.createElement('div');
+              ring2.className = 'found-ring';
+              ring2.style.cssText = `left:${item.x + 18}px;top:${item.y + 18}px;`;
+              otherPanel.appendChild(ring2);
+            }
+          });
+
+          if (foundCount >= 3) {
+            setTimeout(() => window.location.href = 'r1_reward.html', 1000);
+          }
+        });
+      } else {
+        el.textContent = item.emoji;
+        el.style.cssText = `left:${item.x}px;top:${item.y}px;`;
+      }
+      panel.appendChild(el);
+    });
+  }
+
+  buildPanel('panel-left', 'left');
+  buildPanel('panel-right', 'right');
+
+  function goHome() { window.location.href = 'm1_galaxy_carousel.html'; }
+</script>
+</body>
+</html>

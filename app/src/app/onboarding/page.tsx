@@ -38,9 +38,12 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-full w-full flex items-start justify-center bg-nolla-bg overflow-y-auto py-6">
+    <main
+      className="min-h-full w-full flex items-start justify-center overflow-y-auto py-6"
+      style={{ background: "radial-gradient(ellipse at 50% 30%, #1E1550 0%, #0B0B30 70%, #0A0A2E 100%)" }}
+    >
       <div className="glass-overlay w-full max-w-md mx-4 px-6 py-8 sm:px-8 sm:py-10">
-        <h1 className="text-xl sm:text-2xl font-bold text-center text-nolla-text mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-center mb-6">
           Nolla
         </h1>
 

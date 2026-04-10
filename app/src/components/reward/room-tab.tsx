@@ -33,13 +33,13 @@ export function RoomTab() {
     <div
       className="relative h-full w-full overflow-hidden rounded-2xl"
       style={{
-        background: "linear-gradient(180deg, var(--color-sky-sorting) 0%, var(--color-mc-grass-light) 70%, var(--color-mc-grass) 100%)",
+        background: "radial-gradient(ellipse at 50% 30%, #1E1550 0%, #0B0B30 70%, #0A0A2E 100%)",
       }}
     >
-      {/* Ground line */}
+      {/* Ground surface (planet floor) */}
       <div
         className="absolute bottom-0 left-0 right-0 h-1/4"
-        style={{ background: "var(--color-mc-grass)" }}
+        style={{ background: "linear-gradient(180deg, transparent, #1A1A4E)" }}
       />
 
       {/* Placed items */}

@@ -4,7 +4,7 @@
 
 認知機能に課題のある子ども（3〜18歳）向けの発達支援テクノロジー事業。ASD・ADHD・LD・知的障害・ダウン症・グレーゾーン・境界知能が対象。グローバル約4億人、国内約300万人の市場。
 
-**コアミッション**: 週166時間の「支援の空白」を埋める、スケーラブルで効果的な家庭内介入手段をテクノロジーで実現する。
+**コアミッション**: 家庭という最大の生活時間に届く、スケーラブルで効果的な発達支援をテクノロジーで実現する。
 
 **フェーズ**: プレMVP。課題・ビジネスモデルは確定済み。ソリューション・プロダクト仕様は検討中（インタビュー結果を踏まえて具体化予定）。
 
@@ -126,7 +126,7 @@ type ApiResponse<T> = { success: true; data: T } | { success: false; error: stri
 ### ビジュアル実装時
 - **色選択** → `nolla_color_regulation.md`
 - **キャラクター設計** → `nolla_design_direction.md` + `nolla_character_design_prompts.md`
-- **背景デザイン** → `nolla_stage_bg_composition_rules.md` + `nolla_v4d_building_design_rules.md`
+- **背景デザイン** → `nolla_stage_bg_composition_rules.md` + `nolla_mario_galaxy_style_analysis.md`
 
 ### バージョニングルール
 - **v3 = CURRENT**（使用）

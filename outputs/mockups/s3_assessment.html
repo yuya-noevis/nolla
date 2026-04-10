@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla S3 - Assessment</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap');
+  :root { --sky-top: #1840A0; --sky-mid: #3838A8; --sky-bottom: #7050A0; --accent: #6848A0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Quicksand', sans-serif; }
+  .screen { position: relative; width: 1194px; height: 834px; overflow: hidden; background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%); display: flex; align-items: center; justify-content: center; }
+  .stars-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+  .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s ease-in-out infinite alternate; }
+  @keyframes twinkle { 0% { opacity: 0.15; } 100% { opacity: 0.5; } }
+
+  /* Progress bar */
+  .progress-bar { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); width: 400px; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; z-index: 20; }
+  .progress-fill { height: 100%; background: rgba(255,255,255,0.7); border-radius: 3px; transition: width 0.4s ease; }
+
+  .btn-back { position: absolute; top: 20px; left: 24px; width: 80px; height: 80px; background: url('arrow_left.png') center/contain no-repeat; cursor: pointer; opacity: 0.6; z-index: 20; transition: opacity 0.2s; }
+  .btn-back:hover { opacity: 1; }
+
+  .card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 28px;
+    padding: 40px 56px;
+    width: 560px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    z-index: 10;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .card-title { font-size: 22px; font-weight: 700; color: #333; }
+  .card-sub { font-size: 14px; color: #888; }
+
+  .option-group { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    padding: 14px 20px;
+    border: 2px solid #E8E8E8; border-radius: 14px;
+    font-size: 15px; font-weight: 600; color: #555;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .option:hover { border-color: #C0B0D8; background: #F8F4FF; }
+  .option.selected { border-color: var(--accent); background: #F0EAFF; color: var(--accent); }
+
+  .input-field {
+    width: 100%; padding: 14px 18px;
+    border: 2px solid #E0E0E0; border-radius: 14px;
+    font-size: 16px; font-family: inherit; outline: none;
+  }
+  .input-field:focus { border-color: var(--accent); }
+
+  .btn-next {
+    align-self: flex-end;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, #6848A0, #4838A8);
+    color: white; border: none; border-radius: 14px;
+    font-size: 16px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: transform 0.2s;
+    box-shadow: 0 4px 16px rgba(72, 56, 168, 0.3);
+  }
+  .btn-next:hover { transform: translateY(-2px); }
+
+  .step { display: none; }
+  .step.active { display: flex; flex-direction: column; gap: 24px; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="stars-layer" id="sl"></div>
+  <div class="progress-bar"><div class="progress-fill" id="pf" style="width:11%"></div></div>
+  <div class="btn-back" id="back"></div>
+
+  <div class="card">
+    <!-- Step 1: Basic Info -->
+    <div class="step active" id="step-1">
+      <div class="card-title">お子さまについて</div>
+      <div class="card-sub">基本情報を教えてください</div>
+      <input class="input-field" placeholder="お名前（ニックネームOK）">
+      <div class="option-group">
+        <div class="card-sub">年齢</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div class="option" style="flex:1;text-align:center;" onclick="sel(this)">3-5歳</div>
+          <div class="option" style="flex:1;text-align:center;" onclick="sel(this)">6-8歳</div>
+          <div class="option" style="flex:1;text-align:center;" onclick="sel(this)">9-12歳</div>
+          <div class="option" style="flex:1;text-align:center;" onclick="sel(this)">13-18歳</div>
+        </div>
+      </div>
+      <button class="btn-next" onclick="nextStep()">次へ</button>
+    </div>
+
+    <!-- Step 2: Diagnosis -->
+    <div class="step" id="step-2">
+      <div class="card-title">診断について</div>
+      <div class="card-sub">該当するものを全て選んでください</div>
+      <div class="option-group">
+        <div class="option" onclick="toggle(this)">ASD（自閉スペクトラム症）</div>
+        <div class="option" onclick="toggle(this)">ADHD</div>
+        <div class="option" onclick="toggle(this)">知的障害（軽度〜重度）</div>
+        <div class="option" onclick="toggle(this)">ダウン症</div>
+        <div class="option" onclick="toggle(this)">LD（学習障害）</div>
+        <div class="option" onclick="toggle(this)">グレーゾーン・未診断</div>
+      </div>
+      <button class="btn-next" onclick="nextStep()">次へ</button>
+    </div>
+
+    <!-- Step 3: Speech Level -->
+    <div class="step" id="step-3">
+      <div class="card-title">ことばの発達</div>
+      <div class="card-sub">現在のお子さまの状態に近いものを選んでください</div>
+      <div class="option-group">
+        <div class="option" onclick="sel(this)">発語なし</div>
+        <div class="option" onclick="sel(this)">単語レベル（ママ、ジュースなど）</div>
+        <div class="option" onclick="sel(this)">2-3語文（ママ ジュース ちょうだい）</div>
+        <div class="option" onclick="sel(this)">会話ができる</div>
+      </div>
+      <button class="btn-next" onclick="nextStep()">次へ</button>
+    </div>
+
+    <!-- Step 4: Consent (S4) -->
+    <div class="step" id="step-4">
+      <div class="card-title">データの利用について</div>
+      <div class="card-sub">お子さまの発達をサポートするため、以下のデータを取得します</div>
+      <div class="option-group">
+        <div class="option selected" style="cursor:default;">ゲームプレイデータ（正答率・反応速度）</div>
+        <div class="option selected" style="cursor:default;">タッチ操作データ（タップ位置・圧力）</div>
+        <div class="option selected" style="cursor:default;">セッション情報（プレイ時間・頻度）</div>
+      </div>
+      <div class="card-sub">全データはお子さまの発達分析にのみ使用し、第三者に提供しません。</div>
+      <button class="btn-next" onclick="nextStep()">同意して次へ</button>
+    </div>
+
+    <!-- Step 5: Handover (S5) -->
+    <div class="step" id="step-5" style="align-items:center;text-align:center;">
+      <div style="font-size:64px;">📱</div>
+      <div class="card-title">お子さまにわたしてください</div>
+      <div class="card-sub" style="max-width:360px;">端末を横向きにして、お子さまの手の届くところに置いてください</div>
+      <div style="font-size:32px;margin:8px 0;">↔️</div>
+      <div class="card-sub">横向きでお使いください</div>
+      <button class="btn-next" onclick="location.href='m1_galaxy_carousel.html'">はじめる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const sl = document.getElementById('sl');
+  for (let i = 0; i < 30; i++) { const s = document.createElement('div'); s.className = 'star'; const sz = Math.random()*3+1; s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`; sl.appendChild(s); }
+
+  let current = 1;
+  const total = 5;
+
+  function nextStep() {
+    document.getElementById('step-' + current).classList.remove('active');
+    current++;
+    document.getElementById('step-' + current).classList.add('active');
+    document.getElementById('pf').style.width = (current / total * 100) + '%';
+  }
+
+  document.getElementById('back').addEventListener('click', () => {
+    if (current <= 1) { location.href = 's2_auth.html'; return; }
+    document.getElementById('step-' + current).classList.remove('active');
+    current--;
+    document.getElementById('step-' + current).classList.add('active');
+    document.getElementById('pf').style.width = (current / total * 100) + '%';
+  });
+
+  function sel(el) {
+    el.parentElement.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function toggle(el) { el.classList.toggle('selected'); }
+</script>
+</body>
+</html>

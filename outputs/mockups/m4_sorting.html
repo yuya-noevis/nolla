@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla M4 - Sorting</title>
+<style>
+  :root {
+    --sky-top: #1A7898;
+    --sky-mid: #38886B;
+    --sky-bottom: #88A050;
+    --star-gold: #FFD700;
+    --match-glow: #5DBB5D;
+    --ui-backdrop: rgba(0, 0, 0, 0.2);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+  .screen { position: relative; width: 1194px; height: 834px; overflow: hidden; background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%); }
+  .stars-layer { position: absolute; top: 0; left: 0; width: 100%; height: 60%; pointer-events: none; }
+  .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s ease-in-out infinite alternate; }
+  @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
+
+  .ui-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px; z-index: 50; }
+  .btn-home { width: 160px; height: 160px; background: url('arrow_left.png') center/contain no-repeat; cursor: pointer; opacity: 0.75; transition: opacity 0.2s, transform 0.2s; }
+  .btn-home:hover { opacity: 1; transform: scale(1.1); }
+  .progress { display: flex; gap: 10px; align-items: center; padding: 10px 16px; background: var(--ui-backdrop); border-radius: 14px; }
+  .progress-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s; }
+  .progress-dot.done { background: var(--match-glow); border-color: var(--match-glow); }
+
+  /* Game layout */
+  .game-area {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+    z-index: 10;
+  }
+
+  /* Target (prompt) */
+  .target {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .target-shape {
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  /* Choices */
+  .choices {
+    display: flex;
+    gap: 40px;
+  }
+  .choice {
+    width: 160px;
+    height: 160px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 4px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .choice:hover {
+    transform: scale(1.06);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .choice.correct {
+    border-color: var(--match-glow);
+    box-shadow: 0 0 24px rgba(93, 187, 93, 0.5);
+    animation: correctPop 0.4s ease-out;
+  }
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  .choice.wrong {
+    animation: wrongShake 0.3s ease-out;
+  }
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  /* Match particles */
+  .match-particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 20;
+    animation: particle 0.8s ease-out forwards;
+  }
+  @keyframes particle {
+    0% { opacity: 1; transform: scale(1) translate(0, 0); }
+    100% { opacity: 0; transform: scale(0.5) translate(var(--tx), var(--ty)); }
+  }
+
+  /* Transition between trials */
+  .game-area.fading .target-shape,
+  .game-area.fading .choice {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="stars-layer" id="stars-layer"></div>
+
+  <div class="game-area" id="game-area">
+    <div class="target" id="target"></div>
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <div class="ui-top">
+    <div class="btn-home" onclick="goHome()"></div>
+    <div class="progress" id="progress">
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Stars
+  const starsLayer = document.getElementById('stars-layer');
+  for (let i = 0; i < 25; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+    starsLayer.appendChild(s);
+  }
+
+  // Shape/color definitions
+  const COLORS = [
+    { name: 'green', fill: '#4CAF7A' },
+    { name: 'purple', fill: '#8B6AAF' },
+    { name: 'orange', fill: '#E89040' },
+    { name: 'blue', fill: '#5088CC' },
+    { name: 'pink', fill: '#D87090' },
+  ];
+
+  const SHAPES = [
+    { name: 'circle', svg: (fill, size) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="${fill}"/></svg>` },
+    { name: 'triangle', svg: (fill, size) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><polygon points="50,8 92,88 8,88" fill="${fill}"/></svg>` },
+    { name: 'square', svg: (fill, size) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><rect x="12" y="12" width="76" height="76" rx="6" fill="${fill}"/></svg>` },
+    { name: 'diamond', svg: (fill, size) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><polygon points="50,5 95,50 50,95 5,50" fill="${fill}"/></svg>` },
+    { name: 'star', svg: (fill, size) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><polygon points="50,5 61,38 96,38 68,58 79,92 50,72 21,92 32,58 4,38 39,38" fill="${fill}"/></svg>` },
+  ];
+
+  // Game state
+  let trial = 0;
+  const totalTrials = 5;
+  let locked = false;
+
+  function pickRandom(arr, exclude) {
+    let pick;
+    do { pick = arr[Math.floor(Math.random() * arr.length)]; } while (exclude && exclude.includes(pick));
+    return pick;
+  }
+
+  function generateTrial() {
+    const targetEl = document.getElementById('target');
+    const choicesEl = document.getElementById('choices');
+    targetEl.innerHTML = '';
+    choicesEl.innerHTML = '';
+
+    // Pick target color + shape
+    const targetColor = pickRandom(COLORS);
+    const targetShape = pickRandom(SHAPES);
+
+    // Target display
+    const tDiv = document.createElement('div');
+    tDiv.className = 'target-shape';
+    tDiv.innerHTML = targetShape.svg(targetColor.fill, 120);
+    targetEl.appendChild(tDiv);
+
+    // Criterion: match by COLOR (same color, different shape)
+    const correctColor = targetColor;
+    const correctShape = pickRandom(SHAPES, [targetShape]);
+
+    // 2 wrong choices: different colors, any shapes
+    const wrongColor1 = pickRandom(COLORS, [targetColor]);
+    const wrongShape1 = pickRandom(SHAPES);
+    const wrongColor2 = pickRandom(COLORS, [targetColor, wrongColor1]);
+    const wrongShape2 = pickRandom(SHAPES);
+
+    // Build 3 choices (randomize order)
+    const options = [
+      { color: correctColor, shape: correctShape, isCorrect: true },
+      { color: wrongColor1, shape: wrongShape1, isCorrect: false },
+      { color: wrongColor2, shape: wrongShape2, isCorrect: false },
+    ];
+    options.sort(() => Math.random() - 0.5);
+
+    options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'choice';
+      btn.innerHTML = opt.shape.svg(opt.color.fill, 90);
+      btn.addEventListener('click', () => handleChoice(btn, opt.isCorrect));
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  function handleChoice(btn, isCorrect) {
+    if (locked) return;
+    locked = true;
+
+    if (isCorrect) {
+      btn.classList.add('correct');
+      spawnParticles(btn);
+
+      // Update progress
+      const dots = document.querySelectorAll('.progress-dot');
+      if (trial < dots.length) dots[trial].classList.add('done');
+      trial++;
+
+      setTimeout(() => {
+        if (trial >= totalTrials) {
+          window.location.href = 'r1_reward.html';
+        } else {
+          // Fade out, new trial
+          document.getElementById('game-area').classList.add('fading');
+          setTimeout(() => {
+            generateTrial();
+            document.getElementById('game-area').classList.remove('fading');
+            locked = false;
+          }, 350);
+        }
+      }, 600);
+    } else {
+      // Wrong — エラーレス: サイレントにバウンス戻し、正解を軽くハイライト
+      btn.classList.add('wrong');
+      setTimeout(() => {
+        btn.classList.remove('wrong');
+        // Subtle pulse on correct choice
+        document.querySelectorAll('.choice').forEach(c => {
+          if (c !== btn) c.style.borderColor = 'rgba(93, 187, 93, 0.4)';
+        });
+        setTimeout(() => {
+          document.querySelectorAll('.choice').forEach(c => c.style.borderColor = '');
+          locked = false;
+        }, 800);
+      }, 300);
+    }
+  }
+
+  function spawnParticles(el) {
+    const rect = el.getBoundingClientRect();
+    const screen = document.querySelector('.screen');
+    const sr = screen.getBoundingClientRect();
+    const cx = rect.left - sr.left + rect.width / 2;
+    const cy = rect.top - sr.top + rect.height / 2;
+
+    for (let i = 0; i < 6; i++) {
+      const p = document.createElement('div');
+      p.className = 'match-particle';
+      const angle = (Math.PI * 2 / 6) * i;
+      const dist = 40 + Math.random() * 30;
+      p.style.cssText = `
+        left:${cx - 4}px; top:${cy - 4}px;
+        width:${4 + Math.random() * 6}px; height:${4 + Math.random() * 6}px;
+        background:${Math.random() > 0.5 ? '#FFD700' : '#FFFFFF'};
+        --tx:${Math.cos(angle) * dist}px;
+        --ty:${Math.sin(angle) * dist}px;
+      `;
+      screen.appendChild(p);
+      setTimeout(() => p.remove(), 1000);
+    }
+  }
+
+  // Start
+  generateTrial();
+
+  function goHome() { window.location.href = 'm1_galaxy_carousel.html'; }
+</script>
+</body>
+</html>

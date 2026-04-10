@@ -18,7 +18,8 @@ export default function SplashPage() {
 
   return (
     <main
-      className={`h-full w-full flex flex-col items-center justify-center bg-gradient-to-b from-sky-search-muted to-mc-grass transition-opacity duration-600 ${fadeOut ? "opacity-0" : "opacity-100"}`}
+      className={`h-full w-full flex flex-col items-center justify-center transition-opacity duration-600 ${fadeOut ? "opacity-0" : "opacity-100"}`}
+      style={{ background: "radial-gradient(ellipse at 50% 40%, #1E1550 0%, #0B0B30 70%, #0A0A2E 100%)" }}
     >
       {/* Logo */}
       <div className="animate-splash-in flex flex-col items-center gap-4">

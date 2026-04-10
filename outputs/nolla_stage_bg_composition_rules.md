@@ -1,15 +1,17 @@
 ---
 STATUS: ACTIVE
-LAST_UPDATED: 2026-04-07
-PURPOSE: ステージ背景構成ルール
-RELATED: nolla_design_direction.md,nolla_v4d_building_design_rules.md
+LAST_UPDATED: 2026-04-10
+PURPOSE: 惑星構図ルール（ホーム画面カルーセル + ゲーム画面）
+RELATED: nolla_design_direction.md,nolla_color_regulation.md,nolla_mario_galaxy_style_analysis.md
 ---
 
-# Nolla Stage Background - Composition Rules (Absolute)
+# Nolla 惑星構図ルール（Absolute）
 
-This document defines the EXACT composition rules for generating stage background images.
-These rules are derived from quantitative analysis of 4 approved reference images.
-ALL future stage background generation MUST follow these rules without exception.
+旧タイトル: Stage Background - Composition Rules
+全面改訂: 2026-04-10（建物構図→球体惑星構図に移行）
+
+このドキュメントはホーム画面（カルーセル）とゲーム画面の構図ルールを定義する。
+全ての画面生成・実装はこのルールに従うこと。
 
 ## Canvas
 
@@ -19,191 +21,190 @@ ALL future stage background generation MUST follow these rules without exception
 
 ---
 
-## 1. Ground (FIXED - Never change)
+## 1. ホーム画面（カルーセル）構図
 
-| Property | Value | Pixel (2048x1152) |
-|---|---|---|
-| Ground surface Y position | **95-96% from top** | Y = 1094-1106px |
-| Ground strip height | **4-5% of image height** (extremely thin) | 46-58px |
-| Ground extends to | bottom edge (100%) | Y = 1152px |
-| Ground color | flat single muted color, matching sky theme | - |
-| Ground texture | completely flat, no grass/rocks/details | - |
-| Ground-building junction | tiny vegetation dots allowed (max 3-5 small plants) | - |
-
-**CRITICAL**: The ground is an EXTREMELY THIN strip at the very bottom. The building base sits just above it at ~90-93% from top. The ground is barely visible - just a thin line establishing the base level.
-
----
-
-## 2. Main Building (Center Hero)
+### 1A. 宇宙背景
 
 | Property | Value | Notes |
 |---|---|---|
-| Horizontal center | **50%** (exact center) | Never off-center |
-| Width | **40-50%** of image width | Varies by building shape. Wide buildings (castles) = 45-50%. Narrow towers = 35-42% |
-| Top of highest point | **3-7%** from top edge | Building nearly touches the top of the frame |
-| Base | sits just above ground at **90-93%** from top | Building base is very close to bottom |
-| Building height | **83-90%** of image height | Building fills almost the entire frame vertically |
-| Facing direction | **front-facing** | Entrance/main facade faces viewer |
-| Camera angle | **very slight low angle** | Viewer looks slightly upward at building |
-| Focus | **sharp, in focus** | Main subject, full detail |
+| 背景全体 | 深い宇宙のグラデーション | フラットな黒ではない |
+| 上端 | #0B0B30 (ダークネイビーインディゴ) | |
+| 中央 | #1E1550 (ディープブルーパープル) | |
+| 下部1/3 | #3A2050 (ダスティローズバイオレット) | 惑星の手前で暖まる |
 
-### Main Building Design Constraints
-- Built from **uniform micro-voxel bricks** (each brick ~2-3px at 2K resolution)
-- Brick size is CONSTANT across the entire building - no large blocks mixed with small blocks
-- Must have: round porthole windows OR arched windows with warm yellow light
-- Must have: an entrance/door visible at ground level
-- Must have: at least one decorative element (spiral staircase, balcony, antenna, flag, etc.)
-- Color palette: 2-3 main colors + 1 accent color, all from the Nolla muted-pastel range
-
----
-
-## 3. Side Buildings (Left & Right)
-
-### Positioning
-
-| Property | Left Side | Right Side |
-|---|---|---|
-| Horizontal position | **0% to 10-12%** from left edge | **88-90% to 100%** from right edge |
-| Cropping by frame | outermost building **30-50% hidden** by frame edge | same |
-| Top of tallest building | **50-60%** from top | **50-60%** from top |
-| Base | sits on same ground level at **90-93%** from top | same |
-| Building height | **30-40%** of image height | same |
-| Number of buildings | **2-3 houses** per side | **2-3 houses** per side |
-
-### Size Relationship to Main Building
+### 1B. ネビュラ雲
 
 | Property | Value |
 |---|---|
-| Side building height / Main building height | **30-35%** (side buildings are roughly 1/3 the height of main) |
-| Side building individual width | **4-6%** of image width each |
-| Total side group width (per side) | **8-12%** of image width |
+| 雲の数 | 2つの明確な雲塊 |
+| 上部左象限 | マゼンタ→ピンク (#B84A8A → #E8A0C0)。内部発光。エッジが透明に溶ける |
+| 下部右 | ティール→シアン (#1A8A7A → #40D0D0)。水平に細長い。30% opacity |
+| 表現 | サブサーフェススキャタリング風。内側が明るく外側が暗い |
 
-### Gap Between Main and Side Buildings
+### 1C. 星のレイヤー（3段階深度）
 
-| Property | Value | Notes |
-|---|---|---|
-| Left gap | **18-22%** of image width | = clear empty space between main building's left edge and right edge of left side group |
-| Right gap | **18-22%** of image width | same for right side |
-| Gap must be | **visually empty** | Only sky/gradient visible in the gap. No floating objects, no trees, no extra elements |
-
-### Side Building Design Constraints
-- **MUST match the world/theme** of the main building (medieval castle = medieval houses, candy tower = candy shops, etc.)
-- Same voxel brick size as main building
-- Use **2-3 colors from the main building's palette** + 1-2 unique accent colors
-- Each house has: a visible roof (pointed or flat) + 1-2 small windows + optionally a door
-- Houses are tightly packed together (touching or slight overlap)
-- **Slight depth-of-field blur** compared to main building (they are background elements)
-- Houses should have varied heights within the group (not all identical height)
-- The innermost house is always the tallest in the group, decreasing toward frame edge
-
----
-
-## 4. Sky & Background
-
-| Property | Value |
-|---|---|
-| Sky area | top 83% of image (everything above ground line) |
-| Sky type | **simple 2-color gradient** |
-| Gradient direction | bottom-to-top (warmer/darker at bottom near horizon, lighter at top) |
-| Cloud count | **3-5 clouds** total |
-| Cloud placement zone | between **8% and 65%** from top |
-| Cloud size (large) | **8-12% of image width**, 1-2 clouds |
-| Cloud size (small) | **3-5% of image width**, 2-3 clouds |
-| Cloud style | soft, puffy, voxel-styled (same brick texture as buildings) |
-| Cloud color | white OR slightly tinted to match sky gradient |
-| Cloud depth layering | **some clouds OVERLAP in front of side buildings and lower main building** creating atmospheric depth |
-| Extra sky elements | moon + stars (night only), low mist/fog for night scenes |
-
-### Sky Theme Presets (per stage)
-
-| Theme | Bottom color | Top color | Cloud tint |
+| Layer | Count | Size | Style |
 |---|---|---|---|
-| Sunset | warm golden (#E8B060) | peach-salmon (#E8A078) | golden-cream |
-| Daytime | light cyan (#C8E8F0) | soft blue (#88C8E8) | white |
-| Dusk | warm pink (#D89098) | indigo (#584888) | cream-pink |
-| Night | purple (#685898) | deep blue (#283858) | none (stars instead) |
-| Morning | peach (#F0C8A0) | light blue (#A0D0E8) | white |
+| 遠景 | ~50個 | ピンポイント (1px) | シャープな白い点 |
+| 中景 | ~15個 | 3px | 4点十字のきらめき、淡いシアン |
+| 近景 | 3-4個 | 8-12px | 大きな円形ボケ。ゴールド or シアン。画面端に配置 |
+
+- 流れ星: 1-2本。シアン→ホワイト、フェードする尾。斜め方向
+
+### 1D. メイン惑星（中央のヒーロー要素）
+
+| Property | Value | Notes |
+|---|---|---|
+| 水平位置 | **50%**（正確に中央） | |
+| 垂直位置 | 赤道線が画面上端から**55%** | |
+| 直径 | 画面高さの**50-60%** | 2K基準で ~576-691px |
+| 形状 | 完全な球ではない。穏やかな起伏 | ベルベットクッションのような有機的歪み |
+| フォーカス | **シャープ、ピント合い** | メインの被写体 |
+| アトモスフィアリング | テーマ色のハロー、球体から15px外側。12% opacity | 上部左が明るい（キーライト側） |
+| 雲 | 赤道に2-3個の小さな巻雲。ピンク→白、40-60% opacity | |
+| 衛星岩 | 1-2個の小さな浮遊岩。草のパッチ付き。20-30px | やや焦点外 |
+
+### 1E. サブ惑星（カルーセルの隣の星）
+
+| Property | Left | Right |
+|---|---|---|
+| 位置 | 左端から15% | 右端から15% |
+| 垂直 | 画面中央付近 | 画面中央付近 |
+| 直径 | 画面高さの**12%** | 同 |
+| フォーカス | **ボケ（被写界深度）** | 同 |
+| 表現 | 各惑星の特徴が小さくても見える | 同 |
+| アトモスフィア | 各惑星テーマ色のリング（薄い） | 同 |
+
+### 1F. UI オーバーレイ（テキストなし）
+
+| 要素 | 位置 | サイズ | スタイル |
+|------|------|--------|---------|
+| ドットインジケータ | 下部中央 | 4ドット、各10px、間隔20px | ダークピル背景の上に白ドット |
+| 左シェブロン | 左端、垂直中央 | 48x48px | 白 at 35% opacity |
+| 右シェブロン | 右端、垂直中央 | 48x48px | 白 at 35% opacity |
+| ロックアイコン | 右上 | 36x36px | 白 at 30% opacity |
+| スターカウント | 左上 | ~60x36px | ゴールド星 + ドット星クラスタ |
+
+**全UIにテキスト、数字、ラベルなし**
 
 ---
 
-## 5. Forbidden Elements (NEVER include)
+## 2. ゲーム画面構図（惑星表面視点）
 
-- Trees, bushes, or large vegetation (tiny ground dots OK)
-- Animals or characters
-- Text or watermarks
-- Extra decorative objects in the gap zones (between main and side buildings)
-- Multiple ground levels or terrain variation
-- Water, paths, or roads (exception: if building theme requires, e.g. lighthouse dock)
-- Background mountains or horizon features
-- Sun or visible light source
-- Shadows on the ground (ambient lighting only)
-- Any element that makes the composition feel cluttered
+ゲーム選択後、プレイヤーは惑星の上に「着陸」する。惑星表面からやや上を見上げる視点。
 
----
+### 2A. カメラ
 
-## 6. Composition Summary Diagram
+| Property | Value |
+|---|---|
+| 視点 | 球体の表面に立っている |
+| カメラ角度 | 表面から~15度上 |
+| 地平線 | **湾曲して見える**（小さい惑星上にいる感覚） |
+| 被写界深度 | ゲーム要素シャープ、遠景ボケ |
 
-```
-|<-10-12%->|<--13-18%-->|<------40-50%------>|<--13-18%-->|<-10-12%->|
-|           |            |                    |            |           |
-| SIDE      |   GAP      |   MAIN BUILDING    |   GAP      |  SIDE     |
-| BLDGS     | (sky only) |   (centered)       | (sky only) |  BLDGS    |
-| 2-3       |            |                    |            |  2-3      |
-| houses    |            |                    |            |  houses   |
-|___________|____________|____________________|____________|___________|  ← 90-93% (building base)
-|________ EXTREMELY THIN GROUND STRIP (4-5%) ___________________________| ← 95-100%
-```
+### 2B. 地面（下部20-25%）
 
-Vertical layout:
-```
-  0% ─── top of image
-  3-7% ── top of main building (spires/flags) - nearly touches top
-  5-70% ── cloud zone (clouds overlap buildings for depth)
- 50-60% ── top of side buildings
- 90-93% ── building bases
- 95-96% ── GROUND LINE (thin strip)
-100% ──── bottom of image
-```
+| Property | Value |
+|---|---|
+| 占有率 | 画面下部**20-25%** |
+| テクスチャ | 各惑星のテーマ表面（カード星=パープルベルベット、さがし星=ティール草地 等） |
+| 湾曲 | 左右端で地面が湾曲して下がり、宇宙空間が見える |
+| 装飾 | 各惑星テーマの小さな要素（結晶、花、光点など）3-4個。ゲームの邪魔にならない位置 |
+| ゲーム要素の影 | 地面に物理的な影 (#000000 at 20%, 6px offset) |
 
----
+### 2C. 宇宙空間（上部75%）
 
-## 7. Prompt Template
+| Property | Value |
+|---|---|
+| 占有率 | 画面上部**75%** |
+| 彩度 | ホーム画面より**-30%** | 
+| 明度 | やや暗め |
+| グラデーション | 天頂 #0E0E35 → 中間 #251845 → 地平線付近 #352040 |
+| ネビュラ | 1つの大きな拡散雲。ホーム画面の50% opacity |
+| 星の密度 | ~30個（ホーム画面の約60%）。暗め |
+| 流れ星 | なし（ゲーム中は注意散漫を避ける） |
+| 遠景の惑星 | 2個の非常に小さいボケ惑星（画面高さの3-4%）。上部隅に配置 |
 
-When generating a stage background, use this exact template structure:
+### 2D. ゲーム要素配置エリア
 
-```
-Hyper-detailed fine voxel art scene, STRICT RULES: uniform micro-bricks throughout (each brick 2-3 pixels), all buildings sit on a flat ground line at exactly 83% from the top of the image.
+| Property | Value |
+|---|---|
+| 水平位置 | 画面中央 |
+| 幅 | 画面幅の**55%** |
+| 高さ | 画面高さの**45%** |
+| 下端 | 画面下から**30%** |
+| 上端 | 画面下から**75%** |
+| 遠近感 | 上の行はわずかに小さく（~5%差）。球面の曲率を反映 |
+| 明るさ | ゲーム要素エリアが画面で最も明るい（柔らかなスポットライト効果） |
+| 画面端 | 20%暗い（自然なビネット） |
 
-CENTER: A tall [BUILDING_TYPE], [BUILDING_DESCRIPTION]. [2-3 main colors]. Round/arched windows with warm golden light. Entrance visible at ground level. [Decorative element]. The building is centered, occupying roughly 40% of the image width, reaching near the top of the frame.
+### 2E. ゲーム画面UI（最小限）
 
-SIDES: On the far left edge, 2-3 small [MATCHING_STYLE] houses partially cropped by the frame, roughly 1/3 the height of the main building. On the far right edge, 2-3 similar small houses also partially cropped. Side buildings use the same color palette and voxel style as the main building. Side buildings are slightly blurred (depth of field).
+| 要素 | 位置 | サイズ | スタイル |
+|------|------|--------|---------|
+| ホーム/戻るアイコン | 左上 | 44x44px | ダークピル背景の上に白シェブロン at 40% |
+| セッション進捗 | 右上 | 丸5個、各14px、間隔18px | ダークピル背景。完了=グリーン、未完了=白outline at 30% |
 
-BETWEEN the main building and side buildings, there is EMPTY SPACE showing only the sky gradient. No trees, no objects, no decorations in these gaps.
-
-GROUND: A flat [GROUND_COLOR] ground strip at the bottom 17% of the image. No texture, no grass, no paths. All buildings sit on the same ground level.
-
-SKY: Simple [SKY_GRADIENT_DESCRIPTION] gradient, [3-5] soft puffy clouds in the sky area. No sun, no extra elements.
-
-16:9 aspect ratio. No text, no people, no animals. Child-friendly game art, Duolingo ABC meets Minecraft aesthetic.
-```
+**タイマーなし、スコアカウンターなし、テキストなし、数字なし、ラベルなし、下部UIバーなし**
 
 ---
 
-## 8. Quality Checklist (Post-Generation Verification)
+## 3. 惑星別ゲーム画面の地面バリエーション
 
-After generating each image, verify ALL of the following:
+| 惑星 | 地面テクスチャ | 固有装飾 |
+|------|-------------|---------|
+| カード星 | パープルベルベット + スートエンボス模様（地紋） | ゴールド結晶3-4個。暖色の光のプール |
+| いろわけ星 | パッチワーク色分け（緩やかなカーブ境界） | 各セクション境界にアンバーの光線 |
+| さがし星 | ティール〜エメラルド密生草地。小丘やくぼみ | レンズ状結晶1個（球面から半分露出） |
+| ひかり星 | ダークネイビー岩質 + シアン発光グリッド脈 | キューブ状結晶がわずかに突出 |
 
-- [ ] Ground line is at 83% from top (not higher, not lower)
-- [ ] Main building is horizontally centered
-- [ ] Main building top is within 5-12% from top edge
-- [ ] Main building width is 35-48% of image width
-- [ ] Side buildings exist on BOTH left AND right edges
-- [ ] Side buildings are partially cropped by frame edges
-- [ ] Side buildings are 1/3 the height of the main building
-- [ ] Side buildings sit on the SAME ground line as main building
-- [ ] Clear empty gap between main building and side buildings on both sides
-- [ ] Sky is a simple gradient with 3-5 clouds only
-- [ ] No forbidden elements present
-- [ ] Voxel brick size is uniform throughout (no mixed block sizes)
-- [ ] Side building style matches main building theme/world
-- [ ] Ground is flat, single color, no texture
+---
+
+## 4. ワープ遷移（ゲーム選択→ゲーム開始）
+
+| Property | Value |
+|---|---|
+| 持続時間 | 1.2秒 |
+| 背景 | 黒 (#000000) |
+| 星 | 白い点が画面中央から放射状に高速で流れる |
+| 光跡 | シアン (#00D4FF) → ホワイトのストリーク |
+| 感覚 | ワープ/ハイパースペース感 |
+
+---
+
+## 5. 禁止要素（NEVER include）
+
+- 地面のテクスチャに複雑な地形（山、川、道路など）
+- 動物やキャラクター（ナビキャラ除く）
+- テキスト、数字、ウォーターマーク
+- 太陽や可視光源（リムライトとポイントライトのみ）
+- 地面の影（アンビエントライティングのみ）
+- ゲーム要素エリア外の浮遊オブジェクト
+- フラッシュ、点滅、ストロボ
+- 蛍光色（グロウ/発光はOK）
+
+---
+
+## 6. 品質チェックリスト（生成後検証）
+
+### ホーム画面
+
+- [ ] メイン惑星が水平中央に配置されている
+- [ ] メイン惑星の直径が画面高さの50-60%
+- [ ] サブ惑星が左右に配置され、ボケている
+- [ ] ネビュラ雲が2つ存在（マゼンタ系+ティール系）
+- [ ] 星が3段階の深度で配置されている
+- [ ] 惑星にアトモスフィアリングがある
+- [ ] UIにテキスト/数字が一切ない
+- [ ] 宇宙背景の最暗値が#0A0A2Eより暗くない
+
+### ゲーム画面
+
+- [ ] 地面が惑星の表面テクスチャになっている
+- [ ] 地平線が湾曲して見える
+- [ ] 宇宙背景がホーム画面より控えめ（彩度-30%）
+- [ ] ゲーム要素が画面で最も明るいゾーンにある
+- [ ] タイマー/スコア/テキストが一切表示されていない
+- [ ] 遠景に他の惑星が小さくボケて見える
+- [ ] 流れ星がない（ゲーム中は注意散漫を避ける）
+- [ ] 禁止要素が含まれていない

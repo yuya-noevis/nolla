@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla P2 - Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #F5F5F5; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Quicksand', sans-serif; }
+  .screen { position: relative; width: 1194px; height: 834px; overflow: hidden; background: #F5F5F5; display: flex; flex-direction: column; }
+
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; }
+  .btn-back { width: 80px; height: 80px; background: url('arrow_left.png') center/contain no-repeat; cursor: pointer; opacity: 0.5; }
+  .tabs { display: flex; gap: 4px; background: #E8E8E8; border-radius: 12px; padding: 4px; }
+  .tab { padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; color: #888; cursor: pointer; transition: all 0.2s; }
+  .tab.active { background: white; color: #333; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+  .content { flex: 1; padding: 0 32px 32px; display: flex; gap: 24px; }
+
+  .panel { display: none; flex: 1; gap: 24px; }
+  .panel.active { display: flex; }
+
+  .card-stat {
+    flex: 1; background: white; border-radius: 20px; padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .stat-label { font-size: 13px; color: #888; font-weight: 600; }
+  .stat-value { font-size: 36px; font-weight: 700; color: #333; }
+  .stat-sub { font-size: 13px; color: #6BA47A; font-weight: 600; }
+
+  .game-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid #F0F0F0; }
+  .game-icon { width: 40px; height: 40px; border-radius: 10px; background: #E8E0F0; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .game-name { font-size: 14px; font-weight: 600; color: #555; flex: 1; }
+  .game-bar { width: 120px; height: 8px; background: #E8E8E8; border-radius: 4px; overflow: hidden; }
+  .game-bar-fill { height: 100%; border-radius: 4px; }
+  .game-pct { font-size: 13px; font-weight: 700; color: #333; width: 40px; text-align: right; }
+
+  /* Growth tab (P3) */
+  .chart-placeholder {
+    flex: 1; background: white; border-radius: 20px; padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .chart-area { flex: 1; background: #FAFAFA; border-radius: 12px; display: flex; align-items: flex-end; padding: 20px; gap: 12px; }
+  .chart-bar { flex: 1; background: linear-gradient(180deg, #4A7BA7, #6BA47A); border-radius: 6px 6px 0 0; transition: height 0.5s; }
+
+  /* Settings tab (P5) */
+  .settings-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .setting-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; background: white; border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .setting-label { font-size: 15px; font-weight: 600; color: #444; }
+  .setting-value { font-size: 14px; color: #888; }
+  .toggle { width: 48px; height: 28px; background: #E0E0E0; border-radius: 14px; position: relative; cursor: pointer; transition: background 0.2s; }
+  .toggle.on { background: #6BA47A; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; background: white; border-radius: 50%; transition: left 0.2s; }
+  .toggle.on::after { left: 22px; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="header">
+    <div class="btn-back" onclick="location.href='m1_galaxy_carousel.html'"></div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchP('today')">きょうの記録</div>
+      <div class="tab" onclick="switchP('growth')">成長の記録</div>
+      <div class="tab" onclick="switchP('ai')">AIサポート</div>
+      <div class="tab" onclick="switchP('settings')">設定</div>
+    </div>
+    <div style="width:80px"></div>
+  </div>
+
+  <div class="content">
+    <!-- P2: Today -->
+    <div class="panel active" id="p-today" style="flex-direction:column;gap:24px;">
+      <div style="display:flex;gap:24px;">
+        <div class="card-stat">
+          <div class="stat-label">プレイ時間</div>
+          <div class="stat-value">23<span style="font-size:18px;color:#888;">分</span></div>
+        </div>
+        <div class="card-stat">
+          <div class="stat-label">ゲーム回数</div>
+          <div class="stat-value">8<span style="font-size:18px;color:#888;">回</span></div>
+        </div>
+        <div class="card-stat">
+          <div class="stat-label">獲得スター</div>
+          <div class="stat-value" style="color:#DAA520;">13</div>
+        </div>
+      </div>
+      <div class="card-stat" style="flex:1;">
+        <div class="stat-label">ゲーム別 正答率</div>
+        <div class="game-row"><div class="game-icon">🃏</div><div class="game-name">しんけいすいじゃく</div><div class="game-bar"><div class="game-bar-fill" style="width:85%;background:#4A7BA7;"></div></div><div class="game-pct">85%</div></div>
+        <div class="game-row"><div class="game-icon">🎨</div><div class="game-name">なかまわけ</div><div class="game-bar"><div class="game-bar-fill" style="width:72%;background:#6BA47A;"></div></div><div class="game-pct">72%</div></div>
+        <div class="game-row"><div class="game-icon">🔍</div><div class="game-name">まちがいさがし</div><div class="game-bar"><div class="game-bar-fill" style="width:90%;background:#D4A574;"></div></div><div class="game-pct">90%</div></div>
+        <div class="game-row"><div class="game-icon">💡</div><div class="game-name">ひかりブロック</div><div class="game-bar"><div class="game-bar-fill" style="width:65%;background:#8B6AAF;"></div></div><div class="game-pct">65%</div></div>
+      </div>
+    </div>
+
+    <!-- P3: Growth -->
+    <div class="panel" id="p-growth" style="flex-direction:column;gap:24px;">
+      <div class="chart-placeholder" style="flex:1;">
+        <div class="stat-label">認知スキル推移（過去7日）</div>
+        <div class="stat-sub">ベースライン確立中</div>
+        <div class="chart-area" id="chart"></div>
+      </div>
+    </div>
+
+    <!-- P4: AI Support -->
+    <div class="panel" id="p-ai" style="align-items:center;justify-content:center;">
+      <div class="card-stat" style="align-items:center;text-align:center;max-width:400px;">
+        <div style="font-size:48px;">🤖</div>
+        <div class="stat-label">AI療育サポート</div>
+        <div style="font-size:15px;color:#888;line-height:1.6;">まもなく登場予定です。お子さまのプレイデータをもとに、個別の療育アドバイスを提供します。</div>
+      </div>
+    </div>
+
+    <!-- P5: Settings -->
+    <div class="panel" id="p-settings" style="flex-direction:column;gap:12px;">
+      <div class="settings-list">
+        <div class="setting-item"><div class="setting-label">プロフィール完了率</div><div class="setting-value">70%</div></div>
+        <div class="setting-item"><div class="setting-label">音声認識</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div class="setting-label">休憩リマインダー</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div class="setting-label">振動フィードバック</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="setting-item"><div class="setting-label">PINを変更</div><div class="setting-value" style="color:#4A7BA7;cursor:pointer;">変更 →</div></div>
+        <div class="setting-item"><div class="setting-label" style="color:#CC4444;">サインアウト</div><div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  function switchP(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('p-' + name).classList.add('active');
+  }
+  // Chart bars
+  const chart = document.getElementById('chart');
+  [40,55,50,65,60,70,75].forEach(h => {
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar';
+    bar.style.height = h + '%';
+    chart.appendChild(bar);
+  });
+</script>
+</body>
+</html>

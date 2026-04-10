@@ -2,169 +2,354 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1194, height=834">
-<title>Nolla - R2 My Room</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla R2 - My Room</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  :root {
+    --sky-top: #1A3898;
+    --sky-mid: #3830A0;
+    --sky-bottom: #6848A0;
+    --ui-backdrop: rgba(0, 0, 0, 0.2);
+    --star-gold: #FFD700;
+  }
 
-/* Back button */
-.back-btn { position: absolute; top: 16px; left: 20px; z-index: 20; width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(180deg, #E8D5B5 0%, #D4B896 100%); border: 3px solid #B8A07A; box-shadow: 0 4px 0 #A88E6C, 0 6px 14px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Tab bar */
-.tab-bar { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 4px; background: rgba(210,185,150,0.5); border-radius: 20px; padding: 4px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
-.tab { width: 100px; height: 64px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; transition: all 0.2s; border: 3px solid transparent; }
-.tab.active { background: rgba(255,255,255,0.95); border-color: rgba(210,185,150,0.6); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.tab:not(.active) { background: rgba(255,255,255,0.4); }
-.tab:not(.active):hover { background: rgba(255,255,255,0.6); }
+  body {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
 
-/* Star badge */
-.star-badge { position: absolute; top: 16px; right: 20px; z-index: 20; display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.92); border: 3px solid rgba(218,165,32,0.35); border-radius: 18px; padding: 6px 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
-.star-badge span { font-size: 20px; font-weight: 800; color: #333; }
+  .screen {
+    position: relative;
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%);
+  }
 
-/* Room items placed by child (grid-snapped) */
-.room-items { position: absolute; top: 200px; left: 200px; z-index: 10; }
-.placed-item { position: absolute; cursor: pointer; transition: transform 0.15s; }
-.placed-item:hover { transform: scale(1.08); }
+  .stars-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.2; }
+    100% { opacity: 0.6; }
+  }
 
-/* Item: small table */
-.item-table { top: 120px; left: 280px; }
-/* Item: flower pot */
-.item-flower { top: 80px; left: 100px; }
-/* Item: cushion */
-.item-cushion { top: 200px; left: 350px; }
-/* Item: train toy */
-.item-train { top: 180px; left: 180px; }
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    z-index: 50;
+  }
 
-/* Bottom inventory bar (shown in おへや tab) */
-.inventory-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 8px; background: rgba(255,255,255,0.92); border: 4px solid rgba(210,185,150,0.5); border-radius: 20px; padding: 10px 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
-.inv-slot { width: 72px; height: 72px; border-radius: 14px; background: rgba(240,230,215,0.6); border: 2px solid rgba(210,185,150,0.4); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; }
-.inv-slot:hover { transform: scale(1.06); background: rgba(240,230,215,0.9); }
-.inv-slot.empty { opacity: 0.4; }
+  .btn-back {
+    width: 80px;
+    height: 80px;
+    background: url('arrow_left.png') center/contain no-repeat;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-back:hover { opacity: 1; transform: scale(1.1); }
+
+  .star-balance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: var(--ui-backdrop);
+    border-radius: 16px;
+  }
+  .star-balance-icon {
+    width: 28px;
+    height: 28px;
+    background: url('star_reward.png') center/contain no-repeat;
+  }
+  .star-balance-dots {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    max-width: 120px;
+  }
+  .bal-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--star-gold);
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+
+  .tabs {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 24px;
+    z-index: 40;
+  }
+
+  .tab {
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    opacity: 0.5;
+  }
+  .tab:hover { transform: scale(1.08); }
+  .tab.active {
+    opacity: 1;
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  .tab-room { background-image: url('tab_room.png'); }
+  .tab-shop { background-image: url('tab_shop.png'); }
+  .tab-collection { background-image: url('tab_collection.png'); }
+
+  .content {
+    position: absolute;
+    top: 230px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 520px;
+    z-index: 30;
+  }
+
+  .panel { display: none; width: 100%; height: 100%; }
+  .panel.active { display: block; }
+
+  .room-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .room-slot {
+    border-radius: 16px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+  }
+  .room-slot.occupied { border-color: transparent; }
+  .room-slot img { width: 80%; height: 80%; object-fit: contain; }
+
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .shop-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .shop-item:hover { transform: scale(1.05); border-color: rgba(255, 215, 0, 0.3); }
+
+  .shop-item-img {
+    width: 100px;
+    height: 100px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .shop-item-price {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .price-star {
+    width: 18px;
+    height: 18px;
+    background: url('star_reward.png') center/contain no-repeat;
+  }
+  .price-dots { display: flex; gap: 3px; }
+  .price-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--star-gold);
+    border-radius: 50%;
+  }
+
+  .collection-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .collection-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .collection-item.owned { border-color: rgba(93, 187, 93, 0.3); }
+  .collection-item.locked { opacity: 0.4; }
+  .collection-item img { width: 70%; height: 70%; object-fit: contain; }
 </style>
 </head>
 <body>
-  <img class="bg" src="assets/r2_myroom_bg.png" alt="">
 
-  <!-- Back button -->
-  <div class="back-btn">
-    <svg width="22" height="22" viewBox="0 0 24 24"><path d="M15 5L8 12L15 19" stroke="#7A6548" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </div>
+<div class="screen">
+  <div class="stars-layer" id="stars-layer"></div>
 
-  <!-- Tab bar: おへや / ショップ / ずかん (icons only) -->
-  <div class="tab-bar">
-    <!-- おへや tab (active) -->
-    <div class="tab active">
-      <svg width="32" height="32" viewBox="0 0 32 32">
-        <path d="M16 4L3 16H7V27H13V19H19V27H25V16H29L16 4Z" fill="#D4A574" stroke="#B8906A" stroke-width="1.5"/>
-      </svg>
-    </div>
-    <!-- ショップ tab -->
-    <div class="tab">
-      <svg width="32" height="32" viewBox="0 0 32 32">
-        <rect x="4" y="12" width="24" height="16" rx="3" fill="#B8A07A" stroke="#9A8468" stroke-width="1.5"/>
-        <path d="M4 12L7 4H25L28 12" fill="#D4B896" stroke="#9A8468" stroke-width="1.5"/>
-        <rect x="13" y="18" width="6" height="10" rx="1.5" fill="#9A8468"/>
-      </svg>
-    </div>
-    <!-- ずかん tab -->
-    <div class="tab">
-      <svg width="32" height="32" viewBox="0 0 32 32">
-        <rect x="6" y="4" width="20" height="24" rx="3" fill="#8FB8D4" stroke="#6B96B5" stroke-width="1.5"/>
-        <rect x="9" y="8" width="14" height="3" rx="1" fill="rgba(255,255,255,0.5)"/>
-        <rect x="9" y="14" width="6" height="6" rx="2" fill="rgba(255,255,255,0.4)"/>
-        <rect x="17" y="14" width="6" height="6" rx="2" fill="rgba(255,255,255,0.4)"/>
-        <rect x="9" y="22" width="6" height="3" rx="1" fill="rgba(255,255,255,0.3)"/>
-        <rect x="17" y="22" width="6" height="3" rx="1" fill="rgba(255,255,255,0.3)"/>
-      </svg>
+  <div class="top-bar">
+    <div class="btn-back" onclick="goBack()"></div>
+    <div class="star-balance">
+      <div class="star-balance-icon"></div>
+      <div class="star-balance-dots" id="balance-dots"></div>
     </div>
   </div>
 
-  <!-- Star count -->
-  <div class="star-badge">
-    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2L14.9 8.6L22 9.5L16.8 14.2L18.2 22L12 18.4L5.8 22L7.2 14.2L2 9.5L9.1 8.6L12 2Z" fill="#DAA520" stroke="#B8860B" stroke-width="1"/></svg>
-    <span>131</span>
+  <div class="tabs">
+    <div class="tab tab-room active" onclick="switchTab('room')"></div>
+    <div class="tab tab-shop" onclick="switchTab('shop')"></div>
+    <div class="tab tab-collection" onclick="switchTab('collection')"></div>
   </div>
 
-  <!-- Placed items in room -->
-  <div class="room-items">
-    <!-- Small wooden table -->
-    <div class="placed-item item-table">
-      <svg width="80" height="60" viewBox="0 0 80 60">
-        <rect x="10" y="5" width="60" height="8" rx="3" fill="#C4A67A" stroke="#A88E6C" stroke-width="2"/>
-        <rect x="16" y="13" width="6" height="30" rx="2" fill="#B8966A"/>
-        <rect x="58" y="13" width="6" height="30" rx="2" fill="#B8966A"/>
-        <!-- Small item on table -->
-        <circle cx="40" cy="3" r="8" fill="#8FB8D4" stroke="#6B96B5" stroke-width="1.5"/>
-        <circle cx="37" cy="1" r="1" fill="#5A8A9A"/>
-        <circle cx="43" cy="1" r="1" fill="#5A8A9A"/>
-      </svg>
+  <div class="content">
+    <div class="panel active" id="panel-room">
+      <div class="room-grid" id="room-grid"></div>
     </div>
-    <!-- Flower pot -->
-    <div class="placed-item item-flower">
-      <svg width="50" height="70" viewBox="0 0 50 70">
-        <rect x="14" y="40" width="22" height="24" rx="4" fill="#D4A574" stroke="#B8906A" stroke-width="2"/>
-        <!-- Flower -->
-        <circle cx="25" cy="25" r="10" fill="#B8D4B0" stroke="#8AAA82" stroke-width="1.5"/>
-        <circle cx="25" cy="25" r="4" fill="#DAA520"/>
-        <rect x="23" y="32" width="4" height="12" rx="2" fill="#6BA47A"/>
-      </svg>
+    <div class="panel" id="panel-shop">
+      <div class="shop-grid" id="shop-grid"></div>
     </div>
-    <!-- Cushion -->
-    <div class="placed-item item-cushion">
-      <svg width="60" height="40" viewBox="0 0 60 40">
-        <ellipse cx="30" cy="22" rx="28" ry="16" fill="#D4B8D4" stroke="#B89AB8" stroke-width="2"/>
-        <ellipse cx="30" cy="20" rx="20" ry="10" fill="rgba(255,255,255,0.2)"/>
-      </svg>
-    </div>
-    <!-- Train toy -->
-    <div class="placed-item item-train">
-      <svg width="80" height="50" viewBox="0 0 80 50">
-        <rect x="5" y="15" width="35" height="22" rx="4" fill="#8FB8D4" stroke="#6B96B5" stroke-width="2"/>
-        <rect x="42" y="20" width="25" height="17" rx="3" fill="#A8C8A0" stroke="#8AAA82" stroke-width="1.5"/>
-        <rect x="10" y="8" width="12" height="10" rx="3" fill="#6B96B5"/>
-        <!-- Wheels -->
-        <circle cx="15" cy="40" r="5" fill="#666" stroke="#444" stroke-width="1.5"/>
-        <circle cx="32" cy="40" r="5" fill="#666" stroke="#444" stroke-width="1.5"/>
-        <circle cx="52" cy="40" r="5" fill="#666" stroke="#444" stroke-width="1.5"/>
-        <circle cx="62" cy="40" r="5" fill="#666" stroke="#444" stroke-width="1.5"/>
-        <!-- Face on train -->
-        <circle cx="16" cy="12" r="1.5" fill="white"/>
-        <circle cx="12" cy="12" r="1.5" fill="white"/>
-      </svg>
+    <div class="panel" id="panel-collection">
+      <div class="collection-grid" id="collection-grid"></div>
     </div>
   </div>
+</div>
 
-  <!-- Bottom inventory bar -->
-  <div class="inventory-bar">
-    <!-- Owned items (draggable to room) -->
-    <div class="inv-slot">
-      <svg width="48" height="48" viewBox="0 0 48 48">
-        <rect x="8" y="24" width="32" height="18" rx="4" fill="#E8D5B5" stroke="#C4A882" stroke-width="2"/>
-        <rect x="12" y="16" width="24" height="10" rx="3" fill="#D4B896" stroke="#C4A882" stroke-width="1.5"/>
-      </svg>
-    </div>
-    <div class="inv-slot">
-      <svg width="48" height="48" viewBox="0 0 48 48">
-        <circle cx="24" cy="28" r="14" fill="#D4A0A0" stroke="#B57A7A" stroke-width="2"/>
-        <circle cx="20" cy="26" r="2" fill="#8A5A5A"/>
-        <circle cx="28" cy="26" r="2" fill="#8A5A5A"/>
-        <path d="M20 33Q24 37 28 33" stroke="#8A5A5A" stroke-width="1.5" fill="none"/>
-      </svg>
-    </div>
-    <div class="inv-slot">
-      <svg width="48" height="48" viewBox="0 0 48 48">
-        <rect x="8" y="10" width="32" height="28" rx="3" fill="#8FB8D4" stroke="#6B96B5" stroke-width="2"/>
-        <rect x="12" y="14" width="24" height="16" rx="2" fill="#B5D4E8"/>
-        <rect x="20" y="34" width="8" height="4" rx="1" fill="#6B96B5"/>
-      </svg>
-    </div>
-    <div class="inv-slot empty"></div>
-    <div class="inv-slot empty"></div>
-    <div class="inv-slot empty"></div>
-    <div class="inv-slot empty"></div>
-    <div class="inv-slot empty"></div>
-  </div>
+<script>
+  // Stars
+  const starsLayer = document.getElementById('stars-layer');
+  for (let i = 0; i < 30; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+    starsLayer.appendChild(s);
+  }
+
+  // Balance dots (13 stars)
+  const balDots = document.getElementById('balance-dots');
+  for (let i = 0; i < 13; i++) {
+    const d = document.createElement('div');
+    d.className = 'bal-dot';
+    balDots.appendChild(d);
+  }
+
+  const ITEMS = [
+    { id: 'rocket', img: 'item_rocket.png', price: 3, owned: true },
+    { id: 'flower', img: 'item_flower.png', price: 2, owned: true },
+    { id: 'globe', img: 'item_globe.png', price: 5, owned: false },
+    { id: 'lamp', img: 'item_lamp.png', price: 3, owned: false },
+  ];
+
+  // Room
+  const roomGrid = document.getElementById('room-grid');
+  const placed = [{ pos: 1, item: 'rocket' }, { pos: 7, item: 'flower' }];
+  for (let i = 0; i < 15; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'room-slot';
+    const p = placed.find(x => x.pos === i);
+    if (p) {
+      const item = ITEMS.find(x => x.id === p.item);
+      slot.classList.add('occupied');
+      slot.innerHTML = '<img src="' + item.img + '" alt="">';
+    }
+    roomGrid.appendChild(slot);
+  }
+
+  // Shop
+  const shopGrid = document.getElementById('shop-grid');
+  ITEMS.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'shop-item';
+    let priceDots = '';
+    for (let i = 0; i < item.price; i++) priceDots += '<div class="price-dot"></div>';
+    el.innerHTML = '<div class="shop-item-img" style="background-image:url(\'' + item.img + '\')"></div><div class="shop-item-price"><div class="price-star"></div><div class="price-dots">' + priceDots + '</div></div>';
+    if (item.owned) { el.style.opacity = '0.5'; el.style.pointerEvents = 'none'; }
+    shopGrid.appendChild(el);
+  });
+
+  // Collection
+  const collGrid = document.getElementById('collection-grid');
+  ITEMS.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'collection-item ' + (item.owned ? 'owned' : 'locked');
+    if (item.owned) el.innerHTML = '<img src="' + item.img + '" alt="">';
+    collGrid.appendChild(el);
+  });
+  for (let i = 0; i < 6; i++) {
+    const el = document.createElement('div');
+    el.className = 'collection-item locked';
+    collGrid.appendChild(el);
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.tab-' + tab).classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  function goBack() { window.location.href = 'm1_galaxy_carousel.html'; }
+</script>
+
 </body>
 </html>

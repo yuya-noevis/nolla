@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla M4 - Corsi Block</title>
+<style>
+  :root {
+    --sky-top: #181858;
+    --sky-mid: #3030A0;
+    --sky-bottom: #6030A0;
+    --star-gold: #FFD700;
+    --match-glow: #5DBB5D;
+    --ui-backdrop: rgba(0, 0, 0, 0.2);
+    --block-base: rgba(255, 255, 255, 0.08);
+    --block-lit: rgba(80, 180, 220, 0.6);
+    --block-border: rgba(255, 255, 255, 0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+  .screen { position: relative; width: 1194px; height: 834px; overflow: hidden; background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%); }
+  .stars-layer { position: absolute; top: 0; left: 0; width: 100%; height: 60%; pointer-events: none; }
+  .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s ease-in-out infinite alternate; }
+  @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
+
+  .ui-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 24px; z-index: 50; }
+  .btn-home { width: 160px; height: 160px; background: url('arrow_left.png') center/contain no-repeat; cursor: pointer; opacity: 0.75; transition: opacity 0.2s, transform 0.2s; }
+  .btn-home:hover { opacity: 1; transform: scale(1.1); }
+  .progress { display: flex; gap: 10px; align-items: center; padding: 10px 16px; background: var(--ui-backdrop); border-radius: 14px; }
+  .progress-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
+  .progress-dot.done { background: var(--match-glow); border-color: var(--match-glow); }
+
+  /* Corsi blocks */
+  .blocks-area {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 700px; height: 500px; z-index: 10;
+  }
+
+  .block {
+    position: absolute;
+    width: 100px; height: 100px;
+    background: var(--block-base);
+    border: 2px solid var(--block-border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.15s;
+  }
+  .block:hover { transform: scale(1.05); }
+  .block.lit {
+    background: var(--block-lit);
+    border-color: rgba(80, 200, 240, 0.6);
+    box-shadow: 0 0 30px rgba(80, 180, 220, 0.5), 0 0 60px rgba(80, 180, 220, 0.2);
+  }
+  .block.correct {
+    background: rgba(93, 187, 93, 0.5);
+    border-color: var(--match-glow);
+    box-shadow: 0 0 20px rgba(93, 187, 93, 0.4);
+  }
+  .block.wrong {
+    background: rgba(200, 80, 80, 0.3);
+    border-color: rgba(200, 80, 80, 0.5);
+  }
+
+  .status {
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    padding: 8px 24px; background: var(--ui-backdrop); border-radius: 12px;
+    color: rgba(255,255,255,0.6); font-family: -apple-system, sans-serif; font-size: 14px;
+    z-index: 40;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(80,180,220,0.6); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .status-dot.waiting { background: rgba(255,215,0,0.6); }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="stars-layer" id="stars-layer"></div>
+
+  <div class="blocks-area" id="blocks-area"></div>
+
+  <div class="status" id="status">
+    <div class="status-dot" id="status-dot"></div>
+  </div>
+
+  <div class="ui-top">
+    <div class="btn-home" onclick="goHome()"></div>
+    <div class="progress">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const starsLayer = document.getElementById('stars-layer');
+  for (let i = 0; i < 25; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+    starsLayer.appendChild(s);
+  }
+
+  // Block positions (irregular, not a grid)
+  const POSITIONS = [
+    { x: 50, y: 50 },
+    { x: 300, y: 20 },
+    { x: 550, y: 70 },
+    { x: 120, y: 220 },
+    { x: 400, y: 200 },
+    { x: 80, y: 370 },
+    { x: 350, y: 360 },
+    { x: 560, y: 320 },
+  ];
+
+  const blocksArea = document.getElementById('blocks-area');
+  const blocks = [];
+
+  POSITIONS.forEach((pos, i) => {
+    const block = document.createElement('div');
+    block.className = 'block';
+    block.style.cssText = `left:${pos.x}px;top:${pos.y}px;`;
+    block.dataset.index = i;
+    block.addEventListener('click', () => handleTap(i));
+    blocksArea.appendChild(block);
+    blocks.push(block);
+  });
+
+  // Game state
+  let sequence = [];
+  let playerIndex = 0;
+  let seqLength = 3;
+  let phase = 'showing'; // showing | input
+  let roundCount = 0;
+
+  function generateSequence() {
+    sequence = [];
+    const available = [...Array(POSITIONS.length).keys()];
+    for (let i = 0; i < seqLength; i++) {
+      const pick = available.splice(Math.floor(Math.random() * available.length), 1)[0];
+      sequence.push(pick);
+    }
+  }
+
+  function showSequence() {
+    phase = 'showing';
+    document.getElementById('status-dot').classList.remove('waiting');
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i > 0) blocks[sequence[i - 1]].classList.remove('lit');
+      if (i < sequence.length) {
+        blocks[sequence[i]].classList.add('lit');
+        i++;
+      } else {
+        clearInterval(interval);
+        phase = 'input';
+        playerIndex = 0;
+        document.getElementById('status-dot').classList.add('waiting');
+      }
+    }, 800);
+  }
+
+  function randomizePositions() {
+    // Randomize block positions each round
+    const area = { w: 600, h: 400 };
+    const size = 100;
+    const padding = 20;
+    const newPositions = [];
+
+    for (let i = 0; i < blocks.length; i++) {
+      let attempts = 0;
+      let x, y;
+      do {
+        x = Math.random() * (area.w - size) + padding;
+        y = Math.random() * (area.h - size) + padding;
+        attempts++;
+      } while (attempts < 50 && newPositions.some(p => Math.abs(p.x - x) < size + 10 && Math.abs(p.y - y) < size + 10));
+      newPositions.push({ x, y });
+      blocks[i].style.left = x + 'px';
+      blocks[i].style.top = y + 'px';
+    }
+  }
+
+  function nextRound() {
+    roundCount++;
+    if (roundCount >= 4) {
+      setTimeout(() => window.location.href = 'r1_reward.html', 800);
+    } else {
+      seqLength = Math.min(seqLength + 1, 6);
+      setTimeout(() => {
+        randomizePositions();
+        generateSequence();
+        showSequence();
+      }, 1000);
+    }
+  }
+
+  function handleTap(index) {
+    if (phase !== 'input') return;
+
+    if (index === sequence[playerIndex]) {
+      blocks[index].classList.add('correct');
+      setTimeout(() => blocks[index].classList.remove('correct'), 400);
+      playerIndex++;
+
+      if (playerIndex >= sequence.length) {
+        nextRound();
+      }
+    } else {
+      // Wrong — エラーレス: サイレントに次の問題へ進む
+      blocks[index].classList.add('wrong');
+      setTimeout(() => blocks[index].classList.remove('wrong'), 400);
+      setTimeout(() => nextRound(), 600);
+    }
+  }
+
+  // Start
+  randomizePositions();
+  generateSequence();
+  setTimeout(() => showSequence(), 500);
+
+  function goHome() { window.location.href = 'm1_galaxy_carousel.html'; }
+</script>
+</body>
+</html>

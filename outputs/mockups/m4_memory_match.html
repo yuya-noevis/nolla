@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla M4 - Memory Match</title>
+<style>
+  :root {
+    --sky-top: #2860B8;
+    --sky-mid: #6858B0;
+    --sky-bottom: #9870A8;
+    --card-back: #1E1840;
+    --card-face: #FFF5E6;
+    --card-border: rgba(120, 90, 180, 0.3);
+    --match-glow: #5DBB5D;
+    --star-gold: #FFD700;
+    --ui-backdrop: rgba(0, 0, 0, 0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .screen {
+    position: relative;
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%);
+  }
+
+  /* Sparse stars */
+  .stars-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 60%;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.8; }
+  }
+
+  /* ============================================
+     GAME CARDS
+     ============================================ */
+  .card-grid {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 16px;
+    z-index: 10;
+  }
+
+  .card {
+    width: 140px;
+    height: 182px;
+    perspective: 800px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease;
+    transform-style: preserve-3d;
+  }
+
+  .card.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-front, .card-back {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    backface-visibility: hidden;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-back {
+    background: var(--card-back);
+    border: 2px solid var(--card-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  .card-back-star {
+    width: 24px;
+    height: 24px;
+    opacity: 0.4;
+  }
+  .card-back-star svg {
+    fill: var(--star-gold);
+    width: 100%;
+    height: 100%;
+  }
+
+  .card-front {
+    background: var(--card-face);
+    border: 2px solid rgba(200, 180, 150, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: rotateY(180deg);
+    font-size: 48px;
+  }
+
+  .card.matched .card-front {
+    border-color: var(--match-glow);
+    box-shadow: 0 0 20px rgba(93, 187, 93, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Match particles */
+  .match-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--star-gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 20;
+    animation: particle 0.8s ease-out forwards;
+  }
+  @keyframes particle {
+    0% { opacity: 1; transform: scale(1) translate(0, 0); }
+    100% { opacity: 0; transform: scale(0.5) translate(var(--tx), var(--ty)); }
+  }
+
+  /* ============================================
+     UI OVERLAY
+     ============================================ */
+  .ui-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 24px;
+    z-index: 50;
+  }
+
+  .btn-home {
+    width: 160px;
+    height: 160px;
+    background: url('arrow_left.png') center/contain no-repeat;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-home:hover {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  .progress {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--ui-backdrop);
+    border-radius: 14px;
+  }
+  .progress-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s;
+  }
+  .progress-dot.done {
+    background: var(--match-glow);
+    border-color: var(--match-glow);
+  }
+</style>
+</head>
+<body>
+
+<div class="screen">
+
+  <!-- Sparse stars -->
+  <div class="stars-layer" id="stars-layer"></div>
+
+  <!-- Game card grid: 3x2 -->
+  <div class="card-grid" id="grid"></div>
+
+  <!-- UI -->
+  <div class="ui-top">
+    <div class="btn-home" onclick="goHome()"></div>
+    <div class="progress" id="progress">
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot done"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // --- Stars ---
+  const starsLayer = document.getElementById('stars-layer');
+  for (let i = 0; i < 25; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      top: ${Math.random() * 100}%;
+      left: ${Math.random() * 100}%;
+      animation-delay: ${Math.random() * 3}s;
+      animation-duration: ${2 + Math.random() * 3}s;
+    `;
+    starsLayer.appendChild(s);
+  }
+
+  // --- Card game ---
+  const icons = ['🍎', '🍎', '🐟', '🐟', '⭐', '⭐'];
+  let shuffled = icons.sort(() => Math.random() - 0.5);
+  let flippedCards = [];
+  let matchedCount = 0;
+  let locked = false;
+
+  const grid = document.getElementById('grid');
+
+  shuffled.forEach((icon, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.icon = icon;
+    card.dataset.index = i;
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-back">
+          <div class="card-back-star">
+            <svg viewBox="0 0 24 24">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/>
+            </svg>
+          </div>
+        </div>
+        <div class="card-front">${icon}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => flipCard(card));
+    grid.appendChild(card);
+  });
+
+  function flipCard(card) {
+    if (locked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+    card.classList.add('flipped');
+    flippedCards.push(card);
+
+    if (flippedCards.length === 2) {
+      locked = true;
+      const [a, b] = flippedCards;
+      if (a.dataset.icon === b.dataset.icon) {
+        setTimeout(() => {
+          a.classList.add('matched');
+          b.classList.add('matched');
+          spawnParticles(a);
+          spawnParticles(b);
+          matchedCount++;
+          updateProgress();
+          flippedCards = [];
+          locked = false;
+        }, 400);
+      } else {
+        setTimeout(() => {
+          a.classList.remove('flipped');
+          b.classList.remove('flipped');
+          flippedCards = [];
+          locked = false;
+        }, 900);
+      }
+    }
+  }
+
+  function spawnParticles(card) {
+    const rect = card.getBoundingClientRect();
+    const screen = document.querySelector('.screen');
+    const screenRect = screen.getBoundingClientRect();
+    const cx = rect.left - screenRect.left + rect.width / 2;
+    const cy = rect.top - screenRect.top + rect.height / 2;
+
+    for (let i = 0; i < 6; i++) {
+      const p = document.createElement('div');
+      p.className = 'match-particle';
+      const angle = (Math.PI * 2 / 6) * i;
+      const dist = 40 + Math.random() * 30;
+      p.style.cssText = `
+        left: ${cx - 4}px; top: ${cy - 4}px;
+        --tx: ${Math.cos(angle) * dist}px;
+        --ty: ${Math.sin(angle) * dist}px;
+        animation-delay: ${Math.random() * 0.1}s;
+        background: ${Math.random() > 0.5 ? '#FFD700' : '#FFFFFF'};
+        width: ${4 + Math.random() * 6}px;
+        height: ${4 + Math.random() * 6}px;
+      `;
+      screen.appendChild(p);
+      setTimeout(() => p.remove(), 1000);
+    }
+  }
+
+  function updateProgress() {
+    const dots = document.querySelectorAll('.progress-dot');
+    if (matchedCount + 3 <= 5) {
+      dots[matchedCount + 2].classList.add('done');
+    }
+    // All 3 pairs matched = game complete → reward
+    if (matchedCount >= 3) {
+      setTimeout(() => {
+        window.location.href = 'r1_reward.html';
+      }, 1000);
+    }
+  }
+
+  function goHome() {
+    window.location.href = 'm1_galaxy_carousel.html';
+  }
+</script>
+
+</body>
+</html>

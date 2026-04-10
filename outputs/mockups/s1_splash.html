@@ -2,58 +2,141 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1194, height=834">
-<title>Nolla - S1 Splash</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nolla S1 - Splash</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { width: 1194px; height: 834px; overflow: hidden; position: relative; font-family: 'Segoe UI', system-ui, sans-serif; }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap');
 
-.center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  :root {
+    --sky-top: #1840A0;
+    --sky-mid: #3838A8;
+    --sky-bottom: #7050A0;
+  }
 
-/* Logo */
-.logo { display: flex; align-items: center; gap: 16px; animation: logo-in 1.5s ease-out; }
-@keyframes logo-in { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
-.logo-text { font-size: 72px; font-weight: 900; letter-spacing: 12px; color: #4A7BA7; text-shadow: 0 4px 8px rgba(74,123,167,0.2); }
-.logo-leaf { animation: leaf-wave 2s ease-in-out infinite; }
-@keyframes leaf-wave { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(12deg); } }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Nav character appears */
-.navi-appear { animation: navi-pop 0.8s ease-out 0.8s both; }
-@keyframes navi-pop { 0% { opacity: 0; transform: translateY(30px) scale(0.5); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-.navi-frame { width: 120px; height: 120px; border-radius: 30px; background: rgba(255,255,255,0.92); border: 4px solid rgba(210,185,150,0.5); box-shadow: 0 8px 24px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.navi-frame img { width: 104px; height: 104px; object-fit: contain; }
+  body {
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
 
-/* Loading dots */
-.loading { display: flex; gap: 8px; animation: fade-in 1s ease-out 1.5s both; }
-@keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
-.load-dot { width: 12px; height: 12px; border-radius: 50%; background: #4A7BA7; opacity: 0.3; }
-.load-dot:nth-child(1) { animation: dot-pulse 1.2s ease-in-out infinite 0s; }
-.load-dot:nth-child(2) { animation: dot-pulse 1.2s ease-in-out infinite 0.3s; }
-.load-dot:nth-child(3) { animation: dot-pulse 1.2s ease-in-out infinite 0.6s; }
-@keyframes dot-pulse { 0%,100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+  .screen {
+    position: relative;
+    width: 1194px;
+    height: 834px;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeOut 0.8s 3s ease-in forwards;
+  }
+  @keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .stars-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.15; }
+    100% { opacity: 0.6; }
+  }
+
+  .logo-container {
+    position: relative;
+    z-index: 10;
+    opacity: 0;
+    animation: logoIn 1.5s 0.5s ease-out forwards;
+  }
+
+  @keyframes logoIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+      filter: blur(8px);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.02) translateY(-3px);
+      filter: blur(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      filter: blur(0);
+    }
+  }
+
+  .logo-text {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 160px;
+    letter-spacing: 24px;
+    color: #FFFFFF;
+    text-shadow:
+      0 0 30px rgba(160, 120, 220, 0.6),
+      0 0 60px rgba(120, 80, 200, 0.3),
+      0 0 100px rgba(80, 60, 180, 0.2),
+      0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 200px;
+    background: radial-gradient(ellipse, rgba(140, 100, 210, 0.2) 0%, transparent 70%);
+    z-index: 5;
+    opacity: 0;
+    animation: glowIn 2s 1s ease-out forwards;
+  }
+  @keyframes glowIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
 </style>
 </head>
 <body>
-  <img class="bg" src="assets/s1_splash_bg.png" alt="">
-  <div class="center">
-    <div class="logo">
-      <svg class="logo-leaf" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M30 5C15 5 5 20 5 35C5 45 12 55 30 55C35 55 38 50 38 45C38 35 30 30 30 20C30 14 35 8 45 5C40 5 35 5 30 5Z" fill="#6BA47A" stroke="#5A8A6A" stroke-width="2"/>
-        <path d="M30 15C30 25 35 32 35 42" stroke="#5A8A6A" stroke-width="2" fill="none" stroke-linecap="round"/>
-      </svg>
-      <span class="logo-text">nolla</span>
-    </div>
-    <div class="navi-appear">
-      <div class="navi-frame">
-        <img src="assets/navi_character.png" alt="">
-      </div>
-    </div>
-    <div class="loading">
-      <div class="load-dot"></div>
-      <div class="load-dot"></div>
-      <div class="load-dot"></div>
-    </div>
+
+<div class="screen">
+  <div class="stars-layer" id="stars-layer"></div>
+  <div class="logo-glow"></div>
+  <div class="logo-container">
+    <div class="logo-text">nolla</div>
   </div>
+</div>
+
+<script>
+  const starsLayer = document.getElementById('stars-layer');
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+    starsLayer.appendChild(s);
+  }
+
+  setTimeout(() => {
+    window.location.href = 'm1_galaxy_carousel.html';
+  }, 3800);
+</script>
+
 </body>
 </html>

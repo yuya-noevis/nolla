@@ -1,69 +1,73 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   Nolla Design System
-   Based on: outputs/nolla_color_regulation.md
+   Nolla Design System — Galaxy Theme
+   Based on: outputs/nolla_color_regulation.md (2026-04-10 Galaxy revision)
+   Reference: outputs/nolla_mario_galaxy_style_analysis.md
    ========================================================================== */
 
 @theme {
-  /* --- Base UI Colors --- */
-  --color-nolla-bg: #F5F5F5;
+  /* --- Base UI Colors (Galaxy) --- */
+  --color-nolla-bg: #0B0B30;
   --color-nolla-primary: #4A7BA7;
-  --color-nolla-secondary: #6BA47A;
-  --color-nolla-accent: #D4A574;
+  --color-nolla-secondary: #5DBB5D;
+  --color-nolla-accent: #FFD700;
   --color-nolla-text: #333333;
-  --color-nolla-reward: #DAA520;
+  --color-nolla-reward: #FFD700;
 
-  /* --- Minecraft Material Colors --- */
-  --color-mc-grass: #7CBA5D;
-  --color-mc-grass-light: #8FBC8F;
-  --color-mc-dirt: #8B6B4A;
-  --color-mc-dirt-light: #9B7B5A;
-  --color-mc-oak: #B8945A;
-  --color-mc-oak-light: #C4A46C;
-  --color-mc-dark-oak: #6B4A2A;
-  --color-mc-dark-oak-light: #8B6B4A;
-  --color-mc-stone: #8A8A8A;
-  --color-mc-stone-light: #9A9A9A;
-  --color-mc-glass: #B5D4E8;
-  --color-mc-glowstone: #DAA520;
-  --color-mc-leaf: #5A8A4A;
-  --color-mc-leaf-light: #6B9B5A;
+  /* --- Galaxy Space Colors (replaces MC Material Colors) ---
+       Variable names kept as --color-mc-* for compatibility with
+       existing component references. Values are Galaxy theme. */
+  --color-mc-grass: #5DBB3D;
+  --color-mc-grass-light: #3A8F3A;
+  --color-mc-dirt: #1A1A4E;
+  --color-mc-dirt-light: #252560;
+  --color-mc-oak: #1E1550;
+  --color-mc-oak-light: #2A1A60;
+  --color-mc-dark-oak: #0A0A2E;
+  --color-mc-dark-oak-light: #151545;
+  --color-mc-stone: #3A1A6B;
+  --color-mc-stone-light: #4A2A7B;
+  --color-mc-glass: #00D4FF;
+  --color-mc-glowstone: #FFD700;
+  --color-mc-leaf: #5DBB3D;
+  --color-mc-leaf-light: #3A8F3A;
 
-  /* --- Building Theme Sky Colors --- */
-  --color-sky-memory: #2A2A5A;
-  --color-sky-memory-light: #4A4A8A;
-  --color-sky-sorting: #E8C8A0;
-  --color-sky-sorting-light: #D4A878;
-  --color-sky-search: #87CEEB;
-  --color-sky-search-muted: #6BAEDB;
-  --color-sky-corsi: #1A1A3A;
-  --color-sky-corsi-light: #2A2A5A;
+  /* --- Planet Theme Colors (replaces Building Sky Colors) --- */
+  --color-sky-memory: #1E1550;
+  --color-sky-memory-light: #3A1A6B;
+  --color-sky-sorting: #0A3A3A;
+  --color-sky-sorting-light: #1B6B6B;
+  --color-sky-search: #0A2A4A;
+  --color-sky-search-muted: #1A4A6A;
+  --color-sky-corsi: #0A0A2E;
+  --color-sky-corsi-light: #1A1A4E;
 
-  /* --- Child UI Elements --- */
-  --color-btn-bg: #C4A46C;
-  --color-btn-bg-hover: #A88A50;
-  --color-btn-border: #8B7340;
-  --color-btn-shadow: #6B5530;
+  /* --- Child UI Elements (Galaxy: translucent dark + glow) --- */
+  --color-btn-bg: rgba(255, 255, 255, 0.12);
+  --color-btn-bg-hover: rgba(255, 255, 255, 0.18);
+  --color-btn-border: rgba(255, 255, 255, 0.2);
+  --color-btn-shadow: rgba(0, 0, 0, 0.3);
 
-  /* --- Parent UI Elements --- */
-  --color-parent-card-border: rgba(210, 185, 150, 0.3);
-  --color-parent-input-bg: rgba(245, 240, 232, 0.5);
-  --color-parent-input-border: rgba(210, 185, 150, 0.5);
+  /* --- Parent UI Elements (unchanged — clean, light theme) --- */
+  --color-parent-card-border: rgba(74, 123, 167, 0.15);
+  --color-parent-input-bg: rgba(245, 240, 235, 0.5);
+  --color-parent-input-border: rgba(180, 180, 200, 0.4);
   --color-parent-tab-inactive: #888888;
-  --color-parent-growth-badge: rgba(107, 164, 122, 0.15);
+  --color-parent-growth-badge: rgba(93, 187, 93, 0.15);
   --color-parent-analysis-badge: rgba(74, 123, 167, 0.12);
-  --color-parent-caution-badge: rgba(212, 165, 116, 0.2);
+  --color-parent-caution-badge: rgba(255, 179, 71, 0.2);
 
-  /* --- Feedback Colors --- */
-  --color-feedback-correct: #6BA47A;
-  --color-feedback-hint-glow: rgba(107, 164, 122, 0.3);
-  --color-feedback-rest: #2A2A5A;
+  /* --- Feedback Colors (Galaxy) --- */
+  --color-feedback-correct: #5DBB5D;
+  --color-feedback-hint-glow: rgba(93, 187, 93, 0.3);
+  --color-feedback-rest: #1A1A4E;
 
-  /* --- Graph Colors (Parent Dashboard) --- */
-  --color-graph-flexibility: #D4A574;
-  --color-graph-memory: #4A7BA7;
-  --color-graph-attention: #6BA47A;
+  /* --- Graph Colors (Parent Dashboard — planet themed) --- */
+  --color-graph-flexibility: #9B7BBD;
+  --color-graph-memory: #00D4FF;
+  --color-graph-attention: #3A8F3A;
+  --color-graph-sorting: #FF8C42;
 
   /* --- Spacing (touch-friendly) --- */
   --spacing-touch-min: 48px;
@@ -77,15 +81,16 @@
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* --- Shadows --- */
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-btn: 0 4px 0 var(--color-btn-shadow);
-  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
+  /* --- Shadows (Galaxy: glow-based) --- */
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --shadow-btn: 0 0 12px rgba(0, 212, 255, 0.15);
+  --shadow-elevated: 0 4px 20px rgba(0, 0, 0, 0.4);
 
   /* --- Animation Durations --- */
   --duration-feedback: 200ms;
   --duration-transition: 300ms;
   --duration-pulse: 1500ms;
+  --duration-warp: 1200ms;
 }
 
 /* ==========================================================================
@@ -125,24 +130,27 @@ body {
    Utility Classes
    ========================================================================== */
 
-/* Minecraft-style button (oak wood) */
+/* Galaxy-style button (translucent dark + rim light glow) */
 .btn-mc {
-  background: linear-gradient(180deg, var(--color-btn-bg) 0%, var(--color-btn-bg-hover) 100%);
-  border: 2px solid var(--color-btn-border);
+  background: var(--color-btn-bg);
+  border: 1px solid var(--color-btn-border);
   box-shadow: var(--shadow-btn);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   color: #FFFFFF;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   min-height: var(--spacing-touch-child);
   min-width: var(--spacing-touch-child);
   padding: 12px 24px;
   font-weight: 700;
+  backdrop-filter: blur(8px);
   transition: transform var(--duration-feedback) ease,
-              box-shadow var(--duration-feedback) ease;
+              box-shadow var(--duration-feedback) ease,
+              background var(--duration-feedback) ease;
 }
 .btn-mc:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--color-btn-shadow);
+  transform: scale(0.95);
+  background: var(--color-btn-bg-hover);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
 }
 
 /* Touch target enforcement */
@@ -155,9 +163,18 @@ body {
   min-width: var(--spacing-touch-child);
 }
 
-/* Glass overlay for UI elements over game backgrounds */
+/* Glass overlay for UI elements (Galaxy: dark glass) */
 .glass-overlay {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(10, 10, 46, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(12px);
+  color: #FFFFFF;
+}
+
+/* Glass overlay for parent screens (light) */
+.glass-overlay-light {
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid var(--color-parent-card-border);
   border-radius: var(--radius-lg);
   backdrop-filter: blur(8px);
@@ -165,10 +182,11 @@ body {
 
 /* Navi character speech bubble */
 .navi-bubble {
-  background: rgba(255, 255, 255, 0.92);
-  border: 2px solid #B49664;
+  background: rgba(10, 10, 46, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.3);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.1);
+  color: #FFFFFF;
 }
 
 /* Feedback animation: correct answer */
@@ -207,6 +225,25 @@ body {
 }
 .animate-splash-in {
   animation: splash-in 800ms ease-out;
+}
+
+/* Warp transition (planet selection → game) */
+@keyframes warp-stars {
+  0% { transform: scale(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}
+.animate-warp {
+  animation: warp-stars var(--duration-warp) ease-in forwards;
+}
+
+/* Atmosphere ring glow around planets */
+@keyframes atmosphere-pulse {
+  0%, 100% { opacity: 0.6; filter: blur(8px); }
+  50% { opacity: 0.9; filter: blur(12px); }
+}
+.animate-atmosphere {
+  animation: atmosphere-pulse 4s ease-in-out infinite;
 }
 
 /* ==========================================================================
@@ -273,4 +310,30 @@ body {
   left: 0;
   right: 0;
   z-index: 9999;
+}
+
+/* ==========================================================================
+   Parent screens override: light background
+   ========================================================================== */
+
+.parent-screen {
+  background-color: #F5F5F5;
+  color: var(--color-nolla-text);
+}
+
+.parent-screen .glass-overlay {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--color-parent-card-border);
+  color: var(--color-nolla-text);
+}
+
+.parent-screen .btn-mc {
+  background: var(--color-nolla-primary);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: none;
+}
+.parent-screen .btn-mc:active {
+  background: #3A6B97;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
