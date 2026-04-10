@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getEnabledPlanets, type Planet } from "@/lib/planets";
 import { MotorBaselineMeasurement } from "@/components/game/motor-baseline";
@@ -32,8 +32,99 @@ function saveMotorBaselineFromHome(medianRt: number): void {
 }
 
 type WarmupPhase = "checking" | "ready" | "measuring" | "done";
-
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
+
+/** Canvas-based warp transition matching mockup spec */
+function WarpTransition({ onComplete }: { onComplete: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    const cx = w / 2;
+    const cy = h / 2;
+
+    const stars = Array.from({ length: 200 }, () => ({
+      angle: Math.random() * Math.PI * 2,
+      dist: Math.random() * 5,
+      speed: 2 + Math.random() * 6,
+      size: 0.5 + Math.random() * 1.5,
+      bright: 0.5 + Math.random() * 0.5,
+    }));
+
+    let frame = 0;
+    const totalFrames = 70;
+    let raf: number;
+
+    function draw() {
+      ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
+      ctx!.fillRect(0, 0, w, h);
+
+      for (const s of stars) {
+        s.dist += s.speed * (1 + frame / 20);
+        const x = cx + Math.cos(s.angle) * s.dist;
+        const y = cy + Math.sin(s.angle) * s.dist;
+
+        if (x < -10 || x > w + 10 || y < -10 || y > h + 10) {
+          s.dist = Math.random() * 3;
+          continue;
+        }
+
+        const tailLen = Math.min(s.dist * 0.3, 40);
+        const tx = x - Math.cos(s.angle) * tailLen;
+        const ty = y - Math.sin(s.angle) * tailLen;
+
+        const grad = ctx!.createLinearGradient(tx, ty, x, y);
+        grad.addColorStop(0, "transparent");
+        grad.addColorStop(1, `rgba(255, 255, 255, ${s.bright})`);
+
+        ctx!.beginPath();
+        ctx!.moveTo(tx, ty);
+        ctx!.lineTo(x, y);
+        ctx!.strokeStyle = grad;
+        ctx!.lineWidth = s.size;
+        ctx!.stroke();
+
+        ctx!.beginPath();
+        ctx!.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(255, 255, 255, ${s.bright})`;
+        ctx!.fill();
+      }
+
+      frame++;
+      if (frame < totalFrames) {
+        raf = requestAnimationFrame(draw);
+      } else {
+        onComplete();
+      }
+    }
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, w, h);
+    raf = requestAnimationFrame(draw);
+
+    return () => cancelAnimationFrame(raf);
+  }, [onComplete]);
+
+  return (
+    <main className="h-dvh w-full relative" style={{ background: "#000" }}>
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ display: "block" }}
+      />
+    </main>
+  );
+}
 
 export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const router = useRouter();
@@ -41,7 +132,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [warmupPhase, setWarmupPhase] = useState<WarmupPhase>("checking");
   const [localStars, setLocalStars] = useState(starBalance);
-  const [isWarping, setIsWarping] = useState(false);
+  const [warpTarget, setWarpTarget] = useState<string | null>(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -63,9 +154,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
     setWarmupPhase(needsMotorBaseline() ? "ready" : "done");
   }, []);
 
-  const handleWarmupStart = useCallback(() => {
-    setWarmupPhase("measuring");
-  }, []);
+  const handleWarmupStart = useCallback(() => setWarmupPhase("measuring"), []);
 
   const handleBaselineComplete = useCallback((reactionTimes: readonly number[]) => {
     const baseline = calculateMotorBaseline(reactionTimes, null);
@@ -81,20 +170,14 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
     setCurrentIndex((i) => (i < planets.length - 1 ? i + 1 : 0));
   }, [planets.length]);
 
-  const handlePlanetTap = useCallback(
-    (planet: Planet) => {
-      try {
-        localStorage.setItem(LAST_PLANET_KEY, planet.gameType);
-      } catch {
-        // ignore
-      }
-      setIsWarping(true);
-      setTimeout(() => {
-        router.push(`/game/${planet.gameType}`);
-      }, 1200);
-    },
-    [router]
-  );
+  const handlePlanetTap = useCallback((planet: Planet) => {
+    try { localStorage.setItem(LAST_PLANET_KEY, planet.gameType); } catch { /* */ }
+    setWarpTarget(`/game/${planet.gameType}`);
+  }, []);
+
+  const handleWarpComplete = useCallback(() => {
+    if (warpTarget) router.push(warpTarget);
+  }, [router, warpTarget]);
 
   const current = planets[currentIndex];
 
@@ -105,21 +188,10 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   if (warmupPhase === "ready" || warmupPhase === "measuring") {
     return (
       <main className="h-dvh w-full flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Planet image as background */}
-        <img
-          src={current.image}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          draggable={false}
-        />
-
+        <img src={current.image} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
         <div className="relative z-10">
           {warmupPhase === "ready" && (
-            <button
-              type="button"
-              onClick={handleWarmupStart}
-              className="flex flex-col items-center gap-6"
-            >
+            <button type="button" onClick={handleWarmupStart} className="flex flex-col items-center gap-6">
               <div
                 className="w-32 h-32 rounded-full flex items-center justify-center active:scale-95 transition-transform"
                 style={{
@@ -128,61 +200,24 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
                   border: "2px solid rgba(0,212,255,0.4)",
                 }}
               >
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
-                  <polygon points="6,4 20,12 6,20" />
-                </svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20" /></svg>
               </div>
             </button>
           )}
-
-          {warmupPhase === "measuring" && (
-            <MotorBaselineMeasurement onComplete={handleBaselineComplete} />
-          )}
+          {warmupPhase === "measuring" && <MotorBaselineMeasurement onComplete={handleBaselineComplete} />}
         </div>
       </main>
     );
   }
 
-  // Warp transition
-  if (isWarping) {
-    return (
-      <main className="h-dvh w-full relative overflow-hidden" style={{ background: "#000000" }}>
-        {Array.from({ length: 60 }).map((_, i) => {
-          const angle = (i / 60) * 360;
-          const delay = Math.random() * 400;
-          const length = 40 + Math.random() * 60;
-          return (
-            <div
-              key={i}
-              className="absolute left-1/2 top-1/2"
-              style={{
-                width: `${length}px`,
-                height: "1.5px",
-                background: `linear-gradient(90deg, transparent 0%, ${i % 3 === 0 ? "#00D4FF" : "#FFFFFF"} 50%, transparent 100%)`,
-                transform: `rotate(${angle}deg) translateX(0)`,
-                transformOrigin: "0 50%",
-                animation: `warp-stars 1200ms ease-in ${delay}ms forwards`,
-                opacity: 0,
-              }}
-            />
-          );
-        })}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            width: 8,
-            height: 8,
-            background: "#FFFFFF",
-            boxShadow: "0 0 60px 20px rgba(0,212,255,0.5)",
-          }}
-        />
-      </main>
-    );
+  // Warp transition (Canvas)
+  if (warpTarget) {
+    return <WarpTransition onComplete={handleWarpComplete} />;
   }
 
   return (
     <main className="h-dvh w-full flex flex-col relative overflow-hidden">
-      {/* Full-screen planet image as background */}
+      {/* Full-screen planet backgrounds with crossfade */}
       {planets.map((planet, i) => (
         <img
           key={planet.gameType}
@@ -196,101 +231,96 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
       {/* Header: Stars + Parent lock */}
       <div
-        className="flex items-center justify-between px-3 pt-1 shrink-0 relative z-10"
+        className="flex items-center justify-between px-3 pt-2 shrink-0 relative z-10"
         style={{
           paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
           paddingRight: "max(0.75rem, env(safe-area-inset-right))",
-          paddingTop: "max(0.25rem, env(safe-area-inset-top))",
+          paddingTop: "max(0.5rem, env(safe-area-inset-top))",
         }}
       >
+        {/* Star counter with dot grid */}
         <div
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-sm"
-          style={{ background: "rgba(0,0,0,0.3)" }}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-2xl"
+          style={{ background: "rgba(0,0,0,0.15)" }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFD700">
-            <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#FFD700" style={{ filter: "drop-shadow(0 0 4px rgba(255,215,0,0.5))" }}>
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
           </svg>
-          <span className="text-base font-bold text-white drop-shadow-sm">
-            {localStars}
-          </span>
+          {/* Dot grid for star count (up to 12 dots shown, remaining as number) */}
+          <div className="grid grid-cols-4 gap-[3px]">
+            {Array.from({ length: Math.min(localStars, 12) }).map((_, i) => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD700", opacity: 0.7 }} />
+            ))}
+          </div>
+          {localStars > 12 && (
+            <span className="text-xs font-bold text-white/70">+{localStars - 12}</span>
+          )}
         </div>
 
         <button
           type="button"
           onClick={() => router.push("/pin")}
-          className="touch-target flex items-center justify-center w-10 h-10 rounded-full"
-          style={{ background: "rgba(0,0,0,0.2)" }}
+          className="touch-target flex items-center justify-center w-9 h-9"
           aria-label="Parent menu"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         </button>
       </div>
 
-      {/* Center: tappable planet area */}
+      {/* Center: Planet area */}
       <div className="flex-1 flex items-center justify-center relative z-10">
-        {/* Left arrow */}
+        {/* Left arrow — image button */}
         {planets.length > 1 && (
           <button
             type="button"
             onClick={goLeft}
-            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full"
-            style={{
-              left: "max(0.5rem, env(safe-area-inset-left))",
-              background: "rgba(0,0,0,0.25)",
-              border: "1px solid rgba(255,255,255,0.15)",
-            }}
+            className="absolute z-10 transition-all duration-200 hover:scale-110 active:scale-95"
+            style={{ left: "max(1rem, env(safe-area-inset-left))", width: 80, height: 80 }}
             aria-label="Previous"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+            <img src="/arrow_left.png" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
           </button>
         )}
 
-        {/* Tap the planet (entire center area is tappable) */}
+        {/* Tappable planet center */}
         <button
           type="button"
           onClick={() => handlePlanetTap(current)}
           className="flex flex-col items-center transition-transform duration-300 active:scale-95"
+          style={{ cursor: "pointer" }}
         >
-          {/* Planet name below center */}
           <span className="text-lg font-bold text-white drop-shadow-lg mt-40">
             {current.name}
           </span>
         </button>
 
-        {/* Right arrow */}
+        {/* Right arrow — image button */}
         {planets.length > 1 && (
           <button
             type="button"
             onClick={goRight}
-            className="touch-target absolute z-10 flex items-center justify-center w-12 h-12 rounded-full"
-            style={{
-              right: "max(0.5rem, env(safe-area-inset-right))",
-              background: "rgba(0,0,0,0.25)",
-              border: "1px solid rgba(255,255,255,0.15)",
-            }}
+            className="absolute z-10 transition-all duration-200 hover:scale-110 active:scale-95"
+            style={{ right: "max(1rem, env(safe-area-inset-right))", width: 80, height: 80 }}
             aria-label="Next"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
+            <img src="/arrow_right.png" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
           </button>
         )}
       </div>
 
-      {/* Footer: My Room + Dots + Navi */}
+      {/* Footer */}
       <div
-        className="flex items-center justify-between gap-2 px-3 pb-1 shrink-0 relative z-10"
+        className="flex items-center justify-between gap-2 px-3 pb-2 shrink-0 relative z-10"
         style={{
           paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
           paddingRight: "max(0.75rem, env(safe-area-inset-right))",
-          paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
+          paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))",
         }}
       >
+        {/* Left: My Room + Mini games */}
         <div className="flex gap-2 shrink-0">
           <button
             type="button"
@@ -317,25 +347,24 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
           </button>
         </div>
 
+        {/* Center: Dot indicators */}
         <div
-          className="flex gap-2 px-3 py-1.5 rounded-full shrink-0"
-          style={{ background: "rgba(0,0,0,0.3)" }}
+          className="flex gap-[18px] px-5 py-2 rounded-2xl shrink-0"
+          style={{ background: "rgba(0,0,0,0.15)" }}
         >
           {planets.map((_, i) => (
             <div
               key={i}
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                i === currentIndex ? "bg-white scale-110" : "bg-white/30"
+                i === currentIndex ? "bg-white" : "bg-white/25"
               }`}
-              style={i === currentIndex ? { boxShadow: "0 0 6px rgba(255,255,255,0.5)" } : undefined}
             />
           ))}
         </div>
 
+        {/* Right: Navi bubble */}
         <div className="navi-bubble px-2 py-1 max-w-36 shrink-0">
-          <p className="text-xs truncate">
-            {childName}、あそぼう！
-          </p>
+          <p className="text-xs truncate">{childName}、あそぼう！</p>
         </div>
       </div>
     </main>

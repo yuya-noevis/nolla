@@ -10,6 +10,8 @@ type Props = {
   groundColor: string;
   sessionStars: number;
   hintActive?: boolean;
+  roundNumber?: number;
+  totalRounds?: number;
   children: ReactNode;
 };
 
@@ -18,6 +20,8 @@ export function GameFrame({
   groundColor,
   sessionStars,
   hintActive = false,
+  roundNumber = 0,
+  totalRounds = 5,
   children,
 }: Props) {
   const router = useRouter();
@@ -89,7 +93,7 @@ export function GameFrame({
         }}
       />
 
-      <GameHeader sessionStars={sessionStars} onBack={handleBack} />
+      <GameHeader sessionStars={sessionStars} onBack={handleBack} roundNumber={roundNumber} totalRounds={totalRounds} />
 
       {/* Game area */}
       <div className="flex-1 relative overflow-hidden z-10">

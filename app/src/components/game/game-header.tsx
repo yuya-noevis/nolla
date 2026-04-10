@@ -3,29 +3,58 @@
 type Props = {
   sessionStars: number;
   onBack: () => void;
+  roundNumber?: number;
+  totalRounds?: number;
 };
 
-export function GameHeader({ sessionStars, onBack }: Props) {
+export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds = 5 }: Props) {
   return (
-    <header className="flex items-center justify-between px-4 h-[60px] shrink-0">
+    <header
+      className="flex items-center justify-between shrink-0 relative z-20"
+      style={{
+        padding: "12px 24px",
+        paddingTop: "max(12px, env(safe-area-inset-top))",
+        paddingLeft: "max(24px, env(safe-area-inset-left))",
+        paddingRight: "max(24px, env(safe-area-inset-right))",
+      }}
+    >
+      {/* Back button — arrow image */}
       <button
         type="button"
         onClick={onBack}
-        className="touch-target-child flex items-center justify-center w-14 h-14"
+        className="transition-all duration-200 hover:scale-110 active:scale-95"
+        style={{ width: 56, height: 56 }}
         aria-label="Back"
       >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-          <path d="M15 18l-6-6 6-6" />
-        </svg>
+        <img
+          src="/arrow_left.png"
+          alt=""
+          className="w-full h-full object-contain"
+          style={{ opacity: 0.75 }}
+          draggable={false}
+        />
       </button>
 
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 rounded-full">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#DAA520">
-          <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" />
-        </svg>
-        <span className="text-base font-bold text-white drop-shadow-sm">
-          +{sessionStars}
-        </span>
+      {/* Progress dots */}
+      <div
+        className="flex gap-[10px] items-center px-4 py-2.5 rounded-2xl"
+        style={{ background: "rgba(0,0,0,0.2)" }}
+      >
+        {Array.from({ length: totalRounds }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-full transition-all duration-300"
+            style={{
+              width: 14,
+              height: 14,
+              background: i < roundNumber ? "#5DBB5D" : "transparent",
+              border: i < roundNumber
+                ? "2px solid #5DBB5D"
+                : "2px solid rgba(255,255,255,0.3)",
+              boxShadow: i < roundNumber ? "0 0 6px rgba(93,187,93,0.4)" : "none",
+            }}
+          />
+        ))}
       </div>
     </header>
   );
