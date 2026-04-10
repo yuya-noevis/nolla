@@ -183,14 +183,15 @@ export function CardGrid({
     ]
   );
 
-  // Ensure cards are at least 80px for accessibility
-  const cardSize = Math.max(params.cardSize, 80);
+  // Card dimensions matching mockup: 140x182 (portrait ratio)
+  const cardW = 140;
+  const cardH = 182;
 
   return (
     <div
-      className="grid gap-3 place-items-center"
+      className="grid gap-4 place-items-center"
       style={{
-        gridTemplateColumns: `repeat(${board.gridCols}, ${cardSize}px)`,
+        gridTemplateColumns: `repeat(${board.gridCols}, ${cardW}px)`,
       }}
     >
       {board.cards.map((card, index) => (
@@ -198,7 +199,8 @@ export function CardGrid({
           key={card.id}
           card={card}
           state={cardStates[index]}
-          size={cardSize}
+          width={cardW}
+          height={cardH}
           isHintTarget={hintStage >= 2 && index === correctPairIndex}
           isHintGlow={hintStage >= 3 && index === correctPairIndex}
           onTap={() => handleCardTap(index)}
@@ -211,42 +213,72 @@ export function CardGrid({
 type CardCellProps = {
   card: MemoryMatchCard;
   state: CardState;
-  size: number;
+  width: number;
+  height: number;
   isHintTarget: boolean;
   isHintGlow: boolean;
   onTap: () => void;
 };
 
-function CardCell({ card, state, size, isHintTarget, isHintGlow, onTap }: CardCellProps) {
+function CardCell({ card, state, width, height, isHintTarget, isHintGlow, onTap }: CardCellProps) {
   const isFaceUp = state === "face-up" || state === "matched";
+  const isMatched = state === "matched";
 
   return (
     <button
       type="button"
       onClick={onTap}
-      disabled={state === "matched"}
-      className={`relative rounded-lg transition-transform duration-200 ${
+      disabled={isMatched}
+      className={`relative transition-transform duration-200 active:scale-95 ${
         isHintTarget ? "animate-pulse-gentle" : ""
       } ${isHintGlow ? "ring-4 ring-[var(--color-feedback-correct)]/50" : ""}`}
       style={{
-        width: size,
-        height: size,
-        background: isFaceUp
-          ? "var(--color-mc-oak-light)"
-          : "linear-gradient(135deg, var(--color-mc-stone-light), var(--color-mc-stone))",
-        border: "3px solid var(--color-mc-dark-oak)",
-        boxShadow: "0 4px 0 var(--color-mc-dark-oak-light)",
+        width,
+        height,
+        perspective: 800,
       }}
       aria-label={`Card ${card.id}`}
     >
-      {isFaceUp && (
+      <div
+        className="relative w-full h-full transition-transform duration-500"
+        style={{
+          transformStyle: "preserve-3d",
+          transform: isFaceUp ? "rotateY(180deg)" : "rotateY(0deg)",
+        }}
+      >
+        {/* Card back */}
         <div
-          className="flex items-center justify-center w-full h-full"
-          style={{ fontSize: Math.floor(size * 0.6) }}
+          className="absolute inset-0 flex items-center justify-center rounded-[14px] backface-hidden"
+          style={{
+            background: "#1E1840",
+            border: "2px solid rgba(120, 90, 180, 0.3)",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+            backfaceVisibility: "hidden",
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFD700" style={{ opacity: 0.4 }}>
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+          </svg>
+        </div>
+        {/* Card front */}
+        <div
+          className="absolute inset-0 flex items-center justify-center rounded-[14px]"
+          style={{
+            background: "#FFF5E6",
+            border: isMatched
+              ? "2px solid #5DBB5D"
+              : "2px solid rgba(200, 180, 150, 0.3)",
+            boxShadow: isMatched
+              ? "0 0 20px rgba(93, 187, 93, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2)"
+              : "0 4px 12px rgba(0, 0, 0, 0.2)",
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+            fontSize: 48,
+          }}
         >
           {IMAGE_GLYPH[card.imageKey] ?? card.imageKey.charAt(0)}
         </div>
-      )}
+      </div>
     </button>
   );
 }

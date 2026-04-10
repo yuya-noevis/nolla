@@ -34,35 +34,105 @@ function saveMotorBaselineFromHome(medianRt: number): void {
 type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
-/** CSS-based warp transition — no Canvas, no freeze risk */
+/** Canvas warp transition with absolute safety: 1.2s timer guarantees navigation */
 function WarpTransition({ onComplete }: { onComplete: () => void }) {
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
-  const calledRef = useRef(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const navigatedRef = useRef(false);
 
+  // Absolute safety net: navigate after 1.2s no matter what
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!calledRef.current) {
-        calledRef.current = true;
-        onCompleteRef.current();
+      if (!navigatedRef.current) {
+        navigatedRef.current = true;
+        onComplete();
       }
     }, 1200);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Canvas animation (best-effort, does not control navigation)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const stars = Array.from({ length: 200 }, () => ({
+      angle: Math.random() * Math.PI * 2,
+      dist: Math.random() * 5,
+      speed: 2 + Math.random() * 6,
+      size: 0.5 + Math.random() * 1.5,
+      bright: 0.5 + Math.random() * 0.5,
+    }));
+
+    let frame = 0;
+    let raf = 0;
+    let stopped = false;
+
+    function draw() {
+      if (stopped) return;
+      ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
+      ctx!.fillRect(0, 0, w, h);
+
+      for (const s of stars) {
+        s.dist += s.speed * (1 + frame / 20);
+        const x = cx + Math.cos(s.angle) * s.dist;
+        const y = cy + Math.sin(s.angle) * s.dist;
+        if (x < -10 || x > w + 10 || y < -10 || y > h + 10) {
+          s.dist = Math.random() * 3;
+          continue;
+        }
+        const tailLen = Math.min(s.dist * 0.3, 40);
+        const tx = x - Math.cos(s.angle) * tailLen;
+        const ty = y - Math.sin(s.angle) * tailLen;
+        const grad = ctx!.createLinearGradient(tx, ty, x, y);
+        grad.addColorStop(0, "transparent");
+        grad.addColorStop(1, `rgba(255, 255, 255, ${s.bright})`);
+        ctx!.beginPath();
+        ctx!.moveTo(tx, ty);
+        ctx!.lineTo(x, y);
+        ctx!.strokeStyle = grad;
+        ctx!.lineWidth = s.size;
+        ctx!.stroke();
+        ctx!.beginPath();
+        ctx!.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(255, 255, 255, ${s.bright})`;
+        ctx!.fill();
+      }
+
+      frame++;
+      if (frame < 70) {
+        raf = requestAnimationFrame(draw);
+      }
+      // Animation end does NOT trigger navigation — the timer does
+    }
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, w, h);
+    raf = requestAnimationFrame(draw);
+
+    return () => {
+      stopped = true;
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (
-    <main className="h-dvh w-full relative overflow-hidden" style={{ background: "#000" }}>
-      {/* Radial star streaks via CSS */}
-      <div className="absolute inset-0 warp-stars" />
-      {/* Center glow */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          width: 120,
-          height: 120,
-          background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(100,200,255,0.3) 40%, transparent 70%)",
-          animation: "warp-glow 1.2s ease-in forwards",
-        }}
+    <main className="h-dvh w-full relative" style={{ background: "#000" }}>
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ display: "block" }}
       />
     </main>
   );

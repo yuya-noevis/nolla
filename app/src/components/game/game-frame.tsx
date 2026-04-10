@@ -43,29 +43,24 @@ export function GameFrame({
     <main
       className="h-full w-full flex flex-col relative overflow-hidden"
       style={{
-        background: `radial-gradient(ellipse at 50% 30%, ${skyGradient[1]} 0%, ${skyGradient[0]} 50%, #0B0B30 100%)`,
+        background: `linear-gradient(180deg, ${skyGradient[0]} 0%, ${skyGradient[1]} 50%, #9870A8 100%)`,
       }}
     >
-      {/* Subtle nebula overlays */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-20"
-        style={{
-          background: `radial-gradient(ellipse at 20% 25%, ${skyGradient[1]}60 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, ${skyGradient[0]}40 0%, transparent 50%)`,
-        }}
-      />
-
-      {/* Sparse star field */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {Array.from({ length: 30 }).map((_, i) => (
+      {/* Sparse stars (upper 60% only, like mockup) */}
+      <div className="absolute top-0 left-0 right-0 pointer-events-none" style={{ height: "60%" }}>
+        {Array.from({ length: 25 }).map((_, i) => (
           <div
             key={i}
-            className="absolute rounded-full"
+            className="absolute rounded-full animate-pulse"
             style={{
-              width: i < 5 ? 2 : 1,
-              height: i < 5 ? 2 : 1,
-              background: `rgba(255,255,255,${0.2 + (i % 3) * 0.15})`,
-              left: `${(i * 37 + 13) % 100}%`,
-              top: `${(i * 23 + 7) % 100}%`,
+              width: 1 + Math.random() * 2,
+              height: 1 + Math.random() * 2,
+              background: "white",
+              opacity: 0.3 + (i % 3) * 0.2,
+              left: `${(i * 41 + 13) % 100}%`,
+              top: `${(i * 29 + 7) % 100}%`,
+              animationDuration: `${2 + (i % 4)}s`,
+              animationDelay: `${(i * 0.3) % 3}s`,
             }}
           />
         ))}
@@ -73,8 +68,8 @@ export function GameFrame({
 
       <GameHeader sessionStars={sessionStars} onBack={handleBack} roundNumber={roundNumber} totalRounds={totalRounds} />
 
-      {/* Game area — fill all remaining space */}
-      <div className="flex-1 relative overflow-hidden z-10 min-h-0">
+      {/* Game area — fill all remaining space, centered */}
+      <div className="flex-1 relative z-10 min-h-0 flex items-center justify-center">
         {children}
       </div>
 
