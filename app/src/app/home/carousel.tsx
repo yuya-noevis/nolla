@@ -180,14 +180,19 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
     setCurrentIndex((i) => (i < planets.length - 1 ? i + 1 : 0));
   }, [planets.length]);
 
+  const warpTargetRef = useRef<string | null>(null);
+
   const handlePlanetTap = useCallback((planet: Planet) => {
     try { localStorage.setItem(LAST_PLANET_KEY, planet.gameType); } catch { /* */ }
-    setWarpTarget(`/game/${planet.gameType}`);
+    const target = `/game/${planet.gameType}`;
+    warpTargetRef.current = target;
+    setWarpTarget(target);
   }, []);
 
   const handleWarpComplete = useCallback(() => {
-    if (warpTarget) router.push(warpTarget);
-  }, [router, warpTarget]);
+    const target = warpTargetRef.current;
+    if (target) router.push(target);
+  }, [router]);
 
   const current = planets[currentIndex];
 
