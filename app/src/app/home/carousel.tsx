@@ -70,17 +70,20 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
     }
 
     let frame = 0;
-    const totalFrames = 70;
     let raf = 0;
-    let done = false;
+    let stopped = false;
+    let navigated = false;
 
     function draw() {
-      if (done) return;
+      if (stopped) return;
       ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
       ctx!.fillRect(0, 0, W, H);
 
+      // Cap frame counter at 70 for speed calculation (prevents overflow)
+      const speedFrame = Math.min(frame, 70);
+
       for (const s of stars) {
-        s.dist += s.speed * (1 + frame / 20);
+        s.dist += s.speed * (1 + speedFrame / 20);
         const x = cx + Math.cos(s.angle) * s.dist;
         const y = cy + Math.sin(s.angle) * s.dist;
 
@@ -111,12 +114,16 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
       }
 
       frame++;
-      if (frame < totalFrames) {
-        raf = requestAnimationFrame(draw);
-      } else {
-        done = true;
+
+      // Trigger navigation at frame 70, but KEEP ANIMATING
+      // Stars continue streaking until the browser replaces this page
+      if (frame === 70 && !navigated) {
+        navigated = true;
         onCompleteRef.current();
       }
+
+      // ALWAYS request next frame — animation runs until page unloads
+      raf = requestAnimationFrame(draw);
     }
 
     ctx.fillStyle = "#000";
@@ -124,7 +131,7 @@ function WarpTransition({ onComplete }: { onComplete: () => void }) {
     raf = requestAnimationFrame(draw);
 
     return () => {
-      done = true;
+      stopped = true;
       cancelAnimationFrame(raf);
     };
   }, []);
