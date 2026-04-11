@@ -7,6 +7,7 @@ import {
   addToRecent,
   type ConstellationPreset,
 } from "@/lib/warmup/constellations";
+import { CONSTELLATION_ILLUSTRATIONS } from "@/lib/warmup/constellation-illustrations";
 import {
   readRecentConstellations,
   writeRecentConstellations,
@@ -17,7 +18,7 @@ import { vibrate } from "@/lib/feedback/haptic";
 const TOTAL_TRIALS = 10;
 const MIN_DELAY_MS = 800;
 const MAX_DELAY_MS = 2500;
-const COMPLETION_DISPLAY_MS = 3000;
+const COMPLETION_DISPLAY_MS = 5000;
 
 // Normalized constellation coordinates are authored in a 100×60 space.
 const NORM_WIDTH = 100;
@@ -237,38 +238,50 @@ function SlotPlate({
         className="relative mx-auto"
         style={{ width: "72%", aspectRatio: `${NORM_WIDTH} / ${NORM_HEIGHT}` }}
       >
-        {/* SVG for constellation lines (aligned to slot coordinates exactly) */}
+        {/* SVG layer for constellation lines + artistic illustration
+            (rendered only after all 10 stars are collected). */}
         <svg
           viewBox={`0 0 ${NORM_WIDTH} ${NORM_HEIGHT}`}
           className="absolute inset-0 w-full h-full overflow-visible"
           preserveAspectRatio="none"
         >
-          {showLines &&
-            preset.lines.map(([a, b], i) => {
-              const sa = preset.slots[a];
-              const sb = preset.slots[b];
-              return (
-                <line
-                  key={`line-${i}`}
-                  x1={sa.x}
-                  y1={sa.y}
-                  x2={sb.x}
-                  y2={sb.y}
-                  stroke="rgba(200, 225, 255, 0.7)"
-                  strokeWidth={0.8}
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                  className="animate-warmup-line"
-                  style={{ animationDelay: `${i * 70}ms` }}
-                />
-              );
-            })}
+          {showLines && (
+            <>
+              {/* Figure illustration — thin translucent outline */}
+              <g
+                stroke="rgba(180, 210, 255, 0.55)"
+                strokeWidth={0.7}
+                vectorEffect="non-scaling-stroke"
+                className="animate-warmup-illustration"
+              >
+                {CONSTELLATION_ILLUSTRATIONS[preset.id]}
+              </g>
+
+              {/* Star-to-star connector lines — faint, just hints */}
+              {preset.lines.map(([a, b], i) => {
+                const sa = preset.slots[a];
+                const sb = preset.slots[b];
+                return (
+                  <line
+                    key={`line-${i}`}
+                    x1={sa.x}
+                    y1={sa.y}
+                    x2={sb.x}
+                    y2={sb.y}
+                    stroke="rgba(200, 225, 255, 0.35)"
+                    strokeWidth={0.4}
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                    className="animate-warmup-line"
+                    style={{ animationDelay: `${i * 70}ms` }}
+                  />
+                );
+              })}
+            </>
+          )}
         </svg>
 
-        {/* Landed stars — rendered as HTML at exact plate-relative positions.
-            Using absolute divs for the stars (not SVG) lets us reuse the
-            same MiniSparkle component the flying sprite uses, so the
-            visual is 100% consistent between flight and landing. */}
+        {/* Landed stars — soft white glowing dots at each slot. */}
         {preset.slots.map((slot, i) => {
           if (i >= landedCount) return null;
           return (
@@ -282,7 +295,7 @@ function SlotPlate({
                 pointerEvents: "none",
               }}
             >
-              <MiniSparkle />
+              <LandedStar />
             </div>
           );
         })}
@@ -377,6 +390,47 @@ function TargetSparkle() {
 
 function MiniSparkle() {
   return <StarSparkle size={70} />;
+}
+
+/**
+ * LandedStar — the quieter visual once a star has been collected into
+ * the constellation plate. A soft white glowing dot, NOT a diffraction
+ * spike (so it doesn't compete visually with the active target) and
+ * NOT a perfect sphere (the halo is a slightly off-centered ellipse).
+ */
+function LandedStar() {
+  return (
+    <svg width="42" height="42" viewBox="0 0 42 42" overflow="visible">
+      <defs>
+        <radialGradient id="landed-halo-outer" cx="48%" cy="46%" r="55%">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+          <stop offset="20%" stopColor="#FFFFFF" stopOpacity="0.85" />
+          <stop offset="45%" stopColor="#D6EAFF" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#6FA8F0" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="landed-core" cx="50%" cy="48%" r="50%">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+        </radialGradient>
+        <filter id="landed-blur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1.2" />
+        </filter>
+      </defs>
+      {/* Soft halo — slightly elliptical (not a perfect circle) */}
+      <ellipse
+        cx="21"
+        cy="21"
+        rx="17"
+        ry="15"
+        fill="url(#landed-halo-outer)"
+        filter="url(#landed-blur)"
+      />
+      {/* Inner soft glow */}
+      <circle cx="21" cy="21" r="6" fill="url(#landed-core)" />
+      {/* Crisp bright center */}
+      <circle cx="21" cy="21" r="1.8" fill="#FFFFFF" />
+    </svg>
+  );
 }
 
 const FLY_DURATION_MS = 520;

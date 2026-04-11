@@ -624,6 +624,16 @@ body {
   animation: warmup-line-draw 600ms ease-out forwards;
 }
 
+/* Constellation illustration fade-in — gentle emergence */
+@keyframes warmup-illustration-emerge {
+  0%   { opacity: 0; }
+  40%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animate-warmup-illustration {
+  animation: warmup-illustration-emerge 1400ms ease-out forwards;
+}
+
 /* Completion pulse */
 @keyframes warmup-complete-pulse {
   0%   { filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0.0)); }
