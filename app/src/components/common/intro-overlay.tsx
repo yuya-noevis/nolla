@@ -55,38 +55,16 @@ export function IntroOverlay({ variant, onDismiss }: Props) {
           onClick={handleStart}
           className="relative touch-target-child animate-intro-start"
           aria-label="はじめる"
-          style={{ width: 130, height: 130 }}
+          style={{ width: 140, height: 140, background: "transparent", border: "none" }}
         >
-          <svg viewBox="0 0 130 130" width="130" height="130">
-            <defs>
-              <radialGradient id="intro-start-body" cx="42%" cy="38%" r="64%">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="25%" stopColor="#C9F2FF" />
-                <stop offset="55%" stopColor="#4AC6FF" />
-                <stop offset="85%" stopColor="#1E6FB3" />
-                <stop offset="100%" stopColor="#0A2E5F" />
-              </radialGradient>
-              <radialGradient id="intro-start-halo" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#7FDFFF" stopOpacity="0.55" />
-                <stop offset="100%" stopColor="#4AC6FF" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="intro-start-hl" cx="38%" cy="32%" r="28%">
-                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-              </radialGradient>
-              <filter id="intro-start-halo-blur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="7" />
-              </filter>
-            </defs>
-            <circle cx="65" cy="65" r="60" fill="url(#intro-start-halo)" filter="url(#intro-start-halo-blur)" />
-            <circle cx="65" cy="65" r="46" fill="url(#intro-start-body)" />
-            <circle cx="65" cy="65" r="46" fill="url(#intro-start-hl)" />
-            <polygon
-              points="56,46 90,65 56,84"
-              fill="#FFFFFF"
-              opacity="0.95"
-            />
-          </svg>
+          <img
+            src="/warmup/play-button.png"
+            alt=""
+            width={140}
+            height={140}
+            draggable={false}
+            style={{ display: "block", width: "100%", height: "100%" }}
+          />
         </button>
       </div>
     </div>
