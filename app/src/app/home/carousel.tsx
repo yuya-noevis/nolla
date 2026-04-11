@@ -219,7 +219,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   if (warmupPhase === "ready" || warmupPhase === "measuring") {
     return (
-      <main className="absolute inset-0 flex flex-col items-center justify-center relative overflow-hidden">
+      <main className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden">
         <img src={current.image} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
         <div className="relative z-10">
           {warmupPhase === "ready" && (
@@ -243,7 +243,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   }
 
   return (
-    <main className="absolute inset-0 flex flex-col relative overflow-hidden">
+    <main className="absolute inset-0 flex flex-col overflow-hidden">
       {/* Full-screen planet backgrounds with crossfade */}
       {planets.map((planet, i) => (
         <img
