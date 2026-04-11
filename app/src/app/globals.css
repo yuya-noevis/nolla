@@ -524,32 +524,73 @@ body {
    Warmup Page Animations
    ========================================================================== */
 
-/* Deep-space backdrop twinkle (used on /warmup) */
+/* Deep-space backdrop for /warmup — dark navy+violet gradient with a
+   dense drifting starfield. Not pitch black so the screen feels alive. */
 @keyframes warmup-starfield-drift {
-  0% { background-position: 0 0, 0 0, 0 0; }
-  100% { background-position: 400px -200px, -300px 150px, 200px -100px; }
+  0%   { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position:
+    400px -200px, -300px 150px, 200px -100px,
+    -150px 250px, 350px 100px, -250px -80px,
+    120px 180px, -400px 60px, 80px -220px; }
 }
 .warmup-bg {
-  background-color: #000000;
+  /* Base gradient: violet → navy → deep space, with an off-center nebula glow */
+  background-color: #05061F;
   background-image:
-    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.9) 0%, transparent 100%),
-    radial-gradient(1px 1px at 70% 60%, rgba(200,220,255,0.8) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,230,180,0.7) 0%, transparent 100%),
-    radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
-    radial-gradient(1px 1px at 10% 70%, rgba(180,200,255,0.7) 0%, transparent 100%),
-    radial-gradient(1px 1px at 55% 40%, rgba(255,255,255,0.6) 0%, transparent 100%);
-  background-size: 600px 400px, 500px 350px, 700px 450px, 550px 380px, 650px 420px, 580px 360px;
-  animation: warmup-starfield-drift 60s linear infinite;
+    /* Large soft nebula glow (violet) */
+    radial-gradient(ellipse 80% 60% at 25% 30%, rgba(90, 50, 140, 0.35) 0%, transparent 70%),
+    /* Secondary nebula glow (blue) */
+    radial-gradient(ellipse 70% 50% at 75% 70%, rgba(40, 70, 150, 0.3) 0%, transparent 70%),
+    /* Starfields — 9 layers for density */
+    radial-gradient(1.2px 1.2px at 20% 30%, rgba(255,255,255,0.95) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 60%, rgba(220,230,255,0.85) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,240,200,0.8) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 85% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 70%, rgba(200,220,255,0.75) 0%, transparent 100%),
+    radial-gradient(0.9px 0.9px at 55% 40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(0.7px 0.7px at 30% 55%, rgba(220,230,255,0.65) 0%, transparent 100%),
+    radial-gradient(1.1px 1.1px at 90% 45%, rgba(255,240,200,0.7) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 65% 90%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    /* Deep base gradient: violet top-left → navy → near-black bottom-right */
+    linear-gradient(135deg, #1B1145 0%, #0C0E30 45%, #05061F 100%);
+  background-size:
+    100% 100%, 100% 100%,
+    400px 320px, 360px 280px, 480px 360px, 340px 260px, 420px 340px, 380px 300px, 300px 240px, 440px 320px, 360px 280px,
+    100% 100%;
+  background-repeat:
+    no-repeat, no-repeat,
+    repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat,
+    no-repeat;
+  animation: warmup-starfield-drift 90s linear infinite;
 }
 
-/* Warmup target star warp-in */
+/* Subtle breath on the whole starfield to suggest twinkle */
+@keyframes warmup-twinkle {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.85; }
+}
+.warmup-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(0.6px 0.6px at 15% 20%, rgba(255,255,255,0.9) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 45% 65%, rgba(255,255,255,0.85) 0%, transparent 100%),
+    radial-gradient(0.7px 0.7px at 80% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 25% 85%, rgba(255,255,255,0.85) 0%, transparent 100%),
+    radial-gradient(0.6px 0.6px at 60% 15%, rgba(255,255,255,0.9) 0%, transparent 100%);
+  background-size: 280px 220px, 320px 250px, 260px 200px, 300px 240px, 340px 260px;
+  animation: warmup-twinkle 4s ease-in-out infinite;
+}
+
+/* Warmup target orb warp-in — crisp, no overshoot */
 @keyframes warmup-target-in {
-  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-  60%  { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 .animate-warmup-target-in {
-  animation: warmup-target-in 300ms ease-out forwards;
+  animation: warmup-target-in 200ms ease-out forwards;
 }
 
 /* Slot gentle glow when empty */

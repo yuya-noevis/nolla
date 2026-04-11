@@ -55,29 +55,36 @@ export function IntroOverlay({ variant, onDismiss }: Props) {
           onClick={handleStart}
           className="relative touch-target-child animate-intro-start"
           aria-label="はじめる"
-          style={{ width: 120, height: 120 }}
+          style={{ width: 130, height: 130 }}
         >
-          <svg viewBox="0 0 120 120" width="120" height="120">
+          <svg viewBox="0 0 130 130" width="130" height="130">
             <defs>
-              <radialGradient id="intro-start-grad" cx="50%" cy="45%" r="55%">
-                <stop offset="0%" stopColor="#FFF8D6" />
-                <stop offset="60%" stopColor="#FFD75E" />
-                <stop offset="100%" stopColor="#E89B2D" />
+              <radialGradient id="intro-start-body" cx="42%" cy="38%" r="64%">
+                <stop offset="0%" stopColor="#FFFFFF" />
+                <stop offset="25%" stopColor="#C9F2FF" />
+                <stop offset="55%" stopColor="#4AC6FF" />
+                <stop offset="85%" stopColor="#1E6FB3" />
+                <stop offset="100%" stopColor="#0A2E5F" />
               </radialGradient>
-              <filter id="intro-start-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="6" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
+              <radialGradient id="intro-start-halo" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#7FDFFF" stopOpacity="0.55" />
+                <stop offset="100%" stopColor="#4AC6FF" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="intro-start-hl" cx="38%" cy="32%" r="28%">
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+              </radialGradient>
+              <filter id="intro-start-halo-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="7" />
               </filter>
             </defs>
+            <circle cx="65" cy="65" r="60" fill="url(#intro-start-halo)" filter="url(#intro-start-halo-blur)" />
+            <circle cx="65" cy="65" r="46" fill="url(#intro-start-body)" />
+            <circle cx="65" cy="65" r="46" fill="url(#intro-start-hl)" />
             <polygon
-              points="60,8 73,46 113,46 81,70 93,110 60,86 27,110 39,70 7,46 47,46"
-              fill="url(#intro-start-grad)"
-              stroke="#FFFFFF"
-              strokeWidth="2"
-              filter="url(#intro-start-glow)"
+              points="56,46 90,65 56,84"
+              fill="#FFFFFF"
+              opacity="0.95"
             />
           </svg>
         </button>
@@ -103,20 +110,40 @@ function DemoAnimation({ variant }: { variant: IntroVariant }) {
 
 function DemoStar({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <svg viewBox="0 0 48 48" width="48" height="48" className={className} style={style}>
-      <defs>
-        <radialGradient id="demo-star-grad" cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stopColor="#FFF8D6" />
-          <stop offset="100%" stopColor="#FFCE5C" />
-        </radialGradient>
-      </defs>
-      <polygon
-        points="24,4 30,18 45,18 33,28 38,44 24,34 10,44 15,28 3,18 18,18"
-        fill="url(#demo-star-grad)"
-        stroke="#FFFFFF"
-        strokeWidth="1.5"
-      />
-    </svg>
+    <div className={className} style={style}>
+      <svg viewBox="0 0 200 200" width="120" height="120" overflow="visible">
+        <defs>
+          <radialGradient id="demo-spark-halo-outer" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#E0F0FF" stopOpacity="0.55" />
+            <stop offset="35%" stopColor="#6FA8F0" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#1F4A94" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="demo-spark-halo-inner" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+            <stop offset="35%" stopColor="#D0E8FF" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#6FA8F0" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="demo-spike-v" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0" />
+            <stop offset="50%" stopColor="#FFFFFF" stopOpacity="1" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="demo-spike-h" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0" />
+            <stop offset="50%" stopColor="#FFFFFF" stopOpacity="1" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+          </linearGradient>
+          <filter id="demo-spark-halo-blur" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="10" />
+          </filter>
+        </defs>
+        <circle cx="100" cy="100" r="80" fill="url(#demo-spark-halo-outer)" filter="url(#demo-spark-halo-blur)" />
+        <circle cx="100" cy="100" r="24" fill="url(#demo-spark-halo-inner)" />
+        <ellipse cx="100" cy="100" rx="1.6" ry="95" fill="url(#demo-spike-v)" />
+        <ellipse cx="100" cy="100" rx="80" ry="1.4" fill="url(#demo-spike-h)" />
+        <circle cx="100" cy="100" r="5" fill="#FFFFFF" />
+      </svg>
+    </div>
   );
 }
 
