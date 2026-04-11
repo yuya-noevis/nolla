@@ -1,24 +1,12 @@
-# SFX Assets
+# SFX
 
-This directory contains the sound effects used by Nolla.
+Nolla uses **Web Audio API synthesis** instead of shipping audio files.
 
-## Files expected
+`src/lib/feedback/sfx.ts` defines per-SFX synth recipes (oscillator type,
+frequency envelope, gain envelope) that are rendered in real time through
+a shared `AudioContext`. No network, no licensing, no cold-start delay.
 
-| Filename | ID | Use |
-|---|---|---|
-| sfx-01-warmup-tap.mp3 | warmup-tap | ウォームアップの星タップ成功 |
-| sfx-02-warmup-complete.mp3 | warmup-complete | 星座完成時 |
-| sfx-03-game-correct.mp3 | game-correct | ゲーム正解時 |
-| sfx-04-star-gain.mp3 | star-gain | 星獲得時 |
-| sfx-05-ui-tap.mp3 | ui-tap / hand-demo | UIボタンタップ / デモ内ハンドタップ |
-
-## Sourcing
-
-Primary: https://freesound.org/ (filter: CC0)
-Secondary: https://zapsplat.com/ (free tier, attribution required)
-
-When files are added, record their source URL and license in
-`docs/credits.md`.
-
-The app is resilient to missing files — `sfx.ts` catches play errors silently,
-so the UI will not break if a file is missing during development.
+If you want to upgrade to sampled audio in the future, implement a
+`PlayerFactory` that fetches MP3/OGG files and call
+`__setPlayerFactoryForTests` (rename for prod) to swap it in. The public
+`playSfx` API stays the same.
