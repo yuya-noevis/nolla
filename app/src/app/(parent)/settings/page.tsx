@@ -5,6 +5,7 @@ import {
   getCompletionItems,
 } from "@/lib/parent/profile-completion";
 import { SignOutButton } from "./sign-out-button";
+import { DebugResetWarmupButton } from "./debug-reset-warmup-button";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -148,7 +149,8 @@ export default async function SettingsPage() {
       <div className="space-y-3">
         <SettingsRow label="音声認識" value={child.voice_recognition_enabled ? "ON" : "OFF"} />
         <SettingsRow label="PIN変更" value="" action />
-        <div className="pt-4">
+        <div className="pt-4 space-y-3">
+          <DebugResetWarmupButton />
           <SignOutButton />
         </div>
       </div>
