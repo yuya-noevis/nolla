@@ -1,16 +1,19 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useRef, Suspense } from "react";
 
 /**
  * Reward page — exact replica of mockup r1_reward.html.
  * Background: linear-gradient(180deg, #1A40A0 → #4838A0 → #8050A0)
  * Elements appear in timed sequence via CSS animations.
- * Navigation uses window.location.href (same as mockup).
+ * Navigation uses router.push (soft nav) so iOS Safari doesn't re-measure
+ * the viewport mid-URL-bar animation and leave a dark band at the bottom
+ * of the home page after a hard reload.
  */
 function RewardContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const gameType = searchParams.get("game") ?? "memory-match";
   const stars = parseInt(searchParams.get("stars") ?? "0", 10);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -83,8 +86,6 @@ function RewardContent() {
     };
   }, []);
 
-  const existingStars = Math.max(0, parseInt(localStorage.getItem("nolla_total_stars") ?? "0", 10) - stars);
-
   return (
     <div
       ref={screenRef}
@@ -110,16 +111,16 @@ function RewardContent() {
         />
       ))}
 
-      {/* Star glow — scales with viewport so it never overflows iPhone landscape */}
+      {/* Star glow — scales with viewport, centered so the halo frames the star */}
       <div
         className="absolute z-[9]"
         style={{
-          top: "34%",
+          top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "clamp(180px, 55vh, 360px)",
-          height: "clamp(180px, 55vh, 360px)",
-          background: "radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, transparent 70%)",
+          width: "clamp(240px, 70vh, 480px)",
+          height: "clamp(240px, 70vh, 480px)",
+          background: "radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%)",
           borderRadius: "50%",
           opacity: 0,
           animation: "reward-glow 1s 0.8s ease-out forwards",
@@ -127,15 +128,16 @@ function RewardContent() {
       />
 
       {/* Main reward star + "+N" earned this session.
-          Horizontal layout so both scale together and buttons below never
-          collide with the star on iPhone landscape. */}
+          Centered vertically at 45% (above geometric center to leave room
+          for buttons). Larger star + text now that the cumulative dot row
+          is gone. */}
       <div
         className="absolute z-10 flex items-center"
         style={{
-          top: "34%",
+          top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          gap: "clamp(12px, 4vw, 28px)",
+          gap: "clamp(16px, 5vw, 40px)",
           opacity: 0,
           animation: "reward-star-appear 1.2s 0.3s ease-out forwards",
         }}
@@ -144,8 +146,8 @@ function RewardContent() {
           src="/star_reward.png"
           alt=""
           style={{
-            width: "clamp(120px, 26vh, 220px)",
-            height: "clamp(120px, 26vh, 220px)",
+            width: "clamp(160px, 42vh, 320px)",
+            height: "clamp(160px, 42vh, 320px)",
             objectFit: "contain",
           }}
           draggable={false}
@@ -153,7 +155,7 @@ function RewardContent() {
         {stars > 0 && (
           <div
             style={{
-              fontSize: "clamp(48px, 12vh, 96px)",
+              fontSize: "clamp(64px, 18vh, 140px)",
               fontWeight: 900,
               color: "#FFD700",
               textShadow: "0 4px 16px rgba(0,0,0,0.5), 0 0 24px rgba(255,215,0,0.6)",
@@ -165,43 +167,6 @@ function RewardContent() {
             +{stars}
           </div>
         )}
-      </div>
-
-      {/* Cumulative star dots — smaller visual tally of session vs
-          lifetime stars. Positioned under the main star block. */}
-      <div
-        className="absolute z-[15] flex items-center gap-1.5"
-        style={{
-          top: "62%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          opacity: 0,
-          animation: "reward-count-in 0.5s 1.8s ease-out forwards",
-        }}
-      >
-        <img src="/star_reward.png" alt="" style={{ width: 24, height: 24, objectFit: "contain" }} draggable={false} />
-        <div className="flex gap-1 flex-wrap" style={{ maxWidth: 160 }}>
-          {Array.from({ length: Math.min(existingStars, 12) }).map((_, i) => (
-            <div
-              key={`old-${i}`}
-              className="rounded-full"
-              style={{ width: 8, height: 8, background: "#FFD700", opacity: 0.5 }}
-            />
-          ))}
-          {Array.from({ length: Math.min(stars, 5) }).map((_, i) => (
-            <div
-              key={`new-${i}`}
-              className="rounded-full"
-              style={{
-                width: 8,
-                height: 8,
-                background: "#FFD700",
-                opacity: 1,
-                animation: `reward-dot-pop 0.3s ${2.2 + i * 0.1}s ease-out both`,
-              }}
-            />
-          ))}
-        </div>
       </div>
 
       {/* Action buttons — responsive size + snug to bottom so they never
@@ -220,7 +185,7 @@ function RewardContent() {
       >
         <button
           type="button"
-          onClick={() => { window.location.href = `/game/${gameType}`; }}
+          onClick={() => router.push(`/game/${gameType}`)}
           className="active:scale-95 transition-transform"
           style={{
             width: "clamp(88px, 20vh, 140px)",
@@ -233,7 +198,7 @@ function RewardContent() {
         />
         <button
           type="button"
-          onClick={() => { window.location.href = "/home"; }}
+          onClick={() => router.push("/home")}
           className="active:scale-95 transition-transform"
           style={{
             width: "clamp(88px, 20vh, 140px)",

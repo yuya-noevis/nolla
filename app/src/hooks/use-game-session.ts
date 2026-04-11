@@ -348,8 +348,14 @@ export function useGameSession(
         return CORSI_TRIALS_PER_ROUND;
       case "memory-match":
         return memoryMatchBoardsPerRound(params as MemoryMatchParams);
-      case "sorting":
-        return sortingScenesPerRound(params as SortingParams);
+      case "sorting": {
+        // Sorting's "unit" for the child is each individual item sort
+        // decision, not the scene. A scene bundles several items. Total
+        // per round = scenes per round × items per scene so the header
+        // gauge matches what the child actually experiences.
+        const sp = params as SortingParams;
+        return sortingScenesPerRound(sp) * sp.items;
+      }
       case "visual-search":
         return visualSearchScenesPerRound(params as VisualSearchParams);
       default:

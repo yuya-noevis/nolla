@@ -98,7 +98,12 @@
    ========================================================================== */
 
 body {
-  background-color: var(--color-nolla-bg);
+  /* Pure black body bg is a safety net: if iOS Safari mis-measures the
+     viewport during a hard navigation + URL-bar animation and leaves a
+     tiny gap at the bottom of a position:fixed landscape-content, the
+     gap blends into the space-themed gradients instead of showing a
+     visible dark-indigo band. */
+  background-color: #000;
   color: var(--color-nolla-text);
   font-family: "Noto Sans JP", system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;

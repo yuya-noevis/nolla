@@ -267,12 +267,17 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
     [params, roundKey, sceneKey]
   );
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  // Cumulative item-level progress across all scenes in the current
+  // round. The header gauge counts items (not scenes) so this mirrors
+  // what the child sees and taps.
+  const [completedItemsInRound, setCompletedItemsInRound] = useState(0);
   const [trialStart, setTrialStart] = useState(Date.now());
 
   // Reset scene cursor on new round.
   useEffect(() => {
     setSceneIndex(0);
     setSceneKey(0);
+    setCompletedItemsInRound(0);
   }, [roundKey]);
 
   // Reset item index on new scene (whether via round change or within-round advance).
@@ -301,17 +306,23 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
 
       if (correct) {
         setCurrentItemIndex((i) => i + 1);
+        setCompletedItemsInRound((n) => {
+          const next = n + 1;
+          onUnitProgress?.(next);
+          return next;
+        });
         setTrialStart(Date.now());
       }
     },
-    [currentItem, round, trialStart, onTrialResult]
+    [currentItem, round, trialStart, onTrialResult, onUnitProgress]
   );
 
   useEffect(() => {
     if (!currentItem) {
       const timer = setTimeout(() => {
         const nextSceneIndex = sceneIndex + 1;
-        onUnitProgress?.(nextSceneIndex);
+        // Progress is reported per-item inside handleCategoryTap, so
+        // scene advance itself doesn't emit a progress event.
         if (nextSceneIndex >= scenesPerRound) {
           onRoundComplete();
         } else {
@@ -321,7 +332,7 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [currentItem, onRoundComplete, onUnitProgress, sceneIndex, scenesPerRound]);
+  }, [currentItem, onRoundComplete, sceneIndex, scenesPerRound]);
 
   if (!currentItem) {
     // Between scenes: no clear message — progression is silent to avoid
