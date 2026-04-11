@@ -41,7 +41,7 @@ export function GameFrame({
 
   return (
     <main
-      className="min-h-dvh h-dvh w-full flex flex-col relative overflow-hidden"
+      className="absolute inset-0 flex flex-col overflow-hidden"
       style={{
         background: `linear-gradient(180deg, ${skyGradient[0]} 0%, ${skyGradient[1]} 38%, ${skyGradient[1]} 58%, ${groundColor} 100%)`,
       }}

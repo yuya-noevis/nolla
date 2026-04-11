@@ -35,21 +35,24 @@ type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
 const WARP_OVERLAY_ID = "nolla-warp-overlay";
+const WARP_TOTAL_FRAMES = 90;
+const WARP_FADE_DURATION_MS = 350;
 
 /**
- * Launch warp animation by injecting Canvas directly into the DOM.
- * Mirrors app/public/wt.html: navigation fires at frame 70 inside the rAF loop
- * (avoids relying on setTimeout + iOS navigation quirks). Overlay id prevents
- * stacked canvases from double taps; removing the overlay re-enables warp.
+ * Pure visual warp animation — no navigation.
+ * Navigation is triggered separately via router.push so iOS Safari's
+ * navigation gesture stays tied to the original click handler.
  */
-function launchWarpAnimation(targetUrl: string): void {
+function launchWarpAnimation(): void {
   if (typeof document === "undefined") return;
   if (document.getElementById(WARP_OVERLAY_ID)) return;
 
   const overlay = document.createElement("div");
   overlay.id = WARP_OVERLAY_ID;
   overlay.style.cssText =
-    "position:fixed;inset:0;width:100%;height:100%;z-index:99999;background:#000;";
+    "position:fixed;inset:0;width:100%;height:100%;z-index:99999;background:#000;transition:opacity " +
+    WARP_FADE_DURATION_MS +
+    "ms ease-out;";
   document.body.appendChild(overlay);
 
   const canvas = document.createElement("canvas");
@@ -61,7 +64,6 @@ function launchWarpAnimation(targetUrl: string): void {
   const ctxMaybe = canvas.getContext("2d");
   if (!ctxMaybe) {
     overlay.remove();
-    window.location.assign(targetUrl);
     return;
   }
   const ctx = ctxMaybe;
@@ -82,23 +84,23 @@ function launchWarpAnimation(targetUrl: string): void {
   }
 
   let frame = 0;
-  let navigated = false;
-  const totalFrames = 70;
   let rafId = 0;
+  let finished = false;
 
-  const failSafeNav = window.setTimeout(() => {
-    if (!navigated) {
-      navigated = true;
-      window.location.assign(targetUrl);
-    }
-  }, 3500);
+  function cleanup() {
+    if (finished) return;
+    finished = true;
+    cancelAnimationFrame(rafId);
+    overlay.style.opacity = "0";
+    window.setTimeout(() => overlay.remove(), WARP_FADE_DURATION_MS + 50);
+  }
 
   function draw() {
     try {
       ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
       ctx.fillRect(0, 0, W, H);
 
-      const speedFrame = Math.min(frame, totalFrames);
+      const speedFrame = Math.min(frame, WARP_TOTAL_FRAMES);
       for (const s of stars) {
         s.dist += s.speed * (1 + speedFrame / 20);
         const x = cx + Math.cos(s.angle) * s.dist;
@@ -126,23 +128,22 @@ function launchWarpAnimation(targetUrl: string): void {
       }
 
       frame++;
-      if (frame >= totalFrames && !navigated) {
-        navigated = true;
-        window.clearTimeout(failSafeNav);
-        window.location.assign(targetUrl);
+      if (frame >= WARP_TOTAL_FRAMES) {
+        cleanup();
+        return;
       }
       rafId = requestAnimationFrame(draw);
     } catch {
-      window.clearTimeout(failSafeNav);
-      cancelAnimationFrame(rafId);
-      overlay.remove();
-      window.location.assign(targetUrl);
+      cleanup();
     }
   }
 
+  // Failsafe: always clean up after 3.5s even if rAF stalls
+  window.setTimeout(cleanup, 3500);
+
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, W, H);
-  requestAnimationFrame(draw);
+  rafId = requestAnimationFrame(draw);
 }
 
 export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
@@ -172,6 +173,11 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
     setWarmupPhase(needsMotorBaseline() ? "ready" : "done");
   }, []);
 
+  // Prefetch all game routes so router.push is near-instant on tap
+  useEffect(() => {
+    planets.forEach((p) => router.prefetch(`/game/${p.gameType}`));
+  }, [planets, router]);
+
   const handleWarmupStart = useCallback(() => setWarmupPhase("measuring"), []);
 
   const handleBaselineComplete = useCallback((reactionTimes: readonly number[]) => {
@@ -188,25 +194,32 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
     setCurrentIndex((i) => (i < planets.length - 1 ? i + 1 : 0));
   }, [planets.length]);
 
-  const handlePlanetTap = useCallback((planet: Planet) => {
-    try {
-      localStorage.setItem(LAST_PLANET_KEY, planet.gameType);
-    } catch {
-      /* ignore */
-    }
-    const target = `/game/${planet.gameType}`;
-    launchWarpAnimation(target);
-  }, []);
+  const handlePlanetTap = useCallback(
+    (planet: Planet) => {
+      try {
+        localStorage.setItem(LAST_PLANET_KEY, planet.gameType);
+      } catch {
+        /* ignore */
+      }
+      const target = `/game/${planet.gameType}`;
+      launchWarpAnimation();
+      // Client-side navigation via Next.js router. Prefetched on mount so
+      // the transition is instant; rAF + overlay live in document.body and
+      // persist across the route change. Overlay self-removes after ~1.5s.
+      router.push(target);
+    },
+    [router]
+  );
 
   const current = planets[currentIndex];
 
   if (warmupPhase === "checking") {
-    return <main className="h-dvh w-full" style={{ background: "#0B0B30" }} />;
+    return <main className="absolute inset-0" style={{ background: "#0B0B30" }} />;
   }
 
   if (warmupPhase === "ready" || warmupPhase === "measuring") {
     return (
-      <main className="h-dvh w-full flex flex-col items-center justify-center relative overflow-hidden">
+      <main className="absolute inset-0 flex flex-col items-center justify-center relative overflow-hidden">
         <img src={current.image} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
         <div className="relative z-10">
           {warmupPhase === "ready" && (
@@ -230,7 +243,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   }
 
   return (
-    <main className="h-dvh w-full flex flex-col relative overflow-hidden">
+    <main className="absolute inset-0 flex flex-col relative overflow-hidden">
       {/* Full-screen planet backgrounds with crossfade */}
       {planets.map((planet, i) => (
         <img

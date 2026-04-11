@@ -70,8 +70,8 @@ export default function RootLayout({
           </svg>
         </div>
 
-        {/* Main content (visible in landscape) */}
-        <div className="landscape-content min-h-dvh h-full w-full overflow-y-auto">
+        {/* Main content (visible in landscape) — fills full viewport including iOS safe areas */}
+        <div className="landscape-content">
           {children}
         </div>
         <script
