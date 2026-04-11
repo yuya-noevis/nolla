@@ -18,21 +18,26 @@ export function GameHeader({ sessionStars: _stars, onBack, roundNumber = 0, tota
         paddingRight: "max(20px, env(safe-area-inset-right))",
       }}
     >
-      {/* Back — flex-shrink-0 so landscape / compact headers never crush the tap target */}
+      {/* Back — responsive sizing: stays big on iPad but shrinks on iPhone landscape
+          so it doesn't steal half the viewport. clamp(min, ideal, max). */}
       <button
         type="button"
         onClick={onBack}
         className="shrink-0 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ width: 160, height: 160, minWidth: 160, minHeight: 160, flexShrink: 0 }}
+        style={{
+          width: "clamp(64px, 16vh, 160px)",
+          height: "clamp(64px, 16vh, 160px)",
+          minWidth: "clamp(64px, 16vh, 160px)",
+          minHeight: "clamp(64px, 16vh, 160px)",
+          flexShrink: 0,
+        }}
         aria-label="Back"
       >
         <img
           src="/arrow_left.png"
           alt=""
-          width={160}
-          height={160}
           className="object-contain pointer-events-none"
-          style={{ width: 160, height: 160, opacity: 0.9 }}
+          style={{ width: "100%", height: "100%", opacity: 0.9 }}
           draggable={false}
         />
       </button>

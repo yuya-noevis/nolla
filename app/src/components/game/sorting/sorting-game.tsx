@@ -42,7 +42,11 @@ const CATEGORY_GLYPH: Record<string, string> = {
   furniture: "🛋️",
 };
 
-const NEUTRAL_BG = "#9FB8C8";
+// Non-color criteria (shape/size/category) use a single vibrant fill so
+// children see a colorful shape instead of a gray silhouette. Items and
+// categories still share the SAME color so matching stays shape-based —
+// the criterion is preserved, only the neutral palette is brightened.
+const NEUTRAL_BG = "#F1C40F";
 
 // Render a sorting item or category according to the active criterion.
 // CRITICAL: items and categories MUST share the same visual encoding so the

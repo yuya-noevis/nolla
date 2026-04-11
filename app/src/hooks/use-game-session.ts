@@ -53,7 +53,7 @@ type GameSessionHook = {
   endSession: () => SessionSummary | null;
 };
 
-const MAX_ROUNDS = 3;
+export const MAX_ROUNDS = 3;
 
 const LAST_PARAMS_KEY = (childId: string, gameType: GameType) =>
   `nolla_last_params_${childId}_${gameType}`;

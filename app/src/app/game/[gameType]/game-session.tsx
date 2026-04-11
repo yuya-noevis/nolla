@@ -20,7 +20,7 @@ import { SortingGame } from "@/components/game/sorting/sorting-game";
 import { VisualSearchGame } from "@/components/game/visual-search/visual-search-game";
 import { CorsiBlockGame } from "@/components/game/corsi-block/corsi-block-game";
 import { useErrorless } from "@/hooks/use-errorless";
-import { useGameSession } from "@/hooks/use-game-session";
+import { useGameSession, MAX_ROUNDS } from "@/hooks/use-game-session";
 
 type Props = {
   gameType: GameType;
@@ -156,6 +156,8 @@ export function GameSession({
       groundColor={groundColor}
       sessionStars={session.sessionStars}
       hintActive={hintStage >= 3}
+      roundNumber={session.roundNumber}
+      totalRounds={MAX_ROUNDS}
     >
       <div className="min-h-0 max-h-full h-full w-full flex items-center justify-center">
         {/* Motor baseline phase */}

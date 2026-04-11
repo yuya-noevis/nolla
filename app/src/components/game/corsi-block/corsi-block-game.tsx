@@ -178,8 +178,8 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
         }}
         data-testid="corsi-board"
       >
-        {/* Phase indicator — small, top-right corner */}
-        <div className="absolute top-1 right-2 flex gap-1">
+        {/* Phase indicator — centered at top of board */}
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 flex gap-1">
           {layout.sequence.map((_, i) => (
             <div
               key={i}

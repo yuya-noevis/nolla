@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getEnabledPlanets, type Planet } from "@/lib/planets";
 import { MotorBaselineMeasurement } from "@/components/game/motor-baseline";
@@ -50,7 +50,7 @@ function launchWarpAnimation(): void {
   const overlay = document.createElement("div");
   overlay.id = WARP_OVERLAY_ID;
   overlay.style.cssText =
-    "position:fixed;inset:0;width:100%;height:100%;z-index:99999;background:#000;transition:opacity " +
+    "position:fixed;top:0;right:0;bottom:0;left:0;z-index:99999;background:#000;transition:opacity " +
     WARP_FADE_DURATION_MS +
     "ms ease-out;";
   document.body.appendChild(overlay);
