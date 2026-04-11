@@ -283,7 +283,7 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
   const catCount = round.categories.length;
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-4 px-4">
+    <div className="w-full h-full min-h-0 max-h-full flex flex-col items-center justify-center gap-4 px-4">
       {/* Current item — large and prominent */}
       <SortingVisual criterion={round.criterion} attributes={currentItem.attributes} size={120} />
 

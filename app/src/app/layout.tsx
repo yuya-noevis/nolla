@@ -71,7 +71,7 @@ export default function RootLayout({
         </div>
 
         {/* Main content (visible in landscape) */}
-        <div className="landscape-content h-full w-full overflow-y-auto">
+        <div className="landscape-content min-h-dvh h-full w-full overflow-y-auto">
           {children}
         </div>
         <script

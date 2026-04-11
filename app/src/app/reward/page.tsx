@@ -88,7 +88,7 @@ function RewardContent() {
   return (
     <div
       ref={screenRef}
-      className="relative w-full h-full overflow-hidden"
+      className="relative w-full min-h-dvh overflow-hidden"
       style={{
         background: "linear-gradient(180deg, #1A40A0 0%, #4838A0 50%, #8050A0 100%)",
       }}

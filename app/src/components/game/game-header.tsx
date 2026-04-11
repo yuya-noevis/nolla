@@ -7,7 +7,7 @@ type Props = {
   totalRounds?: number;
 };
 
-export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds = 5 }: Props) {
+export function GameHeader({ sessionStars: _stars, onBack, roundNumber = 0, totalRounds = 5 }: Props) {
   return (
     <header
       className="flex items-center justify-between shrink-0 relative z-20"
@@ -18,18 +18,23 @@ export function GameHeader({ sessionStars, onBack, roundNumber = 0, totalRounds 
         paddingRight: "max(20px, env(safe-area-inset-right))",
       }}
     >
-      {/* Back button — large inline SVG arrow (no external image dependency) */}
+      {/* Back — flex-shrink-0 so landscape / compact headers never crush the tap target */}
       <button
         type="button"
         onClick={onBack}
-        className="transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ width: 120, height: 120, minWidth: 120, minHeight: 120 }}
+        className="shrink-0 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+        style={{ width: 160, height: 160, minWidth: 160, minHeight: 160, flexShrink: 0 }}
         aria-label="Back"
       >
-        <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%", opacity: 0.85 }}>
-          <circle cx="50" cy="50" r="45" fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-          <path d="M58 30 L38 50 L58 70" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <img
+          src="/arrow_left.png"
+          alt=""
+          width={160}
+          height={160}
+          className="object-contain pointer-events-none"
+          style={{ width: 160, height: 160, opacity: 0.9 }}
+          draggable={false}
+        />
       </button>
 
       {/* Progress dots */}

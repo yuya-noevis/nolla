@@ -187,14 +187,25 @@ export function CardGrid({
   // Scale down for smaller screens to prevent overflow
   const cardW = 140;
   const cardH = 182;
+  const gapPx = 12;
+  const cols = board.gridCols;
+  const rows = board.gridRows;
+  const rowGapTotal = (rows - 1) * gapPx;
+  const colGapTotal = (cols - 1) * gapPx;
+  const maxCellFromWidth = `(100cqw - ${colGapTotal}px) / ${cols}`;
+  const maxCellFromHeight = `((100cqh - ${rowGapTotal}px) / ${rows}) * (${cardW} / ${cardH})`;
 
   return (
     <div
-      className="grid gap-3 place-items-center"
-      style={{
-        gridTemplateColumns: `repeat(${board.gridCols}, min(${cardW}px, calc((100vh - 200px) / ${board.gridRows} * 0.77)))`,
-      }}
+      className="h-full w-full min-h-0 flex items-center justify-center"
+      style={{ containerType: "size" }}
     >
+      <div
+        className="grid gap-3 place-items-center max-w-full max-h-full"
+        style={{
+          gridTemplateColumns: `repeat(${cols}, min(${cardW}px, min(${maxCellFromWidth}, ${maxCellFromHeight})))`,
+        }}
+      >
       {board.cards.map((card, index) => (
         <CardCell
           key={card.id}
@@ -207,6 +218,7 @@ export function CardGrid({
           onTap={() => handleCardTap(index)}
         />
       ))}
+      </div>
     </div>
   );
 }

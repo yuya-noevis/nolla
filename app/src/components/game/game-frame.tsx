@@ -41,9 +41,9 @@ export function GameFrame({
 
   return (
     <main
-      className="h-full w-full flex flex-col relative overflow-hidden"
+      className="min-h-dvh h-dvh w-full flex flex-col relative overflow-hidden"
       style={{
-        background: `linear-gradient(180deg, ${skyGradient[0]} 0%, ${skyGradient[1]} 50%, ${groundColor} 100%)`,
+        background: `linear-gradient(180deg, ${skyGradient[0]} 0%, ${skyGradient[1]} 38%, ${skyGradient[1]} 58%, ${groundColor} 100%)`,
       }}
     >
       {/* Sparse stars (upper 60% only, like mockup) */}

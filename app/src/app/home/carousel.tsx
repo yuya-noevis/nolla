@@ -34,15 +34,22 @@ function saveMotorBaselineFromHome(medianRt: number): void {
 type WarmupPhase = "checking" | "ready" | "measuring" | "done";
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
+const WARP_OVERLAY_ID = "nolla-warp-overlay";
+
 /**
  * Launch warp animation by injecting Canvas directly into the DOM.
- * Bypasses React lifecycle entirely (no useEffect, no Strict Mode double-run).
- * Identical approach to wt.html which is proven to work on iOS Safari.
+ * Mirrors app/public/wt.html: navigation fires at frame 70 inside the rAF loop
+ * (avoids relying on setTimeout + iOS navigation quirks). Overlay id prevents
+ * stacked canvases from double taps; removing the overlay re-enables warp.
  */
-function launchWarpAnimation(): void {
-  // Create full-screen overlay
+function launchWarpAnimation(targetUrl: string): void {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(WARP_OVERLAY_ID)) return;
+
   const overlay = document.createElement("div");
-  overlay.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:#000;";
+  overlay.id = WARP_OVERLAY_ID;
+  overlay.style.cssText =
+    "position:fixed;inset:0;width:100%;height:100%;z-index:99999;background:#000;";
   document.body.appendChild(overlay);
 
   const canvas = document.createElement("canvas");
@@ -51,11 +58,18 @@ function launchWarpAnimation(): void {
   canvas.style.cssText = "width:100%;height:100%;display:block;";
   overlay.appendChild(canvas);
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+  const ctxMaybe = canvas.getContext("2d");
+  if (!ctxMaybe) {
+    overlay.remove();
+    window.location.assign(targetUrl);
+    return;
+  }
+  const ctx = ctxMaybe;
 
-  const W = 1194, H = 834;
-  const cx = W / 2, cy = H / 2;
+  const W = 1194,
+    H = 834;
+  const cx = W / 2,
+    cy = H / 2;
   const stars: { angle: number; dist: number; speed: number; size: number; bright: number }[] = [];
   for (let i = 0; i < 200; i++) {
     stars.push({
@@ -68,41 +82,62 @@ function launchWarpAnimation(): void {
   }
 
   let frame = 0;
+  let navigated = false;
+  const totalFrames = 70;
+  let rafId = 0;
+
+  const failSafeNav = window.setTimeout(() => {
+    if (!navigated) {
+      navigated = true;
+      window.location.assign(targetUrl);
+    }
+  }, 3500);
 
   function draw() {
-    ctx!.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx!.fillRect(0, 0, W, H);
+    try {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+      ctx.fillRect(0, 0, W, H);
 
-    const speedFrame = Math.min(frame, 70);
-    for (const s of stars) {
-      s.dist += s.speed * (1 + speedFrame / 20);
-      const x = cx + Math.cos(s.angle) * s.dist;
-      const y = cy + Math.sin(s.angle) * s.dist;
-      if (x < -10 || x > W + 10 || y < -10 || y > H + 10) {
-        s.dist = Math.random() * 3;
-        continue;
+      const speedFrame = Math.min(frame, totalFrames);
+      for (const s of stars) {
+        s.dist += s.speed * (1 + speedFrame / 20);
+        const x = cx + Math.cos(s.angle) * s.dist;
+        const y = cy + Math.sin(s.angle) * s.dist;
+        if (x < -10 || x > W + 10 || y < -10 || y > H + 10) {
+          s.dist = Math.random() * 3;
+          continue;
+        }
+        const tailLen = Math.min(s.dist * 0.3, 40);
+        const tx = x - Math.cos(s.angle) * tailLen;
+        const ty = y - Math.sin(s.angle) * tailLen;
+        const grad = ctx.createLinearGradient(tx, ty, x, y);
+        grad.addColorStop(0, "transparent");
+        grad.addColorStop(1, `rgba(255,255,255,${s.bright})`);
+        ctx.beginPath();
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = s.size;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${s.bright})`;
+        ctx.fill();
       }
-      const tailLen = Math.min(s.dist * 0.3, 40);
-      const tx = x - Math.cos(s.angle) * tailLen;
-      const ty = y - Math.sin(s.angle) * tailLen;
-      const grad = ctx!.createLinearGradient(tx, ty, x, y);
-      grad.addColorStop(0, "transparent");
-      grad.addColorStop(1, `rgba(255,255,255,${s.bright})`);
-      ctx!.beginPath();
-      ctx!.moveTo(tx, ty);
-      ctx!.lineTo(x, y);
-      ctx!.strokeStyle = grad;
-      ctx!.lineWidth = s.size;
-      ctx!.stroke();
-      ctx!.beginPath();
-      ctx!.arc(x, y, s.size * 0.8, 0, Math.PI * 2);
-      ctx!.fillStyle = `rgba(255,255,255,${s.bright})`;
-      ctx!.fill();
-    }
 
-    frame++;
-    // Pure animation — no navigation. Runs until page unloads.
-    requestAnimationFrame(draw);
+      frame++;
+      if (frame >= totalFrames && !navigated) {
+        navigated = true;
+        window.clearTimeout(failSafeNav);
+        window.location.assign(targetUrl);
+      }
+      rafId = requestAnimationFrame(draw);
+    } catch {
+      window.clearTimeout(failSafeNav);
+      cancelAnimationFrame(rafId);
+      overlay.remove();
+      window.location.assign(targetUrl);
+    }
   }
 
   ctx.fillStyle = "#000";
@@ -154,13 +189,13 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
   }, [planets.length]);
 
   const handlePlanetTap = useCallback((planet: Planet) => {
-    try { localStorage.setItem(LAST_PLANET_KEY, planet.gameType); } catch { /* */ }
+    try {
+      localStorage.setItem(LAST_PLANET_KEY, planet.gameType);
+    } catch {
+      /* ignore */
+    }
     const target = `/game/${planet.gameType}`;
-    // Start warp animation (visual only, does NOT navigate)
-    launchWarpAnimation();
-    // Navigate after 1.2s via setTimeout from click handler context
-    // (iOS Safari blocks window.location.href from inside rAF)
-    setTimeout(() => { window.location.href = target; }, 1200);
+    launchWarpAnimation(target);
   }, []);
 
   const current = planets[currentIndex];
