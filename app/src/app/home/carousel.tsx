@@ -3,8 +3,10 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getEnabledPlanets, type Planet } from "@/lib/planets";
-import { MotorBaselineMeasurement } from "@/components/game/motor-baseline";
-import { calculateMotorBaseline } from "@/lib/session/motor-baseline";
+import {
+  needsMotorBaseline,
+  clearMotorBaseline,
+} from "@/lib/session/motor-baseline-client";
 
 type Props = {
   childName: string;
@@ -12,26 +14,7 @@ type Props = {
   starBalance: number;
 };
 
-function needsMotorBaseline(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const raw = localStorage.getItem("nolla_motor_baseline");
-    if (!raw) return true;
-    const { date } = JSON.parse(raw);
-    const today = new Date().toISOString().slice(0, 10);
-    return date !== today;
-  } catch {
-    return true;
-  }
-}
-
-function saveMotorBaselineFromHome(medianRt: number): void {
-  if (typeof window === "undefined") return;
-  const today = new Date().toISOString().slice(0, 10);
-  localStorage.setItem("nolla_motor_baseline", JSON.stringify({ value: medianRt, date: today }));
-}
-
-type WarmupPhase = "checking" | "ready" | "measuring" | "done";
+type WarmupPhase = "checking" | "redirecting" | "done";
 const LAST_PLANET_KEY = "nolla_last_planet_game_type";
 
 const WARP_OVERLAY_ID = "nolla-warp-overlay";
@@ -167,24 +150,21 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   useEffect(() => {
     if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("reset")) {
-      localStorage.removeItem("nolla_motor_baseline");
+      clearMotorBaseline();
       window.history.replaceState({}, "", window.location.pathname);
     }
-    setWarmupPhase(needsMotorBaseline() ? "ready" : "done");
-  }, []);
+    if (needsMotorBaseline()) {
+      setWarmupPhase("redirecting");
+      router.replace("/warmup");
+    } else {
+      setWarmupPhase("done");
+    }
+  }, [router]);
 
   // Prefetch all game routes so router.push is near-instant on tap
   useEffect(() => {
     planets.forEach((p) => router.prefetch(`/game/${p.gameType}`));
   }, [planets, router]);
-
-  const handleWarmupStart = useCallback(() => setWarmupPhase("measuring"), []);
-
-  const handleBaselineComplete = useCallback((reactionTimes: readonly number[]) => {
-    const baseline = calculateMotorBaseline(reactionTimes, null);
-    saveMotorBaselineFromHome(baseline.medianRt);
-    setWarmupPhase("done");
-  }, []);
 
   const goLeft = useCallback(() => {
     setCurrentIndex((i) => (i > 0 ? i - 1 : planets.length - 1));
@@ -213,33 +193,8 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
 
   const current = planets[currentIndex];
 
-  if (warmupPhase === "checking") {
+  if (warmupPhase === "checking" || warmupPhase === "redirecting") {
     return <main className="absolute inset-0" style={{ background: "#0B0B30" }} />;
-  }
-
-  if (warmupPhase === "ready" || warmupPhase === "measuring") {
-    return (
-      <main className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden">
-        <img src={current.image} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
-        <div className="relative z-10">
-          {warmupPhase === "ready" && (
-            <button type="button" onClick={handleWarmupStart} className="flex flex-col items-center gap-6">
-              <div
-                className="w-32 h-32 rounded-full flex items-center justify-center active:scale-95 transition-transform"
-                style={{
-                  background: "radial-gradient(circle, rgba(0,212,255,0.3), rgba(0,212,255,0.05))",
-                  boxShadow: "0 0 40px rgba(0,212,255,0.3), inset 0 0 20px rgba(0,212,255,0.1)",
-                  border: "2px solid rgba(0,212,255,0.4)",
-                }}
-              >
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20" /></svg>
-              </div>
-            </button>
-          )}
-          {warmupPhase === "measuring" && <MotorBaselineMeasurement onComplete={handleBaselineComplete} />}
-        </div>
-      </main>
-    );
   }
 
   return (

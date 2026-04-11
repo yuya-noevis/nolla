@@ -11,7 +11,11 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { HomeCarousel } from "@/app/home/carousel";
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+  }),
 }));
 
 // Skip warmup overlay so the carousel itself is visible on first render.

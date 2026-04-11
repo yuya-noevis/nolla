@@ -15,6 +15,9 @@ import type { IQBand } from "@/types/user";
 import { GameFrame } from "@/components/game/game-frame";
 import { FeedbackOverlay } from "@/components/game/feedback-overlay";
 import { MotorBaselineMeasurement } from "@/components/game/motor-baseline";
+import { IntroOverlay, type IntroVariant } from "@/components/common/intro-overlay";
+import { playSfx } from "@/lib/feedback/sfx";
+import { vibrate } from "@/lib/feedback/haptic";
 import { CardGrid } from "@/components/game/memory-match/card-grid";
 import { SortingGame } from "@/components/game/sorting/sorting-game";
 import { VisualSearchGame } from "@/components/game/visual-search/visual-search-game";
@@ -63,7 +66,13 @@ export function GameSession({
 }: Props) {
   const router = useRouter();
   const [showFeedback, setShowFeedback] = useState<"correct" | "star" | null>(null);
+  const [showIntro, setShowIntro] = useState(true);
   const { hintStage, recordWrong, resetTrial } = useErrorless();
+
+  const introVariant: IntroVariant =
+    gameType === "corsi-block" ? "corsi" : (gameType as IntroVariant);
+
+  const handleIntroDismiss = useCallback(() => setShowIntro(false), []);
 
   // Use saved baseline from today if available
   const effectiveBaseline = previousMotorBaseline ?? getSavedMotorBaseline();
@@ -104,6 +113,8 @@ export function GameSession({
       session.handleTrialResult(result);
 
       if (correct) {
+        playSfx("game-correct");
+        vibrate("game-correct");
         setShowFeedback("correct");
         resetTrial();
       } else {
@@ -224,6 +235,10 @@ export function GameSession({
 
       {showFeedback && (
         <FeedbackOverlay type={showFeedback} onComplete={handleFeedbackDone} />
+      )}
+
+      {showIntro && (
+        <IntroOverlay variant={introVariant} onDismiss={handleIntroDismiss} />
       )}
     </GameFrame>
   );
