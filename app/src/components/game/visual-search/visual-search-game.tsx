@@ -20,12 +20,13 @@ type Props = {
     gameData?: Record<string, unknown>
   ) => void;
   onRoundComplete: () => void;
+  onUnitProgress?: (completedUnits: number) => void;
 };
 
 const SCENE_WIDTH = 800;
 const SCENE_HEIGHT = 500;
 
-export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
+export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete, onUnitProgress }: Props) {
   // Multi-scene per round so low-difficulty rounds still deliver ≥ 6 finds.
   // See lib/session/trials-per-round.ts for the formula and evidence.
   const scenesPerRound = useMemo(
@@ -80,6 +81,7 @@ export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, o
     if (allFound) {
       const timer = setTimeout(() => {
         const nextSceneIndex = sceneIndex + 1;
+        onUnitProgress?.(nextSceneIndex);
         if (nextSceneIndex >= scenesPerRound) {
           onRoundComplete();
         } else {
@@ -89,7 +91,7 @@ export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, o
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [allFound, onRoundComplete, sceneIndex, scenesPerRound]);
+  }, [allFound, onRoundComplete, onUnitProgress, sceneIndex, scenesPerRound]);
 
   return (
     <div className="flex flex-col items-center gap-2 w-full h-full px-4 max-h-full">
@@ -123,11 +125,6 @@ export function VisualSearchGame({ params, roundKey, hintStage, onTrialResult, o
         ))}
       </div>
 
-      {allFound && (
-        <div className="glass-overlay px-6 py-3">
-          <p className="text-lg font-bold text-nolla-text">ぜんぶみつけた</p>
-        </div>
-      )}
     </div>
   );
 }

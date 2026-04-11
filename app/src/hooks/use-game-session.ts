@@ -1,10 +1,12 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import type {
   GameType,
   DifficultyParams,
   SessionState,
   TrialResult,
   SessionSummary,
+  MemoryMatchParams,
+  VisualSearchParams,
 } from "@/types/domain";
 import type { IQBand } from "@/types/user";
 import {
@@ -17,6 +19,12 @@ import { calculateMotorBaseline } from "@/lib/session/motor-baseline";
 import { shouldAdvanceCriterion } from "@/lib/staircase/criterion";
 import { clampParams } from "@/lib/staircase/clamp";
 import type { SortingParams, SortingCriterion } from "@/types/domain";
+import {
+  memoryMatchBoardsPerRound,
+  sortingScenesPerRound,
+  visualSearchScenesPerRound,
+  CORSI_TRIALS_PER_ROUND,
+} from "@/lib/session/trials-per-round";
 import {
   persistSessionStart,
   persistRound,
@@ -44,6 +52,8 @@ type GameSessionHook = {
   readonly sessionStars: number;
   readonly roundNumber: number;
   readonly motorBaseline: MotorBaseline | null;
+  readonly currentUnitInRound: number;
+  readonly totalUnitsInRound: number;
   startSession: () => void;
   completeMotorBaseline: (reactionTimes: readonly number[]) => void;
   handleTrialResult: (result: TrialResult) => void;
@@ -51,6 +61,7 @@ type GameSessionHook = {
   startPlaying: () => void;
   advanceRound: () => void;
   endSession: () => SessionSummary | null;
+  reportUnitProgress: (unit: number) => void;
 };
 
 export const MAX_ROUNDS = 3;
@@ -148,6 +159,11 @@ export function useGameSession(
   const [phase, setPhase] = useState<SessionPhaseUI>("motor-baseline");
   const [sessionStars, setSessionStars] = useState(0);
   const [motorBaseline, setMotorBaseline] = useState<MotorBaseline | null>(null);
+  // Within-round unit index (0-based) reported by the active game component.
+  // A "unit" = one board (memory), one scene (sorting / visual-search), or
+  // one sequence (corsi). Header progress gauge reads this to show the
+  // child where they are inside the current round.
+  const [currentUnitInRound, setCurrentUnitInRound] = useState(0);
   const sessionIdRef = useRef<string | null>(null);
   // BUG-15 fix: store the in-flight persistRound promise so that trials played
   // immediately after advanceRound attach to the *new* round_id, not the
@@ -302,6 +318,9 @@ export function useGameSession(
     setSessionStars((s) => s + roundStars);
     roundTrialCountRef.current = 0;
     roundCorrectCountRef.current = 0;
+    // Don't reset currentUnitInRound here — we want the header to show the
+    // round as fully filled during the 200ms round-intro delay. It resets
+    // in advanceRound() right before the next round actually starts.
 
     const currentRound = state?.roundNumber ?? 1;
     if (currentRound >= MAX_ROUNDS) {
@@ -310,6 +329,33 @@ export function useGameSession(
       setPhase("round-intro");
     }
   }, [state?.roundNumber, gameType]);
+
+  // Called by game components whenever they advance to the next unit
+  // (board / scene / sequence) within the current round. Drives the
+  // header progress gauge.
+  const reportUnitProgress = useCallback((unit: number) => {
+    setCurrentUnitInRound(unit);
+  }, []);
+
+  // How many units (boards/scenes/sequences) make up the current round.
+  // Derived from gameType + currentParams so the header can render the
+  // correct number of per-round dots without each game component having
+  // to pass its own count upward.
+  const totalUnitsInRound = useMemo(() => {
+    const params = state?.currentParams ?? initialParams;
+    switch (gameType) {
+      case "corsi-block":
+        return CORSI_TRIALS_PER_ROUND;
+      case "memory-match":
+        return memoryMatchBoardsPerRound(params as MemoryMatchParams);
+      case "sorting":
+        return sortingScenesPerRound(params as SortingParams);
+      case "visual-search":
+        return visualSearchScenesPerRound(params as VisualSearchParams);
+      default:
+        return 1;
+    }
+  }, [gameType, state?.currentParams, initialParams]);
 
   const startPlaying = useCallback(() => {
     setPhase("playing");
@@ -328,6 +374,7 @@ export function useGameSession(
     setState(newState);
     roundTrialCountRef.current = 0;
     roundCorrectCountRef.current = 0;
+    setCurrentUnitInRound(0);
     setPhase("playing");
 
     const sid = sessionIdRef.current;
@@ -442,6 +489,8 @@ export function useGameSession(
     sessionStars,
     roundNumber: state?.roundNumber ?? 1,
     motorBaseline,
+    currentUnitInRound,
+    totalUnitsInRound,
     startSession,
     completeMotorBaseline: completeMotorBaselineFn,
     handleTrialResult,
@@ -449,5 +498,6 @@ export function useGameSession(
     startPlaying,
     advanceRound,
     endSession: endSessionFn,
+    reportUnitProgress,
   };
 }

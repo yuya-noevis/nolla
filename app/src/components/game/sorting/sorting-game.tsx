@@ -16,6 +16,7 @@ type Props = {
     gameData?: Record<string, unknown>
   ) => void;
   onRoundComplete: () => void;
+  onUnitProgress?: (completedUnits: number) => void;
 };
 
 const COLOR_CSS: Record<string, string> = {
@@ -185,7 +186,72 @@ function ShapeSvg({
   }
 }
 
-export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
+// Small visual badge at the top of the screen communicating which
+// criterion the child is sorting by RIGHT NOW. Without this, a round
+// change (e.g., color -> shape) can feel arbitrary — the badge announces
+// the new rule visually, no text required.
+function CriterionBadge({ criterion }: { criterion: SortingCriterion }) {
+  const renderSamples = () => {
+    switch (criterion) {
+      case "color":
+        return (
+          <>
+            <ShapeSvg shape="circle" fill="#E74C3C" size={22} />
+            <ShapeSvg shape="circle" fill="#F1C40F" size={22} />
+            <ShapeSvg shape="circle" fill="#3498DB" size={22} />
+          </>
+        );
+      case "shape":
+        return (
+          <>
+            <ShapeSvg shape="star" fill="#F1C40F" size={22} />
+            <ShapeSvg shape="square" fill="#F1C40F" size={22} />
+            <ShapeSvg shape="triangle" fill="#F1C40F" size={22} />
+          </>
+        );
+      case "size":
+        return (
+          <>
+            <ShapeSvg shape="circle" fill="#F1C40F" size={14} />
+            <ShapeSvg shape="circle" fill="#F1C40F" size={20} />
+            <ShapeSvg shape="circle" fill="#F1C40F" size={28} />
+          </>
+        );
+      case "category":
+        return (
+          <>
+            <span className="text-xl leading-none">🍎</span>
+            <span className="text-xl leading-none">🐶</span>
+            <span className="text-xl leading-none">🚗</span>
+          </>
+        );
+      case "multi":
+        return (
+          <>
+            <ShapeSvg shape="star" fill="#E74C3C" size={22} />
+            <ShapeSvg shape="square" fill="#F1C40F" size={22} />
+            <ShapeSvg shape="circle" fill="#3498DB" size={22} />
+          </>
+        );
+    }
+  };
+
+  return (
+    <div
+      className="flex items-center gap-2 px-3 py-1 rounded-full shrink-0"
+      style={{
+        background: "rgba(0,0,0,0.3)",
+        border: "2px solid rgba(255,255,255,0.3)",
+        boxShadow: "0 0 16px rgba(255,255,255,0.15)",
+      }}
+      aria-label={`criterion: ${criterion}`}
+    >
+      {renderSamples()}
+    </div>
+  );
+}
+
+export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete, onUnitProgress }: Props) {
   // Multi-scene per round: at low items counts we play several scenes in
   // one round so every round delivers ≥ 6 sort decisions. See
   // lib/session/trials-per-round.ts for the formula and evidence.
@@ -245,6 +311,7 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
     if (!currentItem) {
       const timer = setTimeout(() => {
         const nextSceneIndex = sceneIndex + 1;
+        onUnitProgress?.(nextSceneIndex);
         if (nextSceneIndex >= scenesPerRound) {
           onRoundComplete();
         } else {
@@ -254,14 +321,12 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [currentItem, onRoundComplete, sceneIndex, scenesPerRound]);
+  }, [currentItem, onRoundComplete, onUnitProgress, sceneIndex, scenesPerRound]);
 
   if (!currentItem) {
-    return (
-      <div className="glass-overlay px-8 py-6 text-center">
-        <p className="text-lg font-bold text-nolla-text">ラウンドクリア</p>
-      </div>
-    );
+    // Between scenes: no clear message — progression is silent to avoid
+    // text-heavy prompts that non-readers can't parse.
+    return null;
   }
 
   const correctCategory = round.categories.find(
@@ -287,9 +352,12 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
   const catCount = round.categories.length;
 
   return (
-    <div className="w-full h-full min-h-0 max-h-full flex flex-col items-center justify-center gap-4 px-4">
+    <div className="w-full h-full min-h-0 max-h-full flex flex-col items-center justify-center gap-2 px-4">
+      {/* Rule hint: 3 sample items showing what the child is sorting by */}
+      <CriterionBadge criterion={round.criterion} />
+
       {/* Current item — large and prominent */}
-      <SortingVisual criterion={round.criterion} attributes={currentItem.attributes} size={120} />
+      <SortingVisual criterion={round.criterion} attributes={currentItem.attributes} size={110} />
 
       {/* Category boxes — responsive, fill width */}
       <div
@@ -329,21 +397,8 @@ export function SortingGame({ params, roundKey, hintStage, onTrialResult, onRoun
         })}
       </div>
 
-      {/* Progress */}
-      <div className="flex gap-2">
-        {round.items.map((_, i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 rounded-full ${
-              i < currentItemIndex
-                ? "bg-[var(--color-feedback-correct)]"
-                : i === currentItemIndex
-                  ? "bg-white"
-                  : "bg-white/30"
-            }`}
-          />
-        ))}
-      </div>
+      {/* In-scene item progress removed — the header gauge now shows
+          both round progress and within-round scene progress unified. */}
     </div>
   );
 }

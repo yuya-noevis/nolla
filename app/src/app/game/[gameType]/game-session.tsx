@@ -158,6 +158,8 @@ export function GameSession({
       hintActive={hintStage >= 3}
       roundNumber={session.roundNumber}
       totalRounds={MAX_ROUNDS}
+      currentUnitInRound={session.currentUnitInRound}
+      totalUnitsInRound={session.totalUnitsInRound}
     >
       <div className="min-h-0 max-h-full h-full w-full flex items-center justify-center">
         {/* Motor baseline phase */}
@@ -178,6 +180,7 @@ export function GameSession({
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}
+                onUnitProgress={session.reportUnitProgress}
               />
             )}
 
@@ -188,6 +191,7 @@ export function GameSession({
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}
+                onUnitProgress={session.reportUnitProgress}
               />
             )}
 
@@ -198,6 +202,7 @@ export function GameSession({
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}
+                onUnitProgress={session.reportUnitProgress}
               />
             )}
 
@@ -208,6 +213,7 @@ export function GameSession({
                 hintStage={hintStage}
                 onTrialResult={handleTrialResult}
                 onRoundComplete={session.completeRoundFromGame}
+                onUnitProgress={session.reportUnitProgress}
               />
             )}
           </>

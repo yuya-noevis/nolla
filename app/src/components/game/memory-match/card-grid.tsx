@@ -39,6 +39,7 @@ type Props = {
     gameData?: Record<string, unknown>
   ) => void;
   onRoundComplete: () => void;
+  onUnitProgress?: (completedUnits: number) => void;
 };
 
 export function CardGrid({
@@ -47,6 +48,7 @@ export function CardGrid({
   hintStage,
   onTrialResult,
   onRoundComplete,
+  onUnitProgress,
 }: Props) {
   const boardsPerRound = useMemo(
     () => memoryMatchBoardsPerRound(params),
@@ -139,6 +141,7 @@ export function CardGrid({
             if (allMatched) {
               setTimeout(() => {
                 const nextBoardIndex = boardIndex + 1;
+                onUnitProgress?.(nextBoardIndex);
                 if (nextBoardIndex >= boardsPerRound) {
                   // All boards in the round cleared → end round.
                   onRoundComplete();
@@ -178,6 +181,7 @@ export function CardGrid({
       params.flipDelay,
       onTrialResult,
       onRoundComplete,
+      onUnitProgress,
       boardIndex,
       boardsPerRound,
     ]

@@ -16,6 +16,7 @@ type Props = {
     gameData?: Record<string, unknown>
   ) => void;
   onRoundComplete: () => void;
+  onUnitProgress?: (completedUnits: number) => void;
 };
 
 type Phase = "watching" | "input" | "result";
@@ -25,7 +26,7 @@ type Phase = "watching" | "input" | "result";
 // across all games (FitzGerald & Meyer 2005 adaptive Corsi standard).
 const TRIALS_PER_ROUND = CORSI_TRIALS_PER_ROUND;
 
-export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete }: Props) {
+export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onRoundComplete, onUnitProgress }: Props) {
   // trialKey changes per-trial → forces sequence regeneration via useMemo dep.
   const [trialKey, setTrialKey] = useState(0);
   const [trialIndex, setTrialIndex] = useState(0);
@@ -131,6 +132,7 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
     if (phase !== "result") return;
     const timer = setTimeout(() => {
       const nextTrialIndex = trialIndex + 1;
+      onUnitProgress?.(nextTrialIndex);
       if (nextTrialIndex >= TRIALS_PER_ROUND) {
         onRoundComplete();
       } else {
@@ -139,7 +141,7 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
       }
     }, 800);
     return () => clearTimeout(timer);
-  }, [phase, trialIndex, onRoundComplete]);
+  }, [phase, trialIndex, onRoundComplete, onUnitProgress]);
 
   // Find the next expected block for hints
   const nextExpectedBlock =
@@ -219,11 +221,11 @@ export function CorsiBlockGame({ params, roundKey, hintStage, onTrialResult, onR
                 transform: "translate(-50%, -50%)",
                 background: isActive
                   ? "var(--color-mc-glowstone)"
-                  : "linear-gradient(135deg, var(--color-mc-stone-light), var(--color-mc-stone))",
-                border: "3px solid var(--color-mc-dark-oak)",
+                  : "linear-gradient(135deg, #4FC3F7, #0288D1)",
+                border: "3px solid rgba(255,255,255,0.4)",
                 boxShadow: isActive
                   ? "0 0 20px rgba(218,165,32,0.6)"
-                  : "0 4px 0 var(--color-mc-dark-oak-light)",
+                  : "0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4)",
               }}
               data-block-id={block.id}
               data-block-size={layout.blockSize}
