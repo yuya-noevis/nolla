@@ -39,16 +39,13 @@ export function IntroOverlay({ variant, onDismiss }: Props) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-between pointer-events-auto transition-opacity duration-200 warmup-bg ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-auto transition-opacity duration-200 warmup-bg ${
         leaving ? "opacity-0" : "opacity-100"
       }`}
       aria-hidden={leaving}
     >
-      <div className="w-full flex-1 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
         <DemoAnimation variant={variant} />
-      </div>
-
-      <div className="pb-[2vh] flex items-center justify-center">
         <button
           type="button"
           onClick={handleStart}
