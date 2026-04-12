@@ -528,7 +528,7 @@ body {
    a subtle breath to suggest twinkle. */
 .warmup-bg {
   background-color: #000;
-  background-image: url("/warmup/background.png");
+  background-image: url("/warmup/background.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

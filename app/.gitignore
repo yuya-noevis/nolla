@@ -23,4 +23,4 @@ playwright-report/
 # Allow PWA icons + warmup assets (overrides root *.png)
 !public/icon-*.png
 !public/apple-touch-icon.png
-!public/warmup/**/*.png
+!public/warmup/**/*.webp

@@ -58,7 +58,7 @@ export function IntroOverlay({ variant, onDismiss }: Props) {
           style={{ width: 140, height: 140, background: "transparent", border: "none" }}
         >
           <img
-            src="/warmup/play-button.png"
+            src="/warmup/play-button.webp"
             alt=""
             width={140}
             height={140}
