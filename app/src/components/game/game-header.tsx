@@ -7,6 +7,7 @@ type Props = {
   totalRounds?: number;
   currentUnitInRound?: number;
   totalUnitsInRound?: number;
+  hideProgress?: boolean;
 };
 
 export function GameHeader({
@@ -16,6 +17,7 @@ export function GameHeader({
   totalRounds = 5,
   currentUnitInRound = 0,
   totalUnitsInRound = 1,
+  hideProgress = false,
 }: Props) {
   return (
     <header
@@ -50,12 +52,7 @@ export function GameHeader({
         />
       </button>
 
-      {/* Session progress — centered at top. 3 round groups, each group
-          holds N sub-dots where N = units (board/scene/sequence) in the
-          current round. Completed rounds fill entirely; the current round
-          fills up to currentUnitInRound; future rounds stay hollow.
-          A small divider between groups makes round boundaries obvious. */}
-      <div className="flex-1 flex justify-center pt-1">
+      <div className={`flex-1 flex justify-center pt-1 ${hideProgress ? "invisible" : ""}`}>
         <div
           className="flex items-center gap-3 px-4 py-2 rounded-full"
           style={{

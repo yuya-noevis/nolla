@@ -14,7 +14,7 @@ type Props = {
   totalRounds?: number;
   currentUnitInRound?: number;
   totalUnitsInRound?: number;
-  hideHeader?: boolean;
+  hideProgress?: boolean;
   children: ReactNode;
 };
 
@@ -27,7 +27,7 @@ export function GameFrame({
   totalRounds = 5,
   currentUnitInRound = 0,
   totalUnitsInRound = 1,
-  hideHeader = false,
+  hideProgress = false,
   children,
 }: Props) {
   const router = useRouter();
@@ -72,16 +72,15 @@ export function GameFrame({
         ))}
       </div>
 
-      {!hideHeader && (
-        <GameHeader
-          sessionStars={sessionStars}
-          onBack={handleBack}
-          roundNumber={roundNumber}
-          totalRounds={totalRounds}
-          currentUnitInRound={currentUnitInRound}
-          totalUnitsInRound={totalUnitsInRound}
-        />
-      )}
+      <GameHeader
+        sessionStars={sessionStars}
+        onBack={handleBack}
+        roundNumber={roundNumber}
+        totalRounds={totalRounds}
+        currentUnitInRound={currentUnitInRound}
+        totalUnitsInRound={totalUnitsInRound}
+        hideProgress={hideProgress}
+      />
 
       {/* Game area — fill all remaining space, centered, no overflow */}
       <div className="flex-1 relative z-10 min-h-0 flex items-center justify-center overflow-hidden">

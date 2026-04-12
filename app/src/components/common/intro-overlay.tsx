@@ -306,9 +306,9 @@ function SortingDemo() {
 
   return (
     <div className="relative" style={{ width: 380, height: 250 }}>
-      {/* Item to sort */}
+      {/* Item to sort — alternates red/blue via color animation */}
       <div
-        className="absolute left-1/2 animate-demo-sort-item"
+        className="absolute left-1/2 -translate-x-1/2 animate-demo-sort-item"
         style={{ top: 12 }}
       >
         <svg viewBox="0 0 80 80" width="64" height="64" aria-hidden="true" focusable="false">
@@ -316,7 +316,7 @@ function SortingDemo() {
             cx="40"
             cy="40"
             r="34"
-            fill="#E74C3C"
+            className="animate-demo-sort-color"
             stroke="rgba(0,0,0,0.25)"
             strokeWidth="3"
           />
@@ -329,7 +329,11 @@ function SortingDemo() {
           <div
             key={i}
             className={`flex items-center justify-center rounded-xl ${
-              i === 0 ? "animate-demo-sort-box" : ""
+              i === 0
+                ? "animate-demo-sort-box1"
+                : i === 1
+                  ? "animate-demo-sort-box2"
+                  : ""
             }`}
             style={{
               width: 90,
@@ -346,7 +350,7 @@ function SortingDemo() {
         ))}
       </div>
 
-      {/* Hand cursor: moves to correct box and taps */}
+      {/* Hand cursor: taps red box, then blue box */}
       <div className="absolute animate-demo-sort-hand">
         <HandCursor />
       </div>
@@ -375,11 +379,6 @@ function VisualSearchDemo() {
       className="relative flex gap-3"
       style={{ width: 420, height: 230 }}
     >
-      {/* VS divider label */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 text-white/30 text-xs font-bold tracking-widest">
-        VS
-      </div>
-
       {/* Left panel (original) */}
       <div
         className="flex-1 relative rounded-xl overflow-hidden"
@@ -425,12 +424,19 @@ function VisualSearchDemo() {
               }}
             >
               <MiniShape shape={s.shape} color={color} size={34} />
+              {/* Highlight circle appears first, then green ring on tap */}
+              {isDiff && (
+                <div
+                  className="absolute inset-[-8px] rounded-full animate-demo-vs-circle"
+                  style={{ border: "2px dashed rgba(255,255,255,0.7)" }}
+                />
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* Hand cursor points to the difference */}
+      {/* Hand cursor: waits for circle highlight, then taps */}
       <div className="absolute animate-demo-vs-hand">
         <HandCursor />
       </div>

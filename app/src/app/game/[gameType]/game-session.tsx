@@ -172,7 +172,7 @@ export function GameSession({
         totalRounds={MAX_ROUNDS}
         currentUnitInRound={session.currentUnitInRound}
         totalUnitsInRound={session.totalUnitsInRound}
-        hideHeader={showIntro}
+        hideProgress={showIntro}
       >
         <div className="min-h-0 max-h-full h-full w-full flex items-center justify-center">
           {/* Motor baseline phase */}

@@ -509,58 +509,86 @@ body {
 }
 .animate-demo-mm-hand { animation: demo-mm-hand 5.5s ease-in-out infinite; }
 
-/* ---- Sorting demo ---- */
-/* Item: stays at top, then swoops to correct box, disappears, reappears */
+/* ---- Sorting demo (8s cycle: red phase 0-45%, blue phase 50-95%, reset) ---- */
+/* Item stays at top, no movement. Color alternates red→blue */
 @keyframes demo-sort-item {
-  0%, 38%  { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
-  52%      { transform: translateX(-190%) translateY(140px) scale(0.5); opacity: 0.8; }
-  58%, 88% { transform: translateX(-190%) translateY(140px) scale(0.3); opacity: 0; }
-  95%, 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+  0%, 95%  { opacity: 1; }
+  97%      { opacity: 0; }
+  100%     { opacity: 1; }
 }
-.animate-demo-sort-item { animation: demo-sort-item 5.5s ease-in-out infinite; }
+.animate-demo-sort-item { animation: demo-sort-item 8s ease-in-out infinite; }
 
-/* Correct box glows */
-@keyframes demo-sort-box {
-  0%, 48%  { box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
-  55%, 82% { box-shadow: 0 0 24px rgba(231,76,60,0.6), 0 0 40px rgba(231,76,60,0.25); border-width: 4px; }
-  90%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+/* Item color: red for first half, blue for second half */
+@keyframes demo-sort-color {
+  0%, 40%  { fill: #E74C3C; }
+  48%, 88% { fill: #3498DB; }
+  96%, 100% { fill: #E74C3C; }
 }
-.animate-demo-sort-box { animation: demo-sort-box 5.5s ease-in-out infinite; }
+.animate-demo-sort-color { animation: demo-sort-color 8s ease-in-out infinite; }
 
-/* Hand: appears near item, moves to correct box, taps */
+/* Red box glows when red item is active (first half) */
+@keyframes demo-sort-box1 {
+  0%, 22%  { box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+  28%, 40% { box-shadow: 0 0 24px rgba(231,76,60,0.6), 0 0 40px rgba(231,76,60,0.25); border-width: 4px; }
+  45%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+}
+.animate-demo-sort-box1 { animation: demo-sort-box1 8s ease-in-out infinite; }
+
+/* Blue box glows when blue item is active (second half) */
+@keyframes demo-sort-box2 {
+  0%, 68%  { box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+  74%, 88% { box-shadow: 0 0 24px rgba(52,152,219,0.6), 0 0 40px rgba(52,152,219,0.25); border-width: 4px; }
+  93%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+}
+.animate-demo-sort-box2 { animation: demo-sort-box2 8s ease-in-out infinite; }
+
+/* Hand: taps red box (first half) → taps blue box (second half) */
 @keyframes demo-sort-hand {
-  0%, 6%   { left: 52%; top: 26%; opacity: 0;   transform: scale(1); }
-  12%      { left: 52%; top: 26%; opacity: 1;   transform: scale(1); }
-  32%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
-  38%      { left: 14%; top: 62%; opacity: 1;   transform: scale(0.8); }
-  44%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
-  78%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
-  86%      { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
-  100%     { left: 52%; top: 26%; opacity: 0;   transform: scale(1); }
+  0%, 4%   { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
+  10%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  20%      { left: 14%; top: 62%; opacity: 1;   transform: scale(0.8); }
+  26%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  40%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  44%      { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
+  52%      { left: 42%; top: 62%; opacity: 0;   transform: scale(1); }
+  56%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
+  66%      { left: 42%; top: 62%; opacity: 1;   transform: scale(0.8); }
+  72%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
+  88%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
+  93%      { left: 42%; top: 62%; opacity: 0;   transform: scale(1); }
+  100%     { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
 }
-.animate-demo-sort-hand { animation: demo-sort-hand 5.5s ease-in-out infinite; }
+.animate-demo-sort-hand { animation: demo-sort-hand 8s ease-in-out infinite; }
 
-/* ---- Visual Search demo ---- */
-/* Difference target: gets a green ring when hand taps */
+/* ---- Visual Search demo (6s cycle) ---- */
+/* Dashed circle: appears first to highlight the difference (0-35%) */
+@keyframes demo-vs-circle {
+  0%, 8%   { opacity: 0; }
+  15%, 40% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-demo-vs-circle { animation: demo-vs-circle 6s ease-in-out infinite; }
+
+/* Green ring appears after hand taps (55-85%) */
 @keyframes demo-vs-target {
-  0%, 48%  { outline: 3px solid transparent; outline-offset: 3px; filter: brightness(1); }
-  55%, 80% { outline: 3px solid #5DBB5D; outline-offset: 4px; filter: brightness(1.3); }
-  88%, 100% { outline: 3px solid transparent; outline-offset: 3px; filter: brightness(1); }
+  0%, 52%  { outline: 3px solid transparent; outline-offset: 3px; filter: brightness(1); }
+  58%, 82% { outline: 3px solid #5DBB5D; outline-offset: 4px; filter: brightness(1.3); }
+  90%, 100% { outline: 3px solid transparent; outline-offset: 3px; filter: brightness(1); }
 }
-.animate-demo-vs-target { animation: demo-vs-target 5s ease-in-out infinite; }
+.animate-demo-vs-target { animation: demo-vs-target 6s ease-in-out infinite; }
 
-/* Hand: enters from right side, moves to the difference, taps */
+/* Hand: waits for circle highlight, then moves to difference and taps */
 @keyframes demo-vs-hand {
-  0%, 8%   { right: 42%; top: 15%; opacity: 0;   transform: scale(1); }
-  18%      { right: 42%; top: 15%; opacity: 1;   transform: scale(1); }
-  42%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
-  48%      { right: 22%; top: 48%; opacity: 1;   transform: scale(0.8); }
-  54%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
-  78%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
-  88%      { right: 22%; top: 48%; opacity: 0;   transform: scale(1); }
+  0%, 30%  { right: 42%; top: 15%; opacity: 0;   transform: scale(1); }
+  36%      { right: 42%; top: 15%; opacity: 1;   transform: scale(1); }
+  48%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
+  52%      { right: 22%; top: 48%; opacity: 1;   transform: scale(0.8); }
+  56%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
+  82%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
+  90%      { right: 22%; top: 48%; opacity: 0;   transform: scale(1); }
   100%     { right: 42%; top: 15%; opacity: 0;   transform: scale(1); }
 }
-.animate-demo-vs-hand { animation: demo-vs-hand 5s ease-in-out infinite; }
+.animate-demo-vs-hand { animation: demo-vs-hand 6s ease-in-out infinite; }
 
 /* ---- Corsi demo ---- */
 /* Blocks light up: watching phase (0-45%), then input phase with hand (48-85%) */
