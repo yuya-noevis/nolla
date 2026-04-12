@@ -39,7 +39,7 @@ export function IntroOverlay({ variant, onDismiss }: Props) {
 
   return (
     <div
-      className={`absolute inset-0 z-50 flex flex-col items-center justify-between pointer-events-auto transition-opacity duration-200 warmup-bg ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-between pointer-events-auto transition-opacity duration-200 warmup-bg ${
         leaving ? "opacity-0" : "opacity-100"
       }`}
       aria-hidden={leaving}
