@@ -281,7 +281,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
             style={{ left: "max(1rem, env(safe-area-inset-left))", width: 160, height: 160 }}
             aria-label="Previous"
           >
-            <img src="/arrow_left.png" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
+            <img src="/arrow_left.webp" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
           </button>
         )}
 
@@ -303,7 +303,7 @@ export function HomeCarousel({ childName, gamesEnabled, starBalance }: Props) {
             style={{ right: "max(1rem, env(safe-area-inset-right))", width: 160, height: 160 }}
             aria-label="Next"
           >
-            <img src="/arrow_right.png" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
+            <img src="/arrow_right.webp" alt="" className="w-full h-full object-contain" style={{ opacity: 0.75 }} draggable={false} />
           </button>
         )}
       </div>

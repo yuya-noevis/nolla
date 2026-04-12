@@ -42,7 +42,7 @@ export function GameHeader({
         aria-label="Back"
       >
         <img
-          src="/arrow_left.png"
+          src="/arrow_left.webp"
           alt=""
           className="object-contain pointer-events-none"
           style={{ width: "100%", height: "100%", opacity: 0.9 }}

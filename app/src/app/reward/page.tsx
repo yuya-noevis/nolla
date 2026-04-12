@@ -73,7 +73,7 @@ function RewardContent() {
           width: ${size}px; height: ${size}px;
           left: ${Math.random() * 90 + 5}%;
           top: ${-50 - Math.random() * 100}px;
-          background: url('/star_reward.png') center/contain no-repeat;
+          background: url('/star_reward.webp') center/contain no-repeat;
           animation: reward-fall ${2 + Math.random() * 2}s ${Math.random() * 1.5}s ease-in forwards;
         `;
         screen.appendChild(s);
@@ -143,7 +143,7 @@ function RewardContent() {
         }}
       >
         <img
-          src="/star_reward.png"
+          src="/star_reward.webp"
           alt=""
           style={{
             width: "clamp(160px, 42vh, 320px)",
@@ -190,7 +190,7 @@ function RewardContent() {
           style={{
             width: "clamp(88px, 20vh, 140px)",
             height: "clamp(88px, 20vh, 140px)",
-            background: "url('/btn_replay.png') center/contain no-repeat",
+            background: "url('/btn_replay.webp') center/contain no-repeat",
             border: "none",
             cursor: "pointer",
           }}
@@ -203,7 +203,7 @@ function RewardContent() {
           style={{
             width: "clamp(88px, 20vh, 140px)",
             height: "clamp(88px, 20vh, 140px)",
-            background: "url('/btn_myroom.png') center/contain no-repeat",
+            background: "url('/btn_myroom.webp') center/contain no-repeat",
             border: "none",
             cursor: "pointer",
           }}
