@@ -162,84 +162,87 @@ export function GameSession({
   // per trials-per-round.ts), so no board generation needed at this layer.
 
   return (
-    <GameFrame
-      skyGradient={skyGradient}
-      groundColor={groundColor}
-      sessionStars={session.sessionStars}
-      hintActive={hintStage >= 3}
-      roundNumber={session.roundNumber}
-      totalRounds={MAX_ROUNDS}
-      currentUnitInRound={session.currentUnitInRound}
-      totalUnitsInRound={session.totalUnitsInRound}
-    >
-      <div className="min-h-0 max-h-full h-full w-full flex items-center justify-center">
-        {/* Motor baseline phase */}
-        {session.phase === "motor-baseline" && (
-          <MotorBaselineMeasurement
-            onComplete={session.completeMotorBaseline}
-          />
+    <>
+      <GameFrame
+        skyGradient={skyGradient}
+        groundColor={groundColor}
+        sessionStars={session.sessionStars}
+        hintActive={hintStage >= 3}
+        roundNumber={session.roundNumber}
+        totalRounds={MAX_ROUNDS}
+        currentUnitInRound={session.currentUnitInRound}
+        totalUnitsInRound={session.totalUnitsInRound}
+        hideHeader={showIntro}
+      >
+        <div className="min-h-0 max-h-full h-full w-full flex items-center justify-center">
+          {/* Motor baseline phase */}
+          {session.phase === "motor-baseline" && (
+            <MotorBaselineMeasurement
+              onComplete={session.completeMotorBaseline}
+            />
+          )}
+
+          {/* Playing phase */}
+          {session.phase === "playing" && (
+            <>
+              {gameType === "memory-match" && (
+                <CardGrid
+                  key={session.roundNumber}
+                  params={session.currentParams as MemoryMatchParams}
+                  roundKey={session.roundNumber}
+                  hintStage={hintStage}
+                  onTrialResult={handleTrialResult}
+                  onRoundComplete={session.completeRoundFromGame}
+                  onUnitProgress={session.reportUnitProgress}
+                />
+              )}
+
+              {gameType === "sorting" && (
+                <SortingGame
+                  params={session.currentParams as SortingParams}
+                  roundKey={session.roundNumber}
+                  hintStage={hintStage}
+                  onTrialResult={handleTrialResult}
+                  onRoundComplete={session.completeRoundFromGame}
+                  onUnitProgress={session.reportUnitProgress}
+                />
+              )}
+
+              {gameType === "visual-search" && (
+                <VisualSearchGame
+                  params={session.currentParams as VisualSearchParams}
+                  roundKey={session.roundNumber}
+                  hintStage={hintStage}
+                  onTrialResult={handleTrialResult}
+                  onRoundComplete={session.completeRoundFromGame}
+                  onUnitProgress={session.reportUnitProgress}
+                />
+              )}
+
+              {gameType === "corsi-block" && (
+                <CorsiBlockGame
+                  params={session.currentParams as CorsiBlockParams}
+                  roundKey={session.roundNumber}
+                  hintStage={hintStage}
+                  onTrialResult={handleTrialResult}
+                  onRoundComplete={session.completeRoundFromGame}
+                  onUnitProgress={session.reportUnitProgress}
+                />
+              )}
+            </>
+          )}
+
+          {/* Round intro: skip instantly, no visual indicator */}
+        </div>
+
+        {showFeedback && (
+          <FeedbackOverlay type={showFeedback} onComplete={handleFeedbackDone} />
         )}
-
-        {/* Playing phase */}
-        {session.phase === "playing" && (
-          <>
-            {gameType === "memory-match" && (
-              <CardGrid
-                key={session.roundNumber}
-                params={session.currentParams as MemoryMatchParams}
-                roundKey={session.roundNumber}
-                hintStage={hintStage}
-                onTrialResult={handleTrialResult}
-                onRoundComplete={session.completeRoundFromGame}
-                onUnitProgress={session.reportUnitProgress}
-              />
-            )}
-
-            {gameType === "sorting" && (
-              <SortingGame
-                params={session.currentParams as SortingParams}
-                roundKey={session.roundNumber}
-                hintStage={hintStage}
-                onTrialResult={handleTrialResult}
-                onRoundComplete={session.completeRoundFromGame}
-                onUnitProgress={session.reportUnitProgress}
-              />
-            )}
-
-            {gameType === "visual-search" && (
-              <VisualSearchGame
-                params={session.currentParams as VisualSearchParams}
-                roundKey={session.roundNumber}
-                hintStage={hintStage}
-                onTrialResult={handleTrialResult}
-                onRoundComplete={session.completeRoundFromGame}
-                onUnitProgress={session.reportUnitProgress}
-              />
-            )}
-
-            {gameType === "corsi-block" && (
-              <CorsiBlockGame
-                params={session.currentParams as CorsiBlockParams}
-                roundKey={session.roundNumber}
-                hintStage={hintStage}
-                onTrialResult={handleTrialResult}
-                onRoundComplete={session.completeRoundFromGame}
-                onUnitProgress={session.reportUnitProgress}
-              />
-            )}
-          </>
-        )}
-
-        {/* Round intro: skip instantly, no visual indicator */}
-      </div>
-
-      {showFeedback && (
-        <FeedbackOverlay type={showFeedback} onComplete={handleFeedbackDone} />
-      )}
+      </GameFrame>
 
       {showIntro && (
         <IntroOverlay variant={introVariant} onDismiss={handleIntroDismiss} />
       )}
-    </GameFrame>
+    </>
   );
 }
