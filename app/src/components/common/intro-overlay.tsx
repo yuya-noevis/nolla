@@ -14,6 +14,7 @@ export type IntroVariant =
 type Props = {
   variant: IntroVariant;
   onDismiss: () => void;
+  onBack?: () => void;
 };
 
 /**
@@ -21,7 +22,7 @@ type Props = {
  * Text-free. Realistic demo animation loops with hand cursor
  * showing how to play. A pulsing Start button dismisses the overlay.
  */
-export function IntroOverlay({ variant, onDismiss }: Props) {
+export function IntroOverlay({ variant, onDismiss, onBack }: Props) {
   const [leaving, setLeaving] = useState(false);
 
   const handleStart = useCallback(() => {
@@ -44,6 +45,32 @@ export function IntroOverlay({ variant, onDismiss }: Props) {
       }`}
       aria-hidden={leaving}
     >
+      {/* Back button — top-left, same style as game header */}
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="absolute z-10 transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{
+            top: "max(4px, env(safe-area-inset-top))",
+            left: "max(20px, env(safe-area-inset-left))",
+            width: "clamp(64px, 16vh, 160px)",
+            height: "clamp(64px, 16vh, 160px)",
+            background: "transparent",
+            border: "none",
+          }}
+          aria-label="Back"
+        >
+          <img
+            src="/arrow_left.webp"
+            alt=""
+            className="object-contain pointer-events-none"
+            style={{ width: "100%", height: "100%", opacity: 0.9 }}
+            draggable={false}
+          />
+        </button>
+      )}
+
       <div className="flex flex-col items-center gap-4">
         <DemoAnimation variant={variant} />
         <button
@@ -379,7 +406,7 @@ function VisualSearchDemo() {
       className="relative flex gap-3"
       style={{ width: 420, height: 230 }}
     >
-      {/* Left panel (original) */}
+      {/* Left panel (original) — also highlights the corresponding item */}
       <div
         className="flex-1 relative rounded-xl overflow-hidden"
         style={{
@@ -398,6 +425,12 @@ function VisualSearchDemo() {
             }}
           >
             <MiniShape shape={s.shape} color={s.color} size={34} />
+            {i === DIFF_IDX && (
+              <div
+                className="absolute inset-[-8px] rounded-full animate-demo-vs-circle"
+                style={{ border: "2px dashed rgba(255,255,255,0.7)" }}
+              />
+            )}
           </div>
         ))}
       </div>

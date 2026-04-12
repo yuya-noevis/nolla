@@ -509,56 +509,62 @@ body {
 }
 .animate-demo-mm-hand { animation: demo-mm-hand 5.5s ease-in-out infinite; }
 
-/* ---- Sorting demo (8s cycle: red phase 0-45%, blue phase 50-95%, reset) ---- */
-/* Item stays at top, no movement. Color alternates red→blue */
+/* ---- Sorting demo (9s cycle: red phase 0-44%, blue phase 50-94%, reset) ---- */
+/* Item stays at top. Color alternates red→blue with clear pause between */
 @keyframes demo-sort-item {
-  0%, 95%  { opacity: 1; }
-  97%      { opacity: 0; }
+  0%, 94%  { opacity: 1; }
+  96%      { opacity: 0; }
   100%     { opacity: 1; }
 }
-.animate-demo-sort-item { animation: demo-sort-item 8s ease-in-out infinite; }
+.animate-demo-sort-item { animation: demo-sort-item 9s ease-in-out infinite; }
 
 /* Item color: red for first half, blue for second half */
 @keyframes demo-sort-color {
-  0%, 40%  { fill: #E74C3C; }
-  48%, 88% { fill: #3498DB; }
+  0%, 38%  { fill: #E74C3C; }
+  48%, 86% { fill: #3498DB; }
   96%, 100% { fill: #E74C3C; }
 }
-.animate-demo-sort-color { animation: demo-sort-color 8s ease-in-out infinite; }
+.animate-demo-sort-color { animation: demo-sort-color 9s ease-in-out infinite; }
 
-/* Red box glows when red item is active (first half) */
+/* Red box: hand taps → shrink (press) → bounce up + glow (correct!) */
 @keyframes demo-sort-box1 {
-  0%, 22%  { box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
-  28%, 40% { box-shadow: 0 0 24px rgba(231,76,60,0.6), 0 0 40px rgba(231,76,60,0.25); border-width: 4px; }
-  45%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  0%, 18%  { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  20%      { transform: scale(0.9); box-shadow: 0 2px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  24%      { transform: scale(1.12); box-shadow: 0 0 30px rgba(93,187,93,0.7), 0 0 50px rgba(93,187,93,0.3); border-color: #5DBB5D; border-width: 4px; }
+  30%      { transform: scale(1.05); box-shadow: 0 0 24px rgba(93,187,93,0.5); border-color: #5DBB5D; border-width: 4px; }
+  38%      { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  44%, 100% { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
 }
-.animate-demo-sort-box1 { animation: demo-sort-box1 8s ease-in-out infinite; }
+.animate-demo-sort-box1 { animation: demo-sort-box1 9s ease-in-out infinite; }
 
-/* Blue box glows when blue item is active (second half) */
+/* Blue box: same tap → press → bounce + glow pattern */
 @keyframes demo-sort-box2 {
-  0%, 68%  { box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
-  74%, 88% { box-shadow: 0 0 24px rgba(52,152,219,0.6), 0 0 40px rgba(52,152,219,0.25); border-width: 4px; }
-  93%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  0%, 66%  { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  68%      { transform: scale(0.9); box-shadow: 0 2px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  72%      { transform: scale(1.12); box-shadow: 0 0 30px rgba(93,187,93,0.7), 0 0 50px rgba(93,187,93,0.3); border-color: #5DBB5D; border-width: 4px; }
+  78%      { transform: scale(1.05); box-shadow: 0 0 24px rgba(93,187,93,0.5); border-color: #5DBB5D; border-width: 4px; }
+  86%      { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  94%, 100% { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
 }
-.animate-demo-sort-box2 { animation: demo-sort-box2 8s ease-in-out infinite; }
+.animate-demo-sort-box2 { animation: demo-sort-box2 9s ease-in-out infinite; }
 
-/* Hand: taps red box (first half) → taps blue box (second half) */
+/* Hand: taps red box → pause → taps blue box */
 @keyframes demo-sort-hand {
   0%, 4%   { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
   10%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
-  20%      { left: 14%; top: 62%; opacity: 1;   transform: scale(0.8); }
-  26%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
-  40%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
-  44%      { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
+  18%      { left: 14%; top: 62%; opacity: 1;   transform: scale(0.8); }
+  22%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  36%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  42%      { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
   52%      { left: 42%; top: 62%; opacity: 0;   transform: scale(1); }
   56%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
   66%      { left: 42%; top: 62%; opacity: 1;   transform: scale(0.8); }
-  72%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
-  88%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
-  93%      { left: 42%; top: 62%; opacity: 0;   transform: scale(1); }
+  70%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
+  86%      { left: 42%; top: 62%; opacity: 1;   transform: scale(1); }
+  92%      { left: 42%; top: 62%; opacity: 0;   transform: scale(1); }
   100%     { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
 }
-.animate-demo-sort-hand { animation: demo-sort-hand 8s ease-in-out infinite; }
+.animate-demo-sort-hand { animation: demo-sort-hand 9s ease-in-out infinite; }
 
 /* ---- Visual Search demo (6s cycle) ---- */
 /* Dashed circle: appears first to highlight the difference (0-35%) */

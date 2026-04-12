@@ -241,7 +241,7 @@ export function GameSession({
       </GameFrame>
 
       {showIntro && (
-        <IntroOverlay variant={introVariant} onDismiss={handleIntroDismiss} />
+        <IntroOverlay variant={introVariant} onDismiss={handleIntroDismiss} onBack={() => router.push("/home")} />
       )}
     </>
   );
