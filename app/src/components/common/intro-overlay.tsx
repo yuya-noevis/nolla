@@ -90,7 +90,7 @@ const DemoAnimation = memo(function DemoAnimation({
 });
 
 /* ================================================================
-   Shared: Hand Cursor (pointing finger)
+   Shared: Hand Cursor (pointing finger image)
    ================================================================ */
 function HandCursor({
   className,
@@ -100,31 +100,20 @@ function HandCursor({
   style?: React.CSSProperties;
 }) {
   return (
-    <svg
-      viewBox="0 0 36 48"
-      width="30"
-      height="40"
-      className={className}
+    <img
+      src="/warmup/hand-cursor.webp"
+      alt=""
+      width={40}
+      height={40}
+      draggable={false}
       aria-hidden="true"
-      focusable="false"
-      style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))", ...style }}
-    >
-      {/* Index finger */}
-      <rect x="12" y="0" width="12" height="24" rx="6" fill="white" />
-      {/* Palm + folded fingers */}
-      <rect x="4" y="19" width="28" height="16" rx="6" fill="white" />
-      {/* Thumb */}
-      <ellipse cx="6" cy="22" rx="6" ry="5" fill="white" />
-      {/* Fingernail hint */}
-      <rect
-        x="14"
-        y="2"
-        width="8"
-        height="6"
-        rx="4"
-        fill="rgba(255,210,190,0.4)"
-      />
-    </svg>
+      className={className}
+      style={{
+        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
+        pointerEvents: "none",
+        ...style,
+      }}
+    />
   );
 }
 
