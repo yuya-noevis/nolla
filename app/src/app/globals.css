@@ -526,25 +526,23 @@ body {
 }
 .animate-demo-sort-color { animation: demo-sort-color 9s ease-in-out infinite; }
 
-/* Red box: hand taps → shrink (press) → bounce up + glow (correct!) */
+/* Red box: press in → quick green flash (correct!) → back to normal fast */
 @keyframes demo-sort-box1 {
-  0%, 18%  { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
-  20%      { transform: scale(0.9); box-shadow: 0 2px 0 rgba(0,0,0,0.2); border-width: 3px; }
-  24%      { transform: scale(1.12); box-shadow: 0 0 30px rgba(93,187,93,0.7), 0 0 50px rgba(93,187,93,0.3); border-color: #5DBB5D; border-width: 4px; }
-  30%      { transform: scale(1.05); box-shadow: 0 0 24px rgba(93,187,93,0.5); border-color: #5DBB5D; border-width: 4px; }
-  38%      { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
-  44%, 100% { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  0%, 18%  { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.25); }
+  20%      { transform: scale(0.9); box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+  23%      { transform: scale(1.1); box-shadow: 0 0 28px rgba(93,187,93,0.8); border-color: #5DBB5D; }
+  28%      { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.25); border-color: #E74C3C; }
+  34%, 100% { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.25); }
 }
 .animate-demo-sort-box1 { animation: demo-sort-box1 9s ease-in-out infinite; }
 
-/* Blue box: same tap → press → bounce + glow pattern */
+/* Blue box: same press → quick green flash → back to normal */
 @keyframes demo-sort-box2 {
-  0%, 66%  { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
-  68%      { transform: scale(0.9); box-shadow: 0 2px 0 rgba(0,0,0,0.2); border-width: 3px; }
-  72%      { transform: scale(1.12); box-shadow: 0 0 30px rgba(93,187,93,0.7), 0 0 50px rgba(93,187,93,0.3); border-color: #5DBB5D; border-width: 4px; }
-  78%      { transform: scale(1.05); box-shadow: 0 0 24px rgba(93,187,93,0.5); border-color: #5DBB5D; border-width: 4px; }
-  86%      { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
-  94%, 100% { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
+  0%, 66%  { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.25); }
+  68%      { transform: scale(0.9); box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+  71%      { transform: scale(1.1); box-shadow: 0 0 28px rgba(93,187,93,0.8); border-color: #5DBB5D; }
+  76%      { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.25); border-color: #3498DB; }
+  82%, 100% { transform: scale(1); box-shadow: 0 4px 0 rgba(0,0,0,0.25); }
 }
 .animate-demo-sort-box2 { animation: demo-sort-box2 9s ease-in-out infinite; }
 

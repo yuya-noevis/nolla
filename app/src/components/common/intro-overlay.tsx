@@ -350,12 +350,12 @@ function SortingDemo() {
         </svg>
       </div>
 
-      {/* Category boxes */}
+      {/* Category boxes — filled with their color */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-around px-6">
         {boxColors.map((color, i) => (
           <div
             key={i}
-            className={`flex items-center justify-center rounded-xl ${
+            className={`rounded-xl ${
               i === 0
                 ? "animate-demo-sort-box1"
                 : i === 1
@@ -365,15 +365,12 @@ function SortingDemo() {
             style={{
               width: 90,
               height: 90,
-              background: "rgba(255,255,255,0.12)",
+              background: color,
               border: `3px solid ${color}`,
-              boxShadow: "0 4px 0 rgba(0,0,0,0.2)",
+              boxShadow: "0 4px 0 rgba(0,0,0,0.25), inset 0 -4px 8px rgba(0,0,0,0.15)",
+              opacity: 0.85,
             }}
-          >
-            <svg viewBox="0 0 40 40" width="32" height="32" aria-hidden="true" focusable="false">
-              <circle cx="20" cy="20" r="14" fill={color} opacity="0.45" />
-            </svg>
-          </div>
+          />
         ))}
       </div>
 
