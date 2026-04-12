@@ -451,74 +451,160 @@ body {
   animation: demo-hand 3.2s ease-in-out infinite;
 }
 
-/* Memory match demo: two cards flip → matched glow */
-@keyframes demo-card-left {
-  0%, 20%  { transform: rotateY(0deg); filter: brightness(1); }
-  35%      { transform: rotateY(0deg); filter: brightness(1.4); }
-  100%     { transform: rotateY(0deg); filter: brightness(1); }
+/* ---- Memory Match demo ---- */
+/* Card 1 border: normal → green glow (match) → reset */
+@keyframes demo-mm-card1 {
+  0%, 55%  { border-color: rgba(120, 90, 180, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  60%, 82% { border-color: #5DBB5D; box-shadow: 0 0 20px rgba(93,187,93,0.4); }
+  88%, 100% { border-color: rgba(120, 90, 180, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 }
-.animate-demo-card-left {
-  animation: demo-card-left 3s ease-in-out infinite;
+@keyframes demo-mm-card2 {
+  0%, 55%  { border-color: rgba(120, 90, 180, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  60%, 82% { border-color: #5DBB5D; box-shadow: 0 0 20px rgba(93,187,93,0.4); }
+  88%, 100% { border-color: rgba(120, 90, 180, 0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 }
-@keyframes demo-card-right {
-  0%, 45%  { filter: brightness(1); }
-  60%      { filter: brightness(1.4); }
-  100%     { filter: brightness(1); }
-}
-.animate-demo-card-right {
-  animation: demo-card-right 3s ease-in-out infinite;
-}
+.animate-demo-mm-card1 { animation: demo-mm-card1 5.5s ease-in-out infinite; }
+.animate-demo-mm-card2 { animation: demo-mm-card2 5.5s ease-in-out infinite; }
 
-/* Sorting demo: item falls to correct box */
+/* Card back visibility (star) */
+@keyframes demo-mm-back1 {
+  0%, 16%  { opacity: 1; }
+  20%, 85% { opacity: 0; }
+  90%, 100% { opacity: 1; }
+}
+@keyframes demo-mm-back2 {
+  0%, 38%  { opacity: 1; }
+  42%, 85% { opacity: 0; }
+  90%, 100% { opacity: 1; }
+}
+.animate-demo-mm-back1 { animation: demo-mm-back1 5.5s ease-in-out infinite; }
+.animate-demo-mm-back2 { animation: demo-mm-back2 5.5s ease-in-out infinite; }
+
+/* Card front visibility (emoji) */
+@keyframes demo-mm-front1 {
+  0%, 16%  { opacity: 0; }
+  20%, 85% { opacity: 1; }
+  90%, 100% { opacity: 0; }
+}
+@keyframes demo-mm-front2 {
+  0%, 38%  { opacity: 0; }
+  42%, 85% { opacity: 1; }
+  90%, 100% { opacity: 0; }
+}
+.animate-demo-mm-front1 { animation: demo-mm-front1 5.5s ease-in-out infinite; }
+.animate-demo-mm-front2 { animation: demo-mm-front2 5.5s ease-in-out infinite; }
+
+/* Hand cursor: moves from card1 → card2, taps each */
+@keyframes demo-mm-hand {
+  0%, 4%   { left: 38%; top: 8%;  opacity: 0;   transform: scale(1); }
+  8%       { left: 38%; top: 8%;  opacity: 1;   transform: scale(1); }
+  14%      { left: 38%; top: 8%;  opacity: 1;   transform: scale(0.8); }
+  18%      { left: 38%; top: 8%;  opacity: 1;   transform: scale(1); }
+  30%      { left: 38%; top: 56%; opacity: 1;   transform: scale(1); }
+  36%      { left: 38%; top: 56%; opacity: 1;   transform: scale(0.8); }
+  40%      { left: 38%; top: 56%; opacity: 1;   transform: scale(1); }
+  78%      { left: 38%; top: 56%; opacity: 1;   transform: scale(1); }
+  86%      { left: 38%; top: 56%; opacity: 0;   transform: scale(1); }
+  100%     { left: 38%; top: 8%;  opacity: 0;   transform: scale(1); }
+}
+.animate-demo-mm-hand { animation: demo-mm-hand 5.5s ease-in-out infinite; }
+
+/* ---- Sorting demo ---- */
+/* Item: stays at top, then swoops to correct box, disappears, reappears */
 @keyframes demo-sort-item {
-  0%   { transform: translate(-50%, 0) scale(1); opacity: 1; }
-  40%  { transform: translate(-50%, 0) scale(1); opacity: 1; }
-  70%  { transform: translate(-50%, 110px) scale(0.6); opacity: 1; }
-  80%  { transform: translate(-50%, 110px) scale(0); opacity: 0; }
-  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  0%, 38%  { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+  52%      { transform: translateX(-190%) translateY(140px) scale(0.5); opacity: 0.8; }
+  58%, 88% { transform: translateX(-190%) translateY(140px) scale(0.3); opacity: 0; }
+  95%, 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
 }
-.animate-demo-sort-item {
-  animation: demo-sort-item 3s ease-in-out infinite;
-}
-@keyframes demo-sort-target {
-  0%, 65%  { filter: brightness(1); }
-  75%      { filter: brightness(1.6); }
-  100%     { filter: brightness(1); }
-}
-.animate-demo-sort-target {
-  animation: demo-sort-target 3s ease-in-out infinite;
-}
+.animate-demo-sort-item { animation: demo-sort-item 5.5s ease-in-out infinite; }
 
-/* Visual search demo: the unique target pulses */
-@keyframes demo-search-target {
-  0%, 40% { transform: scale(1); filter: brightness(1); }
-  60%     { transform: scale(1.2); filter: brightness(1.5); }
-  80%     { transform: scale(1); filter: brightness(1.2); }
-  100%    { transform: scale(1); filter: brightness(1); }
+/* Correct box glows */
+@keyframes demo-sort-box {
+  0%, 48%  { box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+  55%, 82% { box-shadow: 0 0 24px rgba(231,76,60,0.6), 0 0 40px rgba(231,76,60,0.25); border-width: 4px; }
+  90%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.2); border-width: 3px; }
 }
-.animate-demo-search-target {
-  animation: demo-search-target 3s ease-in-out infinite;
-}
+.animate-demo-sort-box { animation: demo-sort-box 5.5s ease-in-out infinite; }
 
-/* Corsi demo: 3 blocks light in sequence */
-@keyframes demo-corsi-1 {
-  0%, 10%   { background: rgba(255, 215, 94, 0); }
-  15%, 25%  { background: rgba(255, 215, 94, 0.8); }
-  30%, 100% { background: rgba(255, 215, 94, 0); }
+/* Hand: appears near item, moves to correct box, taps */
+@keyframes demo-sort-hand {
+  0%, 6%   { left: 52%; top: 26%; opacity: 0;   transform: scale(1); }
+  12%      { left: 52%; top: 26%; opacity: 1;   transform: scale(1); }
+  32%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  38%      { left: 14%; top: 62%; opacity: 1;   transform: scale(0.8); }
+  44%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  78%      { left: 14%; top: 62%; opacity: 1;   transform: scale(1); }
+  86%      { left: 14%; top: 62%; opacity: 0;   transform: scale(1); }
+  100%     { left: 52%; top: 26%; opacity: 0;   transform: scale(1); }
 }
-@keyframes demo-corsi-2 {
-  0%, 30%   { background: rgba(255, 215, 94, 0); }
-  35%, 45%  { background: rgba(255, 215, 94, 0.8); }
-  50%, 100% { background: rgba(255, 215, 94, 0); }
+.animate-demo-sort-hand { animation: demo-sort-hand 5.5s ease-in-out infinite; }
+
+/* ---- Visual Search demo ---- */
+/* Difference target: gets a green ring when hand taps */
+@keyframes demo-vs-target {
+  0%, 48%  { outline: 3px solid transparent; outline-offset: 3px; filter: brightness(1); }
+  55%, 80% { outline: 3px solid #5DBB5D; outline-offset: 4px; filter: brightness(1.3); }
+  88%, 100% { outline: 3px solid transparent; outline-offset: 3px; filter: brightness(1); }
 }
-@keyframes demo-corsi-3 {
-  0%, 50%   { background: rgba(255, 215, 94, 0); }
-  55%, 65%  { background: rgba(255, 215, 94, 0.8); }
-  70%, 100% { background: rgba(255, 215, 94, 0); }
+.animate-demo-vs-target { animation: demo-vs-target 5s ease-in-out infinite; }
+
+/* Hand: enters from right side, moves to the difference, taps */
+@keyframes demo-vs-hand {
+  0%, 8%   { right: 42%; top: 15%; opacity: 0;   transform: scale(1); }
+  18%      { right: 42%; top: 15%; opacity: 1;   transform: scale(1); }
+  42%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
+  48%      { right: 22%; top: 48%; opacity: 1;   transform: scale(0.8); }
+  54%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
+  78%      { right: 22%; top: 48%; opacity: 1;   transform: scale(1); }
+  88%      { right: 22%; top: 48%; opacity: 0;   transform: scale(1); }
+  100%     { right: 42%; top: 15%; opacity: 0;   transform: scale(1); }
 }
-.animate-demo-corsi-1 { animation: demo-corsi-1 3.5s ease-in-out infinite; }
-.animate-demo-corsi-2 { animation: demo-corsi-2 3.5s ease-in-out infinite; }
-.animate-demo-corsi-3 { animation: demo-corsi-3 3.5s ease-in-out infinite; }
+.animate-demo-vs-hand { animation: demo-vs-hand 5s ease-in-out infinite; }
+
+/* ---- Corsi demo ---- */
+/* Blocks light up: watching phase (0-45%), then input phase with hand (48-85%) */
+@keyframes demo-corsi-seq1 {
+  0%, 6%   { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+  9%, 16%  { background: #FFD700; box-shadow: 0 0 24px rgba(218,165,32,0.7); }
+  19%, 50% { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+  54%, 60% { background: #FFD700; box-shadow: 0 0 24px rgba(218,165,32,0.7); }
+  64%, 100% { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+}
+@keyframes demo-corsi-seq2 {
+  0%, 19%  { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+  22%, 29% { background: #FFD700; box-shadow: 0 0 24px rgba(218,165,32,0.7); }
+  32%, 64% { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+  67%, 73% { background: #FFD700; box-shadow: 0 0 24px rgba(218,165,32,0.7); }
+  76%, 100% { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+}
+@keyframes demo-corsi-seq3 {
+  0%, 32%  { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+  35%, 42% { background: #FFD700; box-shadow: 0 0 24px rgba(218,165,32,0.7); }
+  45%, 76% { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+  79%, 85% { background: #FFD700; box-shadow: 0 0 24px rgba(218,165,32,0.7); }
+  88%, 100% { background: linear-gradient(135deg, #4FC3F7, #0288D1); box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 0 12px rgba(79,195,247,0.4); }
+}
+.animate-demo-corsi-seq1 { animation: demo-corsi-seq1 7s ease-in-out infinite; }
+.animate-demo-corsi-seq2 { animation: demo-corsi-seq2 7s ease-in-out infinite; }
+.animate-demo-corsi-seq3 { animation: demo-corsi-seq3 7s ease-in-out infinite; }
+
+/* Hand: appears after watching, taps blocks 1→2→3 on diagonal */
+@keyframes demo-corsi-hand {
+  0%, 48%  { left: 8%;  top: 4%;  opacity: 0;   transform: scale(1); }
+  50%      { left: 8%;  top: 4%;  opacity: 1;   transform: scale(1); }
+  53%      { left: 8%;  top: 4%;  opacity: 1;   transform: scale(0.8); }
+  56%      { left: 8%;  top: 4%;  opacity: 1;   transform: scale(1); }
+  63%      { left: 38%; top: 38%; opacity: 1;   transform: scale(1); }
+  66%      { left: 38%; top: 38%; opacity: 1;   transform: scale(0.8); }
+  69%      { left: 38%; top: 38%; opacity: 1;   transform: scale(1); }
+  75%      { left: 68%; top: 70%; opacity: 1;   transform: scale(1); }
+  78%      { left: 68%; top: 70%; opacity: 1;   transform: scale(0.8); }
+  81%      { left: 68%; top: 70%; opacity: 1;   transform: scale(1); }
+  90%      { left: 68%; top: 70%; opacity: 0;   transform: scale(1); }
+  100%     { left: 8%;  top: 4%;  opacity: 0;   transform: scale(1); }
+}
+.animate-demo-corsi-hand { animation: demo-corsi-hand 7s ease-in-out infinite; }
 
 /* ==========================================================================
    Warmup Page Animations
