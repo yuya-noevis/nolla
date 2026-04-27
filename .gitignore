@@ -28,3 +28,8 @@ Thumbs.db
 .playwright-mcp/
 *.png
 .claude/settings.local.json
+
+# 機密・一時ファイル（GitHubに上げない）
+Nolla プログラム応募/
+home_*.jpeg
+REVIEW_REQUEST.md
