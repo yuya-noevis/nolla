@@ -2,9 +2,9 @@
 
 ## プロジェクト概要
 
-認知機能に課題のある子ども（3〜18歳）向けの発達支援テクノロジー事業。ASD・ADHD・LD・知的障害・ダウン症・グレーゾーン・境界知能が対象。グローバル約4億人、国内約300万人の市場。
+ニューロダイバージェントキッズ（知的・発達に課題のある子ども、3〜18歳）向けのインタラクティブエンタメプラットフォーム事業。ASD・ADHD・LD・知的障害・ダウン症・グレーゾーン・境界知能が対象。グローバル約4億人、国内約300万人の市場。
 
-**コアミッション**: 家庭という最大の生活時間に届く、スケーラブルで効果的な発達支援をテクノロジーで実現する。
+**コアミッション**: 家庭という最大の生活時間に届く、スケーラブルで効果的な成長伴走をテクノロジーで実現する。
 
 **フェーズ**: プレMVP。課題・ビジネスモデルは確定済み。ソリューション・プロダクト仕様は検討中（インタビュー結果を踏まえて具体化予定）。
 
@@ -52,6 +52,7 @@ nolla/
 - **Planモードを基本とする**: 3ステップ以上 or アーキテクチャに関わるタスクはPlanモードで開始
 - **サブエージェント活用**: リサーチ・調査・並列分析はサブエージェントに任せ、メインコンテキストをクリーンに保つ
 - **完了前に必ず検証**: 動作・品質を確認するまでタスクを完了としない
+- **worktree使用禁止（CRITICAL）**: サブエージェント起動時に `isolation: "worktree"` を指定するな。Nollaはソロ開発で並列worktreeのメリットがなく、過去に未コミット作業がworktreeに孤立して `nolla_brand_concept_v1.md`（正典ファイル）が main から消失する事故が発生した。必ずメインディレクトリで実行すること。並列実行が必要な場合も同一ディレクトリで複数Agent起動で対応する。
 
 ### アウトプットのルール
 - 新しい生成物は `outputs/` に配置する
@@ -63,41 +64,20 @@ nolla/
 - 根本原因を見つける：一時的な修正は避ける
 - エレガントさを追求しつつ過剰設計しない
 
-## コード品質（開発開始後に適用）
+## コード品質・テスト・Git・パターン（reference, do not embed）
 
-### Critical Rules
-- ファイルサイズ: 200-400行標準、800行絶対上限
-- 関数サイズ: 50行以内
-- ネスト深度: 4レベル以内
-- console.log はプロダクションコードに残さない
-- コード・コメントに絵文字を使わない
+詳細は `.claude/rules/common/` 配下の各ファイルを参照（プロジェクト指示として自動ロード済み）:
 
-### イミュータブル原則
-WRONG: obj.field = value / arr.push(item)
-CORRECT: { ...obj, field: value } / [...arr, item]
-
-### エラーハンドリング
-- 全レベルで明示的にエラーを処理する
-- UIはユーザーフレンドリーなメッセージ、サーバーは詳細ログ
-- 空のcatch絶対禁止
-- 外部データを絶対に信頼しない
-
-### セキュリティ
-- シークレット・APIキーをソースコードにハードコードしない
-- 環境変数は .env.local に保存
-- SQLクエリは必ずパラメータ化
-- ユーザー入力は必ずサニタイズ
-
-## テスト戦略
-- TDD必須: コードより先にテストを書く（RED → GREEN → REFACTOR）
-- カバレッジ80%以上を常に維持
-
-## Git ワークフロー
-Conventional Commits: feat:, fix:, refactor:, docs:, test:, chore:, perf:
-main への直接pushは禁止、必ずPR経由
-
-## APIレスポンス統一形式
-type ApiResponse<T> = { success: true; data: T } | { success: false; error: string; code?: string }
+- **コード品質・イミュータブル原則・ファイル組織** → `.claude/rules/common/coding-style.md`
+- **セキュリティ（シークレット・SQLi・XSS）** → `.claude/rules/common/security.md`
+- **テスト戦略・TDDサイクル・カバレッジ80%** → `.claude/rules/common/testing.md`
+- **Gitワークフロー・Conventional Commits・PR運用** → `.claude/rules/common/git-workflow.md`
+- **APIレスポンス形式・Repository・エラーハンドリング** → `.claude/rules/common/patterns.md`
+- **実行前チェック・開発QAサイクル・実機検証** → `.claude/rules/common/before-execution.md`
+- **Nolla MVP固有のUI/UX設計境界** → `.claude/rules/common/nolla-mvp-design.md`
+- **進捗管理（ロードマップ運用）** → `.claude/rules/common/progress-tracking.md`
+- **エージェント運用** → `.claude/rules/common/agents.md`
+- **パフォーマンス（モデル選択・コンテキスト管理）** → `.claude/rules/common/performance.md`
 
 ## コミュニケーション
 

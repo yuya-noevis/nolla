@@ -28,6 +28,7 @@ Thumbs.db
 .playwright-mcp/
 *.png
 .claude/settings.local.json
+.claude/.pending-review
 
 # 機密・一時ファイル（GitHubに上げない）
 Nolla プログラム応募/

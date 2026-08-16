@@ -1,6 +1,6 @@
 ---
 STATUS: ACTIVE
-LAST_UPDATED: 2026-04-10
+LAST_UPDATED: 2026-05-07
 PURPOSE: 開発ロードマップ・進捗管理
 RELATED: nolla_mvp_design_spec_v3.md,nolla_ia_design_v3.md,nolla_nci_algorithm_design.md
 ---
@@ -296,6 +296,36 @@ Phase 1のコア実装（4ゲーム+報酬+親画面）は完了。Phase 2はコ
 - Phase 1-J（Galaxy惑星テーマのビジュアル反映）が完了していること
 - Phase 1-H/1-I（AAC/母音ミニのUI）が完了していること
 
+### Phase 2 開発フロー: Multiagent Orchestration 採用方針（2026-05-07追加）
+
+Anthropicが2026-05-06に公開した Claude Managed Agents の Multiagent Orchestration を Phase 2 開発フローに導入する。Phase 1はClaude Codeの単一エージェント+サブエージェント手動起動で運用したが、Phase 2は並列度が必要なタスクが増えるため、リードエージェント+専門エージェントの構成に切り替える。
+
+**採用するエージェント構成**:
+
+| 役割 | 担当範囲 | プロンプトベース |
+|------|---------|----------------|
+| リード（CPO相当） | タスク分解・進捗統合・最終Yuya報告 | Claude Code本体 |
+| 子ども向けUX専門 | 2-A コンテンツ拡充・2-D UX磨き込み | `.claude/skills/ui-ux-pro-max` |
+| AIガードレール専門 | 2-B AI機能（P4 AI療育サポート・週次サマリー・チャット） | `outputs/nolla_ai_agent_guardrails_v1.md` 準拠 |
+| データ・分析専門 | 2-C データ連携（NCI表示・4軸相関・エクスポート） | `outputs/nolla_nci_algorithm_design.md` 準拠 |
+| ゲーム実装専門 | 2-E 追加ゲーム（ことば星・おはなし星） | `outputs/nolla_game_mechanics_design.md` 準拠 |
+| QA・検証専門 | 全タスクの /verify + Playwright実機検証 | `.claude/skills/verification-loop` |
+
+**運用ルール**:
+
+1. リードエージェントは **Outcomes ルーブリック** をタスク開始時に明文化（成果物/品質基準/検証方法の3点）
+2. 専門エージェントは並列で動かす。共有ファイルシステム（Gitワークトリー）上で作業
+3. **メモリ機能の活用**: Managed Agents Memory に各専門エージェントの「過去の判断ログ」を蓄積し、セッション間で学習を継続させる（楽天事例で first-pass error 97%減）
+4. Webhookで各エージェントの完了通知を Telegram に流し、Yuyaが介入不要な範囲で進捗把握できるようにする
+5. キャッシュ破壊を避けるため、セッション中のツール追加/削除・モデル切替は禁止（[Prompt caching is everything](https://claude.com/blog/lessons-from-building-claude-code-prompt-caching-is-everything) 準拠）
+
+**移行タイミング**:
+
+- Phase 1-H/1-I のUI完了後、2-A着手と同時に切替
+- Yuyaが先に Outcomes ルーブリック運用を `teams/executive/shared/weekly_review.md` で習得してから移行（運用感覚の獲得が前提）
+
+**参考**: [New in Claude Managed Agents](https://claude.com/blog/new-in-claude-managed-agents) / [Built-in memory for Claude Managed Agents](https://claude.com/blog/claude-managed-agents-memory)
+
 ### 2-A. コンテンツ拡充
 
 | # | タスク | 状態 | 備考 |
@@ -404,4 +434,5 @@ Phase 1のコア実装（4ゲーム+報酬+親画面）は完了。Phase 2はコ
 | 2026-04-10 | 1-J Galaxy惑星テーマ実装反映DONE | globals.css(5レイヤー宇宙カラー+btn-mc Galaxy化+parent-screen override)、planets.ts新規(Planet型+4惑星定義+旧buildings.ts re-export互換)、carousel.tsx(PlanetVisual球体+アトモスフィア+星フィールド+ネビュラ雲+ワープ遷移)、game-frame.tsx(radial-gradientネビュラ+星+惑星地面+湾曲地平線)、splash/onboarding/room-tab背景Galaxy化、(parent)/layout parent-screenクラス。ビルド成功+521テスト全パス |
 | 2026-04-10 | 設計ドキュメントGalaxy移行+Phase 2分解 | design_direction/color_regulation/stage_bg_composition_rulesをMario Galaxy惑星テーマに全面改訂。v4d_building_design_rulesを_archive/移動。INDEX.md+CLAUDE.md参照先更新。Phase 2詳細タスク分解(2-A〜2-E: コンテンツ拡充/AI機能/データ連携/UX磨き込み/追加ゲーム)。Phase 1-J(Galaxy実装反映)タスク8件追加 |
 | 2026-04-11 | 1-K ウォームアップ+チュートリアル+SFX基盤 DONE | nolla_warmup_and_tutorial_design.md(設計書)、lib/feedback/sfx.ts+haptic.ts(OFF切替+poolキャッシュ+35新規テスト)、lib/warmup/constellations.ts(12種プリセット+pickConstellation+addToRecent)、components/common/intro-overlay.tsx(5バリアント、Startボタンのみ有効、脈動SVG星)、app/warmup/(専用ルート+WarmupClient+paused制御)、components/warmup/warmup-game.tsx(DDM仕様維持+星座吸い込み演出+完成時3秒表示)、carousel.tsxから MotorBaselineMeasurement 撤去+/warmup誘導、4ゲーム各game-session.tsxへ IntroOverlay 組込+正解時SFX/Haptic発火、globals.css intro/warmup/constellation用アニメ追加。Playwright実機検証(Start離脱→target表示→タップで吸い込み)。556テスト全パス、ビルド成功 |
+| 2026-05-07 | Phase 2 Multiagent Orchestration 採用方針追加 | Anthropic Managed Agents新機能(2026-05-06)を踏まえ、Phase 2開発フローを単一→マルチエージェント並列に切替。リード+5専門エージェント構成、Outcomesルーブリック必須、Managed Agents Memoryで学習継続、Webhook通知運用を明記 |
 | 2026-04-07 | 設計ルール仕分け | `nolla_design_rules_asd_research.md`を`_archive/`へ移動(現運用と矛盾する旧厳格ルール多数)、`.claude/rules/common/nolla-mvp-design.md`の「絶対禁止事項」を「設計境界(必ず守る)+運用目安(状況で判断)」の2階層に再構成、白背景/6個以上情報/100%ゲージを緩和、蛍光色表現を「彩度の高い色は小面積・短時間アクセントに限定」に変更、`nolla_game_implementation_guide.md`も同様に再構成、INDEX.mdから旧ファイル削除 |
